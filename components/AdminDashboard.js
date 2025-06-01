@@ -1,0 +1,992 @@
+import { useState, useEffect } from 'react';
+
+const AdminDashboard = ({ token, onLogout }) => {
+    const [activeTab, setActiveTab] = useState('packages');
+    const [packages, setPackages] = useState([]);
+    const [categories, setCategories] = useState([]);
+    const [allCategories, setAllCategories] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [showForm, setShowForm] = useState(false);
+    const [editingItem, setEditingItem] = useState(null);
+    const [formData, setFormData] = useState({});
+
+    // Debug function to check props
+    useEffect(() => {
+        console.log('AdminDashboard props:', {
+            token: token ? `${token.substring(0, 20)}...` : 'none',
+            onLogout: typeof onLogout
+        });
+    }, [token, onLogout]);
+
+    // API headers with proper authorization
+    const getHeaders = () => {
+        const headers = {
+            'Content-Type': 'application/json'
+        };
+
+        if (token && token !== 'undefined' && token.trim() !== '') {
+            headers['Authorization'] = `Bearer ${token}`;
+            console.log('Adding Authorization header:', `Bearer ${token.substring(0, 20)}...`);
+        } else {
+            console.warn('No valid token available for request');
+        }
+
+        return headers;
+    };
+
+    // Enhanced fetch function with better error handling
+    const fetchWithAuth = async (url, options = {}) => {
+        try {
+            const headers = getHeaders();
+            console.log('Making request to:', url, 'with headers:', Object.keys(headers));
+
+            const response = await fetch(url, {
+                ...options,
+                headers: {
+                    ...headers,
+                    ...options.headers
+                }
+            });
+
+            console.log('Response status:', response.status);
+
+            if (response.status === 401) {
+                console.error('Authentication error - logging out');
+                alert('Session expired. Please login again.');
+
+                if (typeof onLogout === 'function') {
+                    onLogout();
+                } else {
+                    console.error('onLogout is not a function:', typeof onLogout);
+                    if (typeof window !== 'undefined') {
+                        localStorage.removeItem('adminToken');
+                        window.location.href = '/admin/login';
+                    }
+                }
+                return null;
+            }
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+            }
+
+            return response;
+        } catch (error) {
+            console.error('Fetch error:', error);
+            throw error;
+        }
+    };
+
+    // Fetch categories for dropdown
+    const fetchAllCategories = async () => {
+        try {
+            const response = await fetchWithAuth('/api/admin/categories');
+            if (response) {
+                const data = await response.json();
+                setAllCategories(data.categories || []);
+            }
+        } catch (error) {
+            console.error('Fetch categories error:', error);
+            alert('Failed to fetch categories');
+        }
+    };
+
+    // Fetch data based on active tab
+    useEffect(() => {
+        if (token) {
+            fetchData();
+            if (activeTab === 'packages') {
+                fetchAllCategories();
+            }
+        }
+    }, [activeTab, token]);
+
+    const fetchData = async () => {
+        if (!token) {
+            console.warn('No token available, skipping fetch');
+            return;
+        }
+
+        setLoading(true);
+        try {
+            const endpoint = activeTab === 'packages' ? '/api/admin/packages' : '/api/admin/categories';
+            const response = await fetchWithAuth(endpoint);
+
+            if (response) {
+                const data = await response.json();
+                if (activeTab === 'packages') {
+                    setPackages(data.packages || []);
+                } else {
+                    setCategories(data.categories || []);
+                }
+            }
+        } catch (error) {
+            console.error('Fetch error:', error);
+            alert('Failed to fetch data');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Handle form submission - UPDATED to properly handle categoryId
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        if (!token) {
+            alert('No authentication token available. Please login again.');
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            const endpoint = activeTab === 'packages' ? '/api/admin/packages' : '/api/admin/categories';
+            const method = editingItem ? 'PUT' : 'POST';
+            const url = editingItem ? `${endpoint}?id=${editingItem._id}` : endpoint;
+
+            // Process form data - keep categoryId as ObjectId reference
+            let processedFormData = { ...formData };
+
+            if (activeTab === 'packages') {
+                // Keep categoryId as ObjectId string for database reference
+                // The API will handle subcategory processing
+                console.log('Submitting package with categoryId:', processedFormData.categoryId);
+                console.log('Submitting package with subcategoryId:', processedFormData.subcategoryId);
+            }
+
+            console.log('Submitting form:', { method, url, processedFormData });
+
+            const response = await fetchWithAuth(url, {
+                method,
+                body: JSON.stringify(processedFormData)
+            });
+
+            if (response) {
+                alert(`${activeTab.slice(0, -1)} ${editingItem ? 'updated' : 'created'} successfully!`);
+                setShowForm(false);
+                setEditingItem(null);
+                setFormData({});
+                fetchData();
+            }
+        } catch (error) {
+            console.error('Submit error:', error);
+            alert(`Failed to save ${activeTab.slice(0, -1)}: ${error.message}`);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Handle delete
+    const handleDelete = async (id) => {
+        if (!confirm('Are you sure you want to delete this item?')) return;
+
+        if (!token) {
+            alert('No authentication token available. Please login again.');
+            return;
+        }
+
+        try {
+            const endpoint = activeTab === 'packages' ? '/api/admin/packages' : '/api/admin/categories';
+            const response = await fetchWithAuth(`${endpoint}?id=${id}`, {
+                method: 'DELETE'
+            });
+
+            if (response) {
+                alert('Item deleted successfully!');
+                fetchData();
+            }
+        } catch (error) {
+            console.error('Delete error:', error);
+            alert('Failed to delete item');
+        }
+    };
+
+    // Handle edit - UPDATED to properly set form data
+    const handleEdit = (item) => {
+        let editFormData = { ...item };
+
+        // For packages, we need to reconstruct the form data properly
+        if (activeTab === 'packages') {
+            console.log('Editing package:', {
+                id: item._id,
+                categoryId: item.categoryId,
+                subcategoryIndex: item.subcategoryIndex
+            });
+
+            // If package has subcategoryIndex, we need to reconstruct subcategoryId
+            if (item.categoryId && item.subcategoryIndex !== undefined && item.subcategoryIndex !== null) {
+                editFormData.subcategoryId = `${item.categoryId}-${item.subcategoryIndex}`;
+                console.log('Reconstructed subcategoryId:', editFormData.subcategoryId);
+            } else {
+                // Ensure subcategoryId is empty if no subcategory
+                editFormData.subcategoryId = '';
+            }
+        }
+
+        setEditingItem(item);
+        setFormData(editFormData);
+        setShowForm(true);
+    };
+
+    // Reset form
+    const resetForm = () => {
+        setShowForm(false);
+        setEditingItem(null);
+        setFormData({});
+    };
+
+    // Get category name by ID - UPDATED to work with populated data
+    const getCategoryName = (item) => {
+        if (activeTab === 'packages') {
+            // Find category by ID
+            const category = allCategories.find(cat => cat._id === item.categoryId);
+            if (category) {
+                // If has subcategory index, get subcategory name
+                if (item.subcategoryIndex !== undefined && category.subcategories && category.subcategories[item.subcategoryIndex]) {
+                    return `${category.name} > ${category.subcategories[item.subcategoryIndex].name}`;
+                }
+                return category.name;
+            }
+        }
+        return 'No Category';
+    };
+
+    // Show message if no token
+    if (!token || token === 'undefined') {
+        return (
+            <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+                <div className="bg-white p-8 rounded-lg shadow-md">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-4">Authentication Required</h2>
+                    <p className="text-gray-600 mb-4">Please login to access the admin dashboard.</p>
+                    <button
+                        onClick={() => {
+                            if (typeof onLogout === 'function') {
+                                onLogout();
+                            } else {
+                                window.location.href = '/admin/login';
+                            }
+                        }}
+                        className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+                    >
+                        Go to Login
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="min-h-screen bg-gray-100 p-6">
+            <div className="max-w-7xl mx-auto">
+                {/* Header with logout button */}
+                <div className="flex justify-between items-center mb-8">
+                    <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+                    <button
+                        onClick={() => {
+                            if (typeof onLogout === 'function') {
+                                onLogout();
+                            } else {
+                                console.error('onLogout not available');
+                                if (typeof window !== 'undefined') {
+                                    localStorage.removeItem('adminToken');
+                                    window.location.href = '/admin/login';
+                                }
+                            }
+                        }}
+                        className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
+                    >
+                        Logout
+                    </button>
+                </div>
+
+                {/* Tab Navigation */}
+                <div className="bg-white rounded-lg shadow mb-6">
+                    <div className="border-b border-gray-200">
+                        <nav className="-mb-px flex space-x-8 px-6">
+                            <button
+                                onClick={() => setActiveTab('packages')}
+                                className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'packages'
+                                    ? 'border-blue-500 text-blue-600'
+                                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                                    }`}
+                            >
+                                Packages
+                            </button>
+                            <button
+                                onClick={() => setActiveTab('categories')}
+                                className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'categories'
+                                    ? 'border-blue-500 text-blue-600'
+                                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                                    }`}
+                            >
+                                Categories
+                            </button>
+                        </nav>
+                    </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-xl font-semibold text-gray-900 capitalize">
+                        Manage {activeTab}
+                    </h2>
+                    <button
+                        onClick={() => setShowForm(true)}
+                        className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                        Add New {activeTab.slice(0, -1)}
+                    </button>
+                </div>
+
+                {/* Loading State */}
+                {loading && (
+                    <div className="text-center py-8">
+                        <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                    </div>
+                )}
+
+                {/* Data Table */}
+                {!loading && (
+                    <div className="bg-white rounded-lg shadow overflow-hidden">
+                        <div className="overflow-x-auto">
+                            <table className="min-w-full divide-y divide-gray-200">
+                                <thead className="bg-gray-50">
+                                    <tr>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Name/Title
+                                        </th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            {activeTab === 'packages' ? 'Price' : 'Slug'}
+                                        </th>
+                                        {activeTab === 'packages' && (
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Category
+                                            </th>
+                                        )}
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Status
+                                        </th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Actions
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody className="bg-white divide-y divide-gray-200">
+                                    {(activeTab === 'packages' ? packages : categories).map((item) => (
+                                        <tr key={item._id}>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <div className="text-sm font-medium text-gray-900">
+                                                    {item.title || item.name}
+                                                </div>
+                                                {item.subtitle && (
+                                                    <div className="text-sm text-gray-500">{item.subtitle}</div>
+                                                )}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                {item.price || item.slug}
+                                            </td>
+                                            {activeTab === 'packages' && (
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                    {getCategoryName(item)}
+                                                </td>
+                                            )}
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${item.isActive
+                                                    ? 'bg-green-100 text-green-800'
+                                                    : 'bg-red-100 text-red-800'
+                                                    }`}>
+                                                    {item.isActive ? 'Active' : 'Inactive'}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                                <button
+                                                    onClick={() => handleEdit(item)}
+                                                    className="text-blue-600 hover:text-blue-900"
+                                                >
+                                                    Edit
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDelete(item._id)}
+                                                    className="text-red-600 hover:text-red-900"
+                                                >
+                                                    Delete
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                    {(activeTab === 'packages' ? packages : categories).length === 0 && (
+                                        <tr>
+                                            <td colSpan={activeTab === 'packages' ? "5" : "4"} className="px-6 py-4 text-center text-gray-500">
+                                                No {activeTab} found
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                )}
+
+                {/* Form Modal */}
+                {showForm && (
+                    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+                        <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-screen overflow-y-auto">
+                            <div className="px-6 py-4 border-b border-gray-200">
+                                <h3 className="text-lg font-medium text-gray-900">
+                                    {editingItem ? 'Edit' : 'Add New'} {activeTab.slice(0, -1)}
+                                </h3>
+                            </div>
+
+                            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                                {activeTab === 'packages' ? (
+                                    <PackageForm
+                                        formData={formData}
+                                        setFormData={setFormData}
+                                        categories={allCategories}
+                                    />
+                                ) : (
+                                    <CategoryForm formData={formData} setFormData={setFormData} />
+                                )}
+
+                                <div className="flex justify-end space-x-3 pt-4">
+                                    <button
+                                        type="button"
+                                        onClick={resetForm}
+                                        className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+                                        disabled={loading}
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        disabled={loading}
+                                        className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50"
+                                    >
+                                        {loading ? 'Saving...' : 'Save'}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+};
+
+// Package Form Component - UPDATED to properly handle categoryId
+const PackageForm = ({ formData, setFormData, categories }) => {
+    const handleChange = (e) => {
+        const { name, value, type, checked } = e.target;
+
+        console.log('Form field changed:', { name, value, type, checked });
+
+        // Reset subcategory when category changes
+        if (name === 'categoryId') {
+            setFormData(prev => {
+                const newData = {
+                    ...prev,
+                    [name]: type === 'checkbox' ? checked : value,
+                    subcategoryId: '' // Reset subcategory selection
+                };
+                console.log('Category changed, reset subcategory:', newData);
+                return newData;
+            });
+        } else if (name === 'subcategoryId') {
+            setFormData(prev => {
+                const newData = {
+                    ...prev,
+                    [name]: value
+                };
+                console.log('Subcategory changed:', {
+                    subcategoryId: value,
+                    categoryId: prev.categoryId
+                });
+                return newData;
+            });
+        } else {
+            setFormData(prev => ({
+                ...prev,
+                [name]: type === 'checkbox' ? checked : value
+            }));
+        }
+    }; const selectedCategory = formData.categoryId ?
+        categories.find(cat => cat._id === formData.categoryId) : null;
+
+    console.log('PackageForm render:', {
+        categoryId: formData.categoryId,
+        subcategoryId: formData.subcategoryId,
+        selectedCategory: selectedCategory?.name,
+        hasSubcategories: selectedCategory?.hasSubcategories,
+        subcategoriesLength: selectedCategory?.subcategories?.length
+    });
+    const handleArrayChange = (field, index, value) => {
+        const array = formData[field] || [];
+        array[index] = value;
+        setFormData(prev => ({ ...prev, [field]: array }));
+    };
+
+    const addArrayItem = (field, defaultValue = '') => {
+        const array = formData[field] || [];
+        setFormData(prev => ({ ...prev, [field]: [...array, defaultValue] }));
+    };
+
+    const removeArrayItem = (field, index) => {
+        const array = formData[field] || [];
+        setFormData(prev => ({ ...prev, [field]: array.filter((_, i) => i !== index) }));
+    };
+
+    const handleFAQChange = (index, field, value) => {
+        const faqs = formData.faqs || [];
+        faqs[index] = { ...faqs[index], [field]: value };
+        setFormData(prev => ({ ...prev, faqs }));
+    };
+
+    const addFAQ = () => {
+        const faqs = formData.faqs || [];
+        setFormData(prev => ({
+            ...prev,
+            faqs: [...faqs, { question: '', answer: '' }]
+        }));
+    };
+
+    const removeFAQ = (index) => {
+        const faqs = formData.faqs || [];
+        setFormData(prev => ({ ...prev, faqs: faqs.filter((_, i) => i !== index) }));
+    };
+
+    const handlePricingChange = (pricingIndex, field, value) => {
+        const pricing = formData.pricing || [];
+        pricing[pricingIndex] = { ...pricing[pricingIndex], [field]: value };
+        setFormData(prev => ({ ...prev, pricing }));
+    };
+
+    const handlePricingOptionChange = (pricingIndex, optionIndex, field, value) => {
+        const pricing = formData.pricing || [];
+        const options = pricing[pricingIndex]?.options || [];
+        options[optionIndex] = { ...options[optionIndex], [field]: value };
+        pricing[pricingIndex] = { ...pricing[pricingIndex], options };
+        setFormData(prev => ({ ...prev, pricing }));
+    };
+
+    const addPricingSection = () => {
+        const pricing = formData.pricing || [];
+        setFormData(prev => ({
+            ...prev,
+            pricing: [...pricing, { title: '', options: [{ name: '', price: '' }] }]
+        }));
+    };
+
+    const addPricingOption = (pricingIndex) => {
+        const pricing = formData.pricing || [];
+        const options = pricing[pricingIndex]?.options || [];
+        pricing[pricingIndex] = {
+            ...pricing[pricingIndex],
+            options: [...options, { name: '', price: '' }]
+        };
+        setFormData(prev => ({ ...prev, pricing }));
+    };
+
+    return (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Basic Information */}
+            <div className="space-y-4">
+                <h4 className="text-lg font-medium text-gray-900">Basic Information</h4>
+
+                <div>
+                    <label className="block text-sm font-medium text-gray-700">Title *</label>
+                    <input
+                        type="text"
+                        name="title"
+                        value={formData.title || ''}
+                        onChange={handleChange}
+                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500"
+                        required
+                    />
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium text-gray-700">Subtitle</label>
+                    <input
+                        type="text"
+                        name="subtitle"
+                        value={formData.subtitle || ''}
+                        onChange={handleChange}
+                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500"
+                    />
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium text-gray-700">Price *</label>
+                    <input
+                        type="text"
+                        name="price"
+                        value={formData.price || ''}
+                        onChange={handleChange}
+                        placeholder="e.g. From: 99.00 USD/month"
+                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500"
+                        required
+                    />
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium text-gray-700">Image URL *</label>
+                    <input
+                        type="url"
+                        name="image"
+                        value={formData.image || ''}
+                        onChange={handleChange}
+                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500"
+                        required
+                    />
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium text-gray-700">Category *</label>
+                    <select
+                        name="categoryId"
+                        value={formData.categoryId || ''}
+                        onChange={handleChange}
+                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500"
+                        required
+                    >
+                        <option value="">Select a category</option>
+                        {categories.map((category) => (
+                            <option key={category._id} value={category._id}>
+                                {category.name}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+
+                {/* FIXED: Subcategory selection with better logic */}
+                {selectedCategory?.hasSubcategories && selectedCategory?.subcategories?.length > 0 && (
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">Subcategory</label>
+                        <select
+                            name="subcategoryId"
+                            value={formData.subcategoryId || ''}
+                            onChange={handleChange}
+                            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500"
+                        >
+                            <option value="">Select a subcategory (optional)</option>
+                            {selectedCategory.subcategories.map((subcategory, index) => (
+                                <option key={index} value={`${selectedCategory._id}-${index}`}>
+                                    {subcategory.name}
+                                </option>
+                            ))}
+                        </select>
+                        <p className="mt-1 text-xs text-gray-500">
+                            Current selection: {formData.subcategoryId || 'None'}
+                        </p>
+                    </div>
+                )}
+
+                <div className="flex items-center">
+                    <input
+                        type="checkbox"
+                        name="featured"
+                        checked={formData.featured || false}
+                        onChange={handleChange}
+                        className="h-4 w-4 text-blue-600 border-gray-300 rounded"
+                    />
+                    <label className="ml-2 block text-sm text-gray-900">Featured Package</label>
+                </div>
+
+                <div className="flex items-center">
+                    <input
+                        type="checkbox"
+                        name="isActive"
+                        checked={formData.isActive !== false}
+                        onChange={handleChange}
+                        className="h-4 w-4 text-blue-600 border-gray-300 rounded"
+                    />
+                    <label className="ml-2 block text-sm text-gray-900">Active</label>
+                </div>
+            </div>
+            {/* Descriptions and Details */}
+            <div className="space-y-4">
+                <h4 className="text-lg font-medium text-gray-900">Descriptions</h4>
+
+                <div>
+                    <label className="block text-sm font-medium text-gray-700">Short Description *</label>
+                    <textarea
+                        name="description"
+                        value={formData.description || ''}
+                        onChange={handleChange}
+                        rows={3}
+                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500"
+                        required
+                    />
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium text-gray-700">Long Description (HTML) *</label>
+                    <textarea
+                        name="longDescription"
+                        value={formData.longDescription || ''}
+                        onChange={handleChange}
+                        rows={6}
+                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500"
+                        required
+                    />
+                </div>
+
+                {/* Features */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Features</label>
+                    {(formData.features || []).map((feature, index) => (
+                        <div key={index} className="flex mb-2">
+                            <input
+                                type="text"
+                                value={feature}
+                                onChange={(e) => handleArrayChange('features', index, e.target.value)}
+                                className="flex-1 border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500"
+                                placeholder="Enter feature"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => removeArrayItem('features', index)}
+                                className="ml-2 text-red-600 hover:text-red-800"
+                            >
+                                Remove
+                            </button>
+                        </div>
+                    ))}
+                    <button
+                        type="button"
+                        onClick={() => addArrayItem('features')}
+                        className="text-blue-600 text-sm hover:text-blue-800"
+                    >
+                        + Add Feature
+                    </button>
+                </div>
+            </div>
+
+            {/* FAQs Section */}
+            <div className="col-span-full">
+                <h4 className="text-lg font-medium text-gray-900 mb-4">FAQs</h4>
+                {(formData.faqs || []).map((faq, index) => (
+                    <div key={index} className="border p-4 rounded-lg mb-4">
+                        <div className="grid grid-cols-1 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Question</label>
+                                <input
+                                    type="text"
+                                    value={faq.question || ''}
+                                    onChange={(e) => handleFAQChange(index, 'question', e.target.value)}
+                                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Answer</label>
+                                <textarea
+                                    value={faq.answer || ''}
+                                    onChange={(e) => handleFAQChange(index, 'answer', e.target.value)}
+                                    rows={3}
+                                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500"
+                                />
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => removeFAQ(index)}
+                                className="text-red-600 hover:text-red-800 text-sm self-start"
+                            >
+                                Remove FAQ
+                            </button>
+                        </div>
+                    </div>
+                ))}
+                <button
+                    type="button"
+                    onClick={addFAQ}
+                    className="text-blue-600 text-sm hover:text-blue-800"
+                >
+                    + Add FAQ
+                </button>
+            </div>
+
+            {/* Pricing Section */}
+            <div className="col-span-full">
+                <h4 className="text-lg font-medium text-gray-900 mb-4">Pricing Sections</h4>
+                {(formData.pricing || []).map((pricingSection, pricingIndex) => (
+                    <div key={pricingIndex} className="border p-4 rounded-lg mb-4">
+                        <div className="mb-4">
+                            <label className="block text-sm font-medium text-gray-700">Section Title</label>
+                            <input
+                                type="text"
+                                value={pricingSection.title || ''}
+                                onChange={(e) => handlePricingChange(pricingIndex, 'title', e.target.value)}
+                                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500"
+                            />
+                        </div>
+
+                        <div className="mb-4">
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Options</label>
+                            {(pricingSection.options || []).map((option, optionIndex) => (
+                                <div key={optionIndex} className="grid grid-cols-2 gap-2 mb-2">
+                                    <input
+                                        type="text"
+                                        placeholder="Option Name"
+                                        value={option.name || ''}
+                                        onChange={(e) => handlePricingOptionChange(pricingIndex, optionIndex, 'name', e.target.value)}
+                                        className="border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500"
+                                    />
+                                    <input
+                                        type="text"
+                                        placeholder="Price"
+                                        value={option.price || ''}
+                                        onChange={(e) => handlePricingOptionChange(pricingIndex, optionIndex, 'price', e.target.value)}
+                                        className="border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500"
+                                    />
+                                </div>
+                            ))}
+                            <button
+                                type="button"
+                                onClick={() => addPricingOption(pricingIndex)}
+                                className="text-blue-600 text-sm hover:text-blue-800"
+                            >
+                                + Add Option
+                            </button>
+                        </div>
+                    </div>
+                ))}
+                <button
+                    type="button"
+                    onClick={addPricingSection}
+                    className="text-blue-600 text-sm hover:text-blue-800"
+                >
+                    + Add Pricing Section
+                </button>
+            </div>
+        </div>
+    );
+};
+
+// Category Form Component 
+const CategoryForm = ({ formData, setFormData }) => {
+    const handleChange = (e) => {
+        const { name, value, type, checked } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: type === 'checkbox' ? checked : value
+        }));
+    };
+
+
+    const handleSubcategoryChange = (index, field, value) => {
+        const subcategories = formData.subcategories || [];
+        subcategories[index] = { ...subcategories[index], [field]: value };
+        setFormData(prev => ({ ...prev, subcategories }));
+    };
+
+    const addSubcategory = () => {
+        const subcategories = formData.subcategories || [];
+        setFormData(prev => ({
+            ...prev,
+            subcategories: [...subcategories, { name: '', slug: '' }]
+        }));
+    };
+
+    const removeSubcategory = (index) => {
+        const subcategories = formData.subcategories || [];
+        setFormData(prev => ({
+            ...prev,
+            subcategories: subcategories.filter((_, i) => i !== index)
+        }));
+    };
+
+    return (
+        <>
+            <div>
+                <label className="block text-sm font-medium text-gray-700">Name *</label>
+                <input
+                    type="text"
+                    name="name"
+                    value={formData.name || ''}
+                    onChange={handleChange}
+                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500"
+                    required
+                />
+            </div>
+
+            <div>
+                <label className="block text-sm font-medium text-gray-700">Slug *</label>
+                <input
+                    type="text"
+                    name="slug"
+                    value={formData.slug || ''}
+                    onChange={handleChange}
+                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500"
+                    required
+                />
+            </div>
+
+            <div className="flex items-center mt-4">
+                <input
+                    type="checkbox"
+                    name="hasSubcategories"
+                    checked={formData.hasSubcategories || false}
+                    onChange={handleChange}
+                    className="h-4 w-4 text-blue-600 border-gray-300 rounded"
+                />
+                <label className="ml-2 block text-sm text-gray-900">Has Subcategories</label>
+            </div>
+
+            <div className="flex items-center mt-2">
+                <input
+                    type="checkbox"
+                    name="isActive"
+                    checked={formData.isActive !== false}
+                    onChange={handleChange}
+                    className="h-4 w-4 text-blue-600 border-gray-300 rounded"
+                />
+                <label className="ml-2 block text-sm text-gray-900">Active</label>
+            </div>
+
+            {formData.hasSubcategories && (
+                <div className="mt-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Subcategories</label>
+                    {(formData.subcategories || []).map((sub, index) => (
+                        <div key={index} className="grid grid-cols-2 gap-2 mb-2">
+                            <input
+                                type="text"
+                                placeholder="Subcategory Name"
+                                value={sub.name || ''}
+                                onChange={(e) => handleSubcategoryChange(index, 'name', e.target.value)}
+                                className="border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500"
+                            />
+                            <div className="flex">
+                                <input
+                                    type="text"
+                                    placeholder="Subcategory Slug"
+                                    value={sub.slug || ''}
+                                    onChange={(e) => handleSubcategoryChange(index, 'slug', e.target.value)}
+                                    className="flex-1 border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => removeSubcategory(index)}
+                                    className="ml-2 text-red-600 hover:text-red-800"
+                                >
+                                    Remove
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+
+                    <button
+                        type="button"
+                        onClick={addSubcategory}
+                        className="mt-2 text-blue-600 hover:text-blue-800"
+                    >
+                        + Add Subcategory
+                    </button>
+                </div>
+            )}
+        </>
+    );
+};
+
+export default AdminDashboard;
