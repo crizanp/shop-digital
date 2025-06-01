@@ -11,7 +11,6 @@ const AdminDashboard = ({ token, onLogout }) => {
     const [editingItem, setEditingItem] = useState(null);
     const [formData, setFormData] = useState({});
 
-    // Debug function to check props
     useEffect(() => {
         console.log('AdminDashboard props:', {
             token: token ? `${token.substring(0, 20)}...` : 'none',
@@ -19,7 +18,6 @@ const AdminDashboard = ({ token, onLogout }) => {
         });
     }, [token, onLogout]);
 
-    // API headers with proper authorization
     const getHeaders = () => {
         const headers = {
             'Content-Type': 'application/json'
@@ -35,7 +33,6 @@ const AdminDashboard = ({ token, onLogout }) => {
         return headers;
     };
 
-    // Enhanced fetch function with better error handling
     const fetchWithAuth = async (url, options = {}) => {
         try {
             const headers = getHeaders();
@@ -79,7 +76,6 @@ const AdminDashboard = ({ token, onLogout }) => {
         }
     };
 
-    // Fetch categories for dropdown
     const fetchAllCategories = async () => {
         try {
             const response = await fetchWithAuth('/api/admin/categories');
@@ -93,7 +89,6 @@ const AdminDashboard = ({ token, onLogout }) => {
         }
     };
 
-    // Fetch data based on active tab
     useEffect(() => {
         if (token) {
             fetchData();
@@ -148,14 +143,10 @@ const AdminDashboard = ({ token, onLogout }) => {
             const endpoint = activeTab === 'packages' ? '/api/admin/packages' : '/api/admin/categories';
             const method = editingItem ? 'PUT' : 'POST';
             const url = editingItem ? `${endpoint}?id=${editingItem._id}` : endpoint;
-
-            // Process form data - FIXED to properly handle subcategory
             let processedFormData = { ...formData };
 
             if (activeTab === 'packages') {
-                // Process subcategory data properly
                 if (processedFormData.subcategoryId && processedFormData.subcategoryId.trim() !== '') {
-                    // Convert to integer
                     const subcategoryIndex = parseInt(processedFormData.subcategoryId, 10);
                     if (!isNaN(subcategoryIndex)) {
                         processedFormData.subcategoryIndex = subcategoryIndex;
@@ -164,11 +155,9 @@ const AdminDashboard = ({ token, onLogout }) => {
                         processedFormData.subcategoryIndex = null;
                     }
                 } else {
-                    // No subcategory selected
                     processedFormData.subcategoryIndex = null;
                 }
 
-                // Remove subcategoryId as it's not stored in DB
                 delete processedFormData.subcategoryId;
             }
 
@@ -198,7 +187,6 @@ const AdminDashboard = ({ token, onLogout }) => {
         }
     };
 
-    // Handle delete
     const handleDelete = async (id) => {
         if (!confirm('Are you sure you want to delete this item?')) return;
 
@@ -223,11 +211,9 @@ const AdminDashboard = ({ token, onLogout }) => {
         }
     };
 
-    // Handle edit - FIXED to properly reconstruct subcategoryId
     const handleEdit = (item) => {
         let editFormData = { ...item };
 
-        // Convert index to string for form selection
         if (item.subcategoryIndex !== null && !isNaN(item.subcategoryIndex)) {
             editFormData.subcategoryId = item.subcategoryIndex.toString();
         } else {
@@ -239,20 +225,16 @@ const AdminDashboard = ({ token, onLogout }) => {
         setShowForm(true);
     };
 
-    // Reset form
     const resetForm = () => {
         setShowForm(false);
         setEditingItem(null);
         setFormData({});
     };
 
-    // Get category name by ID - FIXED to properly display subcategory names
     const getCategoryName = (item) => {
         if (activeTab === 'packages') {
-            // Find category by ID
             const category = allCategories.find(cat => cat._id === item.categoryId);
             if (category) {
-                // If has subcategory index, get subcategory name
                 if (item.subcategoryIndex !== undefined && item.subcategoryIndex !== null &&
                     category.subcategories && category.subcategories[item.subcategoryIndex]) {
                     return `${category.name} > ${category.subcategories[item.subcategoryIndex].name}`;
@@ -263,7 +245,6 @@ const AdminDashboard = ({ token, onLogout }) => {
         return 'No Category';
     };
 
-    // Show message if no token
     if (!token || token === 'undefined') {
         return (
             <div className="min-h-screen bg-gray-100 flex items-center justify-center">
@@ -289,9 +270,8 @@ const AdminDashboard = ({ token, onLogout }) => {
 
     return (
         <div className="min-h-screen bg-gray-100 p-6">
-            <div className="max-w-7xl mx-auto">               
+            <div className="max-w-7xl mx-auto">
 
-                {/* Tab Navigation */}
                 <div className="bg-white rounded-lg shadow mb-6">
                     <div className="border-b border-gray-200">
                         <nav className="-mb-px flex space-x-8 px-6">
@@ -317,7 +297,6 @@ const AdminDashboard = ({ token, onLogout }) => {
                     </div>
                 </div>
 
-                {/* Action Buttons */}
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-xl font-semibold text-gray-900 capitalize">
                         Manage {activeTab}
@@ -330,14 +309,12 @@ const AdminDashboard = ({ token, onLogout }) => {
                     </button>
                 </div>
 
-                {/* Loading State */}
                 {loading && (
                     <div className="text-center py-8">
                         <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                     </div>
                 )}
 
-                {/* Data Table */}
                 {!loading && (
                     <div className="bg-white rounded-lg shadow overflow-hidden">
                         <div className="overflow-x-auto">
@@ -419,7 +396,6 @@ const AdminDashboard = ({ token, onLogout }) => {
                     </div>
                 )}
 
-                {/* Form Modal */}
                 {showForm && (
                     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
                         <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-screen overflow-y-auto">
@@ -467,20 +443,18 @@ const AdminDashboard = ({ token, onLogout }) => {
 };
 
 
-// Package Form Component - UPDATED to properly handle categoryId
 const PackageForm = ({ formData, setFormData, categories }) => {
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
 
         console.log('Form field changed:', { name, value, type, checked });
 
-        // Reset subcategory when category changes
         if (name === 'categoryId') {
             setFormData(prev => {
                 const newData = {
                     ...prev,
                     [name]: type === 'checkbox' ? checked : value,
-                    subcategoryId: '' // Reset subcategory selection
+                    subcategoryId: ''
                 };
                 console.log('Category changed, reset subcategory:', newData);
                 return newData;
@@ -623,12 +597,12 @@ const PackageForm = ({ formData, setFormData, categories }) => {
                 </div>
 
                 <div>
-  <ImageUpload
-    value={formData.image || ''}
-    onChange={(imageUrl) => setFormData(prev => ({ ...prev, image: imageUrl }))}
-    required={true}
-  />
-</div>
+                    <ImageUpload
+                        value={formData.image || ''}
+                        onChange={(imageUrl) => setFormData(prev => ({ ...prev, image: imageUrl }))}
+                        required={true}
+                    />
+                </div>
 
                 <div>
                     <label className="block text-sm font-medium text-gray-700">Category *</label>
@@ -647,7 +621,6 @@ const PackageForm = ({ formData, setFormData, categories }) => {
                         ))}
                     </select>
                 </div>
-                {/* FIXED: Subcategory selection with better logic */}
                 {selectedCategory?.subcategories?.length > 0 && (
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Subcategory</label>
@@ -659,7 +632,7 @@ const PackageForm = ({ formData, setFormData, categories }) => {
                         >
                             <option value="">Select a subcategory (optional)</option>
                             {selectedCategory.subcategories.map((sub, index) => (
-                                <option key={index} value={index}>  {/* Use index as value */}
+                                <option key={index} value={index}>
                                     {sub.name}
                                 </option>
                             ))}
@@ -693,7 +666,6 @@ const PackageForm = ({ formData, setFormData, categories }) => {
                     <label className="ml-2 block text-sm text-gray-900">Active</label>
                 </div>
             </div>
-            {/* Descriptions and Details */}
             <div className="space-y-4">
                 <h4 className="text-lg font-medium text-gray-900">Descriptions</h4>
 
@@ -720,8 +692,6 @@ const PackageForm = ({ formData, setFormData, categories }) => {
                         required
                     />
                 </div>
-
-                {/* Features */}
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Features</label>
                     {(formData.features || []).map((feature, index) => (
@@ -752,7 +722,6 @@ const PackageForm = ({ formData, setFormData, categories }) => {
                 </div>
             </div>
 
-            {/* FAQs Section */}
             <div className="col-span-full">
                 <h4 className="text-lg font-medium text-gray-900 mb-4">FAQs</h4>
                 {(formData.faqs || []).map((faq, index) => (
@@ -795,7 +764,6 @@ const PackageForm = ({ formData, setFormData, categories }) => {
                 </button>
             </div>
 
-            {/* Pricing Section */}
             <div className="col-span-full">
                 <h4 className="text-lg font-medium text-gray-900 mb-4">Pricing Sections</h4>
                 {(formData.pricing || []).map((pricingSection, pricingIndex) => (
@@ -852,7 +820,6 @@ const PackageForm = ({ formData, setFormData, categories }) => {
     );
 };
 
-// Category Form Component 
 const CategoryForm = ({ formData, setFormData }) => {
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
