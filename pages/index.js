@@ -2,57 +2,125 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import PackageCard from '../components/PackageCard';
-import { packagesData as data } from '../dummyContent.js';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { Filter, SortAsc, SortDesc, Package, ChevronRight } from 'lucide-react';
 import Navbar from '@/components/Navbar';
+import Link from 'next/link';
 
 export default function PricingPage() {
-  const { categories, packages } = data;
   const router = useRouter();
-  const { categoryId, subcategoryId } = router.query;
+  const { categorySlug, subcategorySlug } = router.query;
 
-  const [filteredPackages, setFilteredPackages] = useState(packages);
-  const [displayedPackages, setDisplayedPackages] = useState(packages);
+  // State management
+  const [categories, setCategories] = useState([]);
+  const [packages, setPackages] = useState([]);
+  const [filteredPackages, setFilteredPackages] = useState([]);
+  const [displayedPackages, setDisplayedPackages] = useState([]);
   const [activeCategory, setActiveCategory] = useState(null);
   const [activeSubcategory, setActiveSubcategory] = useState(null);
   const [sortBy, setSortBy] = useState('default');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
+  // Fetch categories from API
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/api/admin/categories');
+      if (!response.ok) {
+        throw new Error('Failed to fetch categories');
+      }
+      const data = await response.json();
+      setCategories(data.categories || []);
+    } catch (err) {
+      setError('Failed to load categories');
+      console.error('Error fetching categories:', err);
+    }
+  };
+
+  // Fetch packages from API
+  const fetchPackages = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/api/admin/packages');
+      if (!response.ok) {
+        throw new Error('Failed to fetch packages');
+      }
+      const data = await response.json();
+      setPackages(data.packages || []);
+    } catch (err) {
+      setError('Failed to load packages');
+      console.error('Error fetching packages:', err);
+    }
+  };
+
+  // Load initial data
   useEffect(() => {
-    if (subcategoryId) {
-      const subCatId = parseInt(subcategoryId);
-      setActiveSubcategory(subCatId);
-      setFilteredPackages(packages.filter(pkg => pkg.categoryId === subCatId));
+    const loadData = async () => {
+      setLoading(true);
+      await Promise.all([fetchCategories(), fetchPackages()]);
+      setLoading(false);
+    };
+    loadData();
+  }, []);
 
-      // Find parent category
-      for (const category of categories) {
-        if (category.hasSubcategories) {
-          const found = category.subcategories.find(sub => sub.id === subCatId);
-          if (found) {
-            setActiveCategory(category.id);
+  // Helper function to find category by slug
+  const findCategoryBySlug = (slug) => {
+    return categories.find(cat => cat.slug === slug);
+  };
+
+  // Helper function to find subcategory by slug within a category
+  const findSubcategoryBySlug = (categorySlug, subcategorySlug) => {
+    const category = findCategoryBySlug(categorySlug);
+    if (!category || !category.subcategories) return null;
+    return category.subcategories.find(sub => sub.slug === subcategorySlug);
+  };
+
+  // Filter packages based on URL parameters
+  useEffect(() => {
+    if (!router.isReady) return;
+
+    if (subcategorySlug) {
+      // Filter by subcategory slug
+      setActiveSubcategory(subcategorySlug);
+      
+      // Find the parent category slug first
+      let parentCategorySlug = categorySlug;
+      if (!parentCategorySlug) {
+        // Try to find parent category from subcategory
+        for (const category of categories) {
+          if (category.subcategories && category.subcategories.some(sub => sub.slug === subcategorySlug)) {
+            parentCategorySlug = category.slug;
             break;
           }
         }
       }
-    } else if (categoryId) {
-      const catId = parseInt(categoryId);
-      setActiveCategory(catId);
-      setActiveSubcategory(null);
-
-      // Find category
-      const category = categories.find(cat => cat.id === catId);
-
-      if (category) {
-        if (category.hasSubcategories) {
-          // Get all packages from all subcategories
-          const subCategoryIds = category.subcategories.map(sub => sub.id);
-          setFilteredPackages(packages.filter(pkg => subCategoryIds.includes(pkg.categoryId)));
-        } else {
-          // Direct category
-          setFilteredPackages(packages.filter(pkg => pkg.categoryId === catId));
+      
+      if (parentCategorySlug) {
+        setActiveCategory(parentCategorySlug);
+        const category = findCategoryBySlug(parentCategorySlug);
+        const subcategory = category?.subcategories?.find(sub => sub.slug === subcategorySlug);
+        
+        if (subcategory) {
+          // Find the subcategory index to match with package data
+          const subcategoryIndex = category.subcategories.findIndex(sub => sub.slug === subcategorySlug);
+          
+          // Filter packages by category ID and subcategory index
+          setFilteredPackages(packages.filter(pkg => 
+            pkg.categoryId === category._id && pkg.subcategoryIndex === subcategoryIndex
+          ));
         }
+      }
+    } else if (categorySlug) {
+      // Filter by category slug
+      setActiveCategory(categorySlug);
+      setActiveSubcategory(null);
+      
+      const category = findCategoryBySlug(categorySlug);
+      
+      if (category) {
+        // Filter packages by category ID
+        setFilteredPackages(packages.filter(pkg => pkg.categoryId === category._id));
       }
     } else {
       // No filter, show all packages
@@ -60,7 +128,7 @@ export default function PricingPage() {
       setActiveCategory(null);
       setActiveSubcategory(null);
     }
-  }, [categoryId, subcategoryId, categories, packages]);
+  }, [router.isReady, categorySlug, subcategorySlug, categories, packages]);
 
   // Apply sorting whenever filteredPackages or sortBy changes
   useEffect(() => {
@@ -69,26 +137,29 @@ export default function PricingPage() {
     switch (sortBy) {
       case 'price-low-high':
         sorted = sorted.sort((a, b) => {
-          const priceA = parseFloat(a.price.match(/\d+(\.\d+)?/)[0]);
-          const priceB = parseFloat(b.price.match(/\d+(\.\d+)?/)[0]);
+          const priceA = parseFloat(a.price.replace(/[^0-9.]/g, '')) || 0;
+          const priceB = parseFloat(b.price.replace(/[^0-9.]/g, '')) || 0;
           return priceA - priceB;
         });
         break;
       case 'price-high-low':
         sorted = sorted.sort((a, b) => {
-          const priceA = parseFloat(a.price.match(/\d+(\.\d+)?/)[0]);
-          const priceB = parseFloat(b.price.match(/\d+(\.\d+)?/)[0]);
+          const priceA = parseFloat(a.price.replace(/[^0-9.]/g, '')) || 0;
+          const priceB = parseFloat(b.price.replace(/[^0-9.]/g, '')) || 0;
           return priceB - priceA;
         });
         break;
       case 'latest':
-        sorted = sorted.sort((a, b) => b.id - a.id);
+        sorted = sorted.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         break;
       case 'oldest':
-        sorted = sorted.sort((a, b) => a.id - b.id);
+        sorted = sorted.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+        break;
+      case 'featured':
+        sorted = sorted.sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
         break;
       default:
-        sorted = sorted.sort((a, b) => a.id - b.id);
+        sorted = sorted.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     }
 
     setDisplayedPackages(sorted);
@@ -97,7 +168,7 @@ export default function PricingPage() {
   // Find active category/subcategory names
   const getActiveCategoryName = () => {
     if (activeCategory) {
-      const category = categories.find(cat => cat.id === activeCategory);
+      const category = findCategoryBySlug(activeCategory);
       return category ? category.name : 'All Categories';
     }
     return 'All Categories';
@@ -105,9 +176,9 @@ export default function PricingPage() {
 
   const getActiveSubcategoryName = () => {
     if (activeSubcategory && activeCategory) {
-      const category = categories.find(cat => cat.id === activeCategory);
-      if (category && category.hasSubcategories) {
-        const subcategory = category.subcategories.find(sub => sub.id === activeSubcategory);
+      const category = findCategoryBySlug(activeCategory);
+      if (category && category.subcategories) {
+        const subcategory = category.subcategories.find(sub => sub.slug === activeSubcategory);
         return subcategory ? subcategory.name : '';
       }
     }
@@ -136,6 +207,47 @@ export default function PricingPage() {
     }
   };
 
+  if (loading) {
+    return (
+      <>
+        <Head>
+          <title>Loading... | Professional Design Solutions</title>
+        </Head>
+        <Navbar />
+        <div className="min-h-screen bg-black text-gray-200 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-purple-500 mx-auto mb-4"></div>
+            <p className="text-xl">Loading packages...</p>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  if (error) {
+    return (
+      <>
+        <Head>
+          <title>Error | Professional Design Solutions</title>
+        </Head>
+        <Navbar />
+        <div className="min-h-screen bg-black text-gray-200 flex items-center justify-center">
+          <div className="text-center">
+            <Package size={64} className="text-red-400 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold mb-2">Error Loading Data</h2>
+            <p className="text-gray-400 mb-4">{error}</p>
+            <button 
+              onClick={() => window.location.reload()} 
+              className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg transition-colors"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      </>
+    );
+  }
+
   return (
     <>
       <Head>
@@ -161,12 +273,19 @@ export default function PricingPage() {
               {/* Page header with breadcrumbs */}
               <div className="mb-8">
                 <div className="flex items-center text-sm text-gray-400 mb-2">
-                  <span className="hover:text-purple-400 transition-colors cursor-pointer">Home</span>
+                  <Link href="/pricing" className="hover:text-purple-400 transition-colors">
+                    Home
+                  </Link>
 
                   {activeCategory && (
                     <>
                       <ChevronRight size={16} className="mx-1 text-gray-500" />
-                      <span className="hover:text-purple-400 transition-colors cursor-pointer">{getActiveCategoryName()}</span>
+                      <Link 
+                        href={`/category/${activeCategory}`}
+                        className="hover:text-purple-400 transition-colors"
+                      >
+                        {getActiveCategoryName()}
+                      </Link>
                     </>
                   )}
                   {activeSubcategory && (
@@ -203,6 +322,7 @@ export default function PricingPage() {
                     <option value="price-high-low">Price: High to Low</option>
                     <option value="latest">Latest</option>
                     <option value="oldest">Oldest</option>
+                    <option value="featured">Featured First</option>
                   </select>
                 </div>
               </div>
@@ -211,11 +331,12 @@ export default function PricingPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
                   {displayedPackages.map((pkg) => (
                     <PackageCard
-                      key={pkg.id}
-                      title={pkg.title}
-                      subtitle={pkg.subtitle}
-                      price={pkg.price}
-                      image={pkg.image}
+                      key={pkg._id}
+                      packageData={pkg}
+                      categoryData={categories}
+                      showCategory={true}
+                      showFeatures={true}
+                      maxFeatures={3}
                     />
                   ))}
                 </div>

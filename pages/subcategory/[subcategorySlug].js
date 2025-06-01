@@ -1,4 +1,4 @@
-// pages/subcategory/[subcategoryId].js
+// pages/subcategory/[subcategorySlug].js
 import { useRouter } from 'next/router';
 import PricingPage from '../index';
 

@@ -11,13 +11,12 @@ const Sidebar = ({ categories = [], activeCategory, activeSubcategory }) => {
     // Check viewport width on mount and resize
     useEffect(() => {
         const checkViewport = () => {
-            setIsMobile(window.innerWidth < 1024); // Changed from 768 to 1024 for better responsive behavior
+            setIsMobile(window.innerWidth < 1024);
             setIsOpen(window.innerWidth >= 1024);
         };
         checkViewport();
         window.addEventListener('resize', checkViewport);
 
-        // Clean up
         return () => window.removeEventListener('resize', checkViewport);
     }, []);
 
@@ -37,24 +36,24 @@ const Sidebar = ({ categories = [], activeCategory, activeSubcategory }) => {
             const expanded = {};
             categories.forEach(category => {
                 if (category.hasSubcategories) {
-                    expanded[category.id] = true;
+                    expanded[category.slug] = true;
                 }
             });
             setExpandedCategories(expanded);
         }
     }, [categories]);
 
-    const toggleCategory = (categoryId) => {
+    const toggleCategory = (categorySlug) => {
         setExpandedCategories(prev => ({
             ...prev,
-            [categoryId]: !prev[categoryId]
+            [categorySlug]: !prev[categorySlug]
         }));
     };
 
     // Filter categories based on search term
-    const filteredCategories = categories.filter(category => 
+    const filteredCategories = categories.filter(category =>
         category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (category.subcategories && category.subcategories.some(sub => 
+        (category.subcategories && category.subcategories.some(sub =>
             sub.name.toLowerCase().includes(searchTerm.toLowerCase())
         ))
     );
@@ -96,7 +95,8 @@ const Sidebar = ({ categories = [], activeCategory, activeSubcategory }) => {
                             <Package className="text-purple-400 mr-2" size={24} />
                             <h2 className="text-xl font-bold text-white">Packages</h2>
                         </div>
-                        {isMobile && (<button onClick={() => setIsOpen(false)} aria-label="Close menu">
+                        {isMobile && (
+                            <button onClick={() => setIsOpen(false)} aria-label="Close menu">
                                 <X size={24} className="text-gray-400 hover:text-white transition-colors" />
                             </button>
                         )}
@@ -115,7 +115,7 @@ const Sidebar = ({ categories = [], activeCategory, activeSubcategory }) => {
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                         {searchTerm && (
-                            <button 
+                            <button
                                 onClick={() => setSearchTerm('')}
                                 className="absolute inset-y-0 right-0 pr-3 flex items-center"
                             >
@@ -124,25 +124,37 @@ const Sidebar = ({ categories = [], activeCategory, activeSubcategory }) => {
                         )}
                     </div>
 
+                    {/* All Packages Link */}
+                    <div className="mb-4">
+                        <Link
+                            href="/"
+                            className={`block py-3 px-2 rounded-lg transition-all duration-300 ${!activeCategory && !activeSubcategory
+                                    ? 'bg-purple-600 text-white font-semibold'
+                                    : 'text-gray-300 hover:text-purple-400 hover:bg-gray-800'
+                                }`}
+                            onClick={() => isMobile && setIsOpen(false)}
+                        >
+                            <div className="flex items-center">
+                                <Package size={18} className="mr-2" />
+                                All Packages
+                            </div>
+                        </Link>
+                    </div>
+
                     {/* Categories list with animation */}
                     <div className="space-y-0 overflow-y-auto max-h-[60vh] pr-2 hide-scrollbar">
                         {filteredCategories.length > 0 ? (
                             filteredCategories.map((category) => (
-                                <div key={category.id} className="border-b border-gray-800 last:border-b-0">
+                                <div key={category._id} className="border-b border-gray-800 last:border-b-0">
                                     {/* Main Category */}
                                     <div className="py-3 flex items-center justify-between group">
                                         <Link
-                                            href={`/category/${category.id}`}
-                                            className={`${activeCategory === category.id 
-                                                ? 'text-purple-400 font-semibold' 
+                                            href={`/category/${category.slug}`}
+                                            className={`${activeCategory === category.slug
+                                                ? 'text-purple-400 font-semibold'
                                                 : 'text-gray-300 group-hover:text-purple-400'} 
                                                 flex-grow transition duration-300 flex items-center`}
-                                            onClick={(e) => {
-                                                if (isMobile && category.hasSubcategories) {
-                                                    e.preventDefault();
-                                                    toggleCategory(category.id);
-                                                }
-                                            }}
+                                            onClick={() => isMobile && setIsOpen(false)}
                                         >
                                             <span className="mr-2">{category.name}</span>
                                             {category.hasSubcategories && (
@@ -154,37 +166,37 @@ const Sidebar = ({ categories = [], activeCategory, activeSubcategory }) => {
 
                                         {category.hasSubcategories && (
                                             <button
-                                                onClick={() => toggleCategory(category.id)}
+                                                onClick={() => toggleCategory(category.slug)}
                                                 className="p-1 text-gray-400 hover:text-purple-400 focus:outline-none"
-                                                aria-label={expandedCategories[category.id] 
-                                                    ? "Collapse category" 
+                                                aria-label={expandedCategories[category.slug]
+                                                    ? "Collapse category"
                                                     : "Expand category"}
                                             >
-                                                {expandedCategories[category.id] 
-                                                    ? <ChevronUp size={18} /> 
+                                                {expandedCategories[category.slug]
+                                                    ? <ChevronUp size={18} />
                                                     : <ChevronDown size={18} />}
                                             </button>
                                         )}
                                     </div>
-                                    
+
                                     {/* Subcategories with smooth animation */}
                                     {category.hasSubcategories && category.subcategories && (
                                         <div
                                             className={`overflow-hidden transition-all duration-300 ease-in-out
-                                                ${expandedCategories[category.id] ? 'max-h-96' : 'max-h-0'}`}
+                                                ${expandedCategories[category.slug] ? 'max-h-96' : 'max-h-0'}`}
                                         >
                                             {category.subcategories.map((subcategory) => (
                                                 <div
-                                                    key={subcategory.id}
+                                                    key={subcategory._id}
                                                     className={`py-3 pl-6 border-t border-gray-800 
-                                                        ${activeSubcategory === subcategory.id 
-                                                            ? 'bg-gray-800 rounded-lg' 
+                                                        ${activeSubcategory === subcategory.slug
+                                                            ? 'bg-gray-800 rounded-lg'
                                                             : 'hover:bg-gray-800/50 rounded-lg'} transition`}
                                                 >
                                                     <Link
-                                                        href={`/subcategory/${subcategory.id}`}
-                                                        className={`${activeSubcategory === subcategory.id 
-                                                            ? 'text-purple-400 font-medium' 
+                                                        href={`/subcategory/${subcategory.slug}`}
+                                                        className={`${activeSubcategory === subcategory.slug
+                                                            ? 'text-purple-400 font-medium'
                                                             : 'text-gray-400 hover:text-purple-400'} 
                                                             transition duration-300 block`}
                                                         onClick={() => isMobile && setIsOpen(false)}
@@ -201,7 +213,7 @@ const Sidebar = ({ categories = [], activeCategory, activeSubcategory }) => {
                             <div className="text-center text-gray-400 py-6 bg-gray-800/50 rounded-lg">
                                 <Search className="mx-auto mb-2 text-purple-500" size={24} />
                                 <p>No categories found</p>
-                                <button 
+                                <button
                                     onClick={() => setSearchTerm('')}
                                     className="mt-2 text-purple-400 hover:text-purple-300 text-sm font-medium"
                                 >

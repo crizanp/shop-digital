@@ -1,4 +1,4 @@
-// pages/category/[categoryId].js
+// pages/category/[categorySlug].js
 import { useRouter } from 'next/router';
 import PricingPage from '../index';
 
