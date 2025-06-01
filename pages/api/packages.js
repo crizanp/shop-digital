@@ -12,6 +12,7 @@ export default async function handler(req, res) {
 
     const { 
       categoryId, 
+      subcategoryIndex, // Add subcategoryIndex support
       featured, 
       page = 1, 
       limit = 10, 
@@ -22,7 +23,17 @@ export default async function handler(req, res) {
     const filter = { isActive: true };
     
     if (categoryId) {
-      filter.categoryId = parseInt(categoryId);
+      // FIXED: Keep as string since categoryId is stored as string in DB
+      filter.categoryId = categoryId;
+    }
+    
+    // ADDED: Filter by subcategory if provided
+    if (subcategoryIndex !== undefined && subcategoryIndex !== null) {
+      if (subcategoryIndex === 'null' || subcategoryIndex === '') {
+        filter.subcategoryIndex = null;
+      } else {
+        filter.subcategoryIndex = parseInt(subcategoryIndex);
+      }
     }
     
     if (featured === 'true') {
@@ -45,6 +56,8 @@ export default async function handler(req, res) {
       .limit(parseInt(limit));
 
     const total = await Package.countDocuments(filter);
+
+    console.log('Packages query:', { filter, found: packages.length }); // Debug log
 
     res.status(200).json({
       success: true,

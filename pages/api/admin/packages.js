@@ -32,64 +32,92 @@ export default async function handler(req, res) {
     res.status(500).json({ message: 'Internal server error' });
   }
 }
-
-// Helper function to process subcategory data
+// FIXED: Enhanced debugging for subcategory processing
+// FIXED: Enhanced debugging for subcategory processing
 function processSubcategoryData(packageData) {
-  // Process subcategory if provided
-  if (packageData.subcategoryId && packageData.subcategoryId.includes('-')) {
-    const [categoryId, subcategoryIndex] = packageData.subcategoryId.split('-');
-    
-    // Ensure categoryId matches (for validation)
-    if (packageData.categoryId && packageData.categoryId !== categoryId) {
-      throw new Error('Subcategory does not belong to the selected category');
-    }
-    
-    // Set the category if not already set
-    if (!packageData.categoryId) {
-      packageData.categoryId = categoryId;
-    }
-    
-    packageData.subcategoryIndex = parseInt(subcategoryIndex);
-    
-    // Remove the combined subcategoryId as we store the index
-    delete packageData.subcategoryId;
-    
-    console.log('Processed subcategory:', {
+  console.log('[DEBUG] Processing subcategory data:', {
+    incomingData: {
+      subcategoryIndex: packageData.subcategoryIndex, // Look for subcategoryIndex, not subcategoryId
       categoryId: packageData.categoryId,
-      subcategoryIndex: packageData.subcategoryIndex
-    });
-  } else if (packageData.subcategoryId === '' || packageData.subcategoryId === null) {
-    // If subcategoryId is empty, remove subcategoryIndex
-    delete packageData.subcategoryIndex;
-    delete packageData.subcategoryId;
-    console.log('Removed subcategory data');
+      type: typeof packageData.subcategoryIndex
+    }
+  });
+
+  // Only process if we have valid input
+  if (packageData.subcategoryIndex !== undefined &&
+    packageData.subcategoryIndex !== null &&
+    packageData.subcategoryIndex !== '') {
+
+    const subIndex = parseInt(packageData.subcategoryIndex);
+    console.log(`[DEBUG] Parsed subcategory index: ${subIndex} (from: ${packageData.subcategoryIndex})`);
+
+    if (!isNaN(subIndex)) {
+      packageData.subcategoryIndex = subIndex;
+      console.log(`[DEBUG] Set subcategoryIndex to: ${subIndex}`);
+    } else {
+      console.warn('[WARN] Invalid subcategoryIndex format:', packageData.subcategoryIndex);
+      packageData.subcategoryIndex = null;
+    }
+  } else {
+    console.log('[DEBUG] No subcategoryIndex provided or it is empty. Setting to null.');
+    packageData.subcategoryIndex = null;
   }
-  
+
+  console.log('[DEBUG] Final package data after processing:', {
+    subcategoryIndex: packageData.subcategoryIndex,
+    type: typeof packageData.subcategoryIndex
+  });
+
   return packageData;
 }
-
-// GET - Fetch Packages with optional filters
 async function getPackages(req, res) {
   try {
-    const { categoryId, featured, page = 1, limit = 10 } = req.query;
-    
+    const { categoryId, featured, page = 1, limit = 50, populateCategory = false } = req.query;
+
     const filter = { isActive: true };
-    
-    // Handle categoryId - keep it as ObjectId string for MongoDB references
+
     if (categoryId) {
       filter.categoryId = categoryId;
     }
-    
+
     if (featured) filter.featured = featured === 'true';
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
-    
-    const packages = await Package.find(filter)
+
+    let packages = await Package.find(filter)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(parseInt(limit));
 
+    // ADDED: If we need to populate category information for admin
+    if (populateCategory === 'true') {
+      const { Category } = require('../../../lib/models');
+
+      // Get all categories for reference
+      const categories = await Category.find({ isActive: true });
+
+      // Add category info to packages
+      packages = packages.map(pkg => {
+        const packageObj = pkg.toObject();
+        const category = categories.find(cat => cat._id.toString() === pkg.categoryId);
+
+        if (category) {
+          packageObj.categoryName = category.name;
+
+          // Add subcategory name if exists
+          if (pkg.subcategoryIndex !== null && pkg.subcategoryIndex !== undefined &&
+            category.subcategories && category.subcategories[pkg.subcategoryIndex]) {
+            packageObj.subcategoryName = category.subcategories[pkg.subcategoryIndex].name;
+          }
+        }
+
+        return packageObj;
+      });
+    }
+
     const total = await Package.countDocuments(filter);
+
+    console.log(`Fetched ${packages.length} packages`);
 
     res.status(200).json({
       packages,
@@ -105,10 +133,15 @@ async function getPackages(req, res) {
   }
 }
 
+// GET - Fetch Packages with optional filters
+
+
 // POST - Create new Package
 async function createPackage(req, res) {
   try {
     let packageData = { ...req.body };
+
+    console.log('Create package request body:', packageData);
 
     // Validate required fields
     const requiredFields = ['title', 'price', 'image', 'categoryId', 'description', 'longDescription'];
@@ -121,34 +154,44 @@ async function createPackage(req, res) {
     // Process subcategory data
     packageData = processSubcategoryData(packageData);
 
-    console.log('Creating package with data:', packageData);
+    console.log('Creating package with data:', {
+      title: packageData.title,
+      categoryId: packageData.categoryId,
+      subcategoryIndex: packageData.subcategoryIndex,
+      type: typeof packageData.subcategoryIndex
+    });
 
     const newPackage = new Package(packageData);
     await newPackage.save();
 
-    res.status(201).json({ 
-      message: 'Package created successfully', 
+    console.log('Package created successfully:', {
+      id: newPackage._id,
+      subcategoryIndex: newPackage.subcategoryIndex
+    });
+
+
+    res.status(201).json({
+      message: 'Package created successfully',
       package: newPackage
     });
   } catch (error) {
     console.error('Create Package error:', error);
-    
-    // Better error handling for validation errors
+
     if (error.name === 'ValidationError') {
       const validationErrors = Object.keys(error.errors).map(key => ({
         field: key,
         message: error.errors[key].message
       }));
-      
-      return res.status(400).json({ 
+
+      return res.status(400).json({
         message: 'Validation failed',
         errors: validationErrors
       });
     }
 
-    res.status(500).json({ 
+    res.status(500).json({
       message: 'Failed to create package',
-      error: error.message 
+      error: error.message
     });
   }
 }
@@ -159,6 +202,8 @@ async function updatePackage(req, res) {
     const { id } = req.query;
     let updates = { ...req.body };
 
+    console.log('Update package request:', { id, body: updates });
+
     if (!id) {
       return res.status(400).json({ message: 'Package ID is required' });
     }
@@ -168,16 +213,23 @@ async function updatePackage(req, res) {
 
     console.log('Updating package with data:', {
       id,
-      categoryId: updates.categoryId,
-      subcategoryIndex: updates.subcategoryIndex,
-      hasSubcategory: updates.subcategoryIndex !== undefined
+      updates: {
+        ...updates,
+        subcategoryIndex: updates.subcategoryIndex,
+        type: typeof updates.subcategoryIndex
+      }
     });
 
     const updatedPackage = await Package.findByIdAndUpdate(
       id,
-      updates,
+      { $set: updates },
       { new: true, runValidators: true }
     );
+
+    console.log('Package updated successfully:', {
+      id: updatedPackage._id,
+      subcategoryIndex: updatedPackage.subcategoryIndex
+    });
 
     if (!updatedPackage) {
       return res.status(404).json({ message: 'Package not found' });
@@ -185,32 +237,33 @@ async function updatePackage(req, res) {
 
     console.log('Package updated successfully:', {
       id: updatedPackage._id,
+      title: updatedPackage.title,
       categoryId: updatedPackage.categoryId,
       subcategoryIndex: updatedPackage.subcategoryIndex
     });
 
-    res.status(200).json({ 
-      message: 'Package updated successfully', 
+    res.status(200).json({
+      message: 'Package updated successfully',
       package: updatedPackage
     });
   } catch (error) {
     console.error('Update package error:', error);
-    
+
     if (error.name === 'ValidationError') {
       const validationErrors = Object.keys(error.errors).map(key => ({
         field: key,
         message: error.errors[key].message
       }));
-      
-      return res.status(400).json({ 
+
+      return res.status(400).json({
         message: 'Validation failed',
         errors: validationErrors
       });
     }
 
-    res.status(500).json({ 
+    res.status(500).json({
       message: 'Failed to update package',
-      error: error.message 
+      error: error.message
     });
   }
 }
@@ -234,12 +287,14 @@ async function deletePackage(req, res) {
       return res.status(404).json({ message: 'Package not found' });
     }
 
+    console.log('Package soft deleted:', id);
+
     res.status(200).json({ message: 'Package deleted successfully' });
   } catch (error) {
     console.error('Delete package error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       message: 'Failed to delete package',
-      error: error.message 
+      error: error.message
     });
   }
 }

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import ImageUpload from './ImageUpload';
 
 const AdminDashboard = ({ token, onLogout }) => {
     const [activeTab, setActiveTab] = useState('packages');
@@ -129,10 +130,13 @@ const AdminDashboard = ({ token, onLogout }) => {
         }
     };
 
-    // Handle form submission - UPDATED to properly handle categoryId
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+        console.log('[FRONTEND] Form submission started', {
+            formData,
+            editingItem,
+            activeTab
+        });
         if (!token) {
             alert('No authentication token available. Please login again.');
             return;
@@ -145,17 +149,34 @@ const AdminDashboard = ({ token, onLogout }) => {
             const method = editingItem ? 'PUT' : 'POST';
             const url = editingItem ? `${endpoint}?id=${editingItem._id}` : endpoint;
 
-            // Process form data - keep categoryId as ObjectId reference
+            // Process form data - FIXED to properly handle subcategory
             let processedFormData = { ...formData };
 
             if (activeTab === 'packages') {
-                // Keep categoryId as ObjectId string for database reference
-                // The API will handle subcategory processing
-                console.log('Submitting package with categoryId:', processedFormData.categoryId);
-                console.log('Submitting package with subcategoryId:', processedFormData.subcategoryId);
+                // Process subcategory data properly
+                if (processedFormData.subcategoryId && processedFormData.subcategoryId.trim() !== '') {
+                    // Convert to integer
+                    const subcategoryIndex = parseInt(processedFormData.subcategoryId, 10);
+                    if (!isNaN(subcategoryIndex)) {
+                        processedFormData.subcategoryIndex = subcategoryIndex;
+                        console.log('Setting subcategoryIndex to:', subcategoryIndex);
+                    } else {
+                        processedFormData.subcategoryIndex = null;
+                    }
+                } else {
+                    // No subcategory selected
+                    processedFormData.subcategoryIndex = null;
+                }
+
+                // Remove subcategoryId as it's not stored in DB
+                delete processedFormData.subcategoryId;
             }
 
-            console.log('Submitting form:', { method, url, processedFormData });
+            console.log('[FRONTEND] Preparing to submit:', {
+                method,
+                url,
+                processedFormData
+            });
 
             const response = await fetchWithAuth(url, {
                 method,
@@ -202,26 +223,15 @@ const AdminDashboard = ({ token, onLogout }) => {
         }
     };
 
-    // Handle edit - UPDATED to properly set form data
+    // Handle edit - FIXED to properly reconstruct subcategoryId
     const handleEdit = (item) => {
         let editFormData = { ...item };
 
-        // For packages, we need to reconstruct the form data properly
-        if (activeTab === 'packages') {
-            console.log('Editing package:', {
-                id: item._id,
-                categoryId: item.categoryId,
-                subcategoryIndex: item.subcategoryIndex
-            });
-
-            // If package has subcategoryIndex, we need to reconstruct subcategoryId
-            if (item.categoryId && item.subcategoryIndex !== undefined && item.subcategoryIndex !== null) {
-                editFormData.subcategoryId = `${item.categoryId}-${item.subcategoryIndex}`;
-                console.log('Reconstructed subcategoryId:', editFormData.subcategoryId);
-            } else {
-                // Ensure subcategoryId is empty if no subcategory
-                editFormData.subcategoryId = '';
-            }
+        // Convert index to string for form selection
+        if (item.subcategoryIndex !== null && !isNaN(item.subcategoryIndex)) {
+            editFormData.subcategoryId = item.subcategoryIndex.toString();
+        } else {
+            editFormData.subcategoryId = '';
         }
 
         setEditingItem(item);
@@ -236,14 +246,15 @@ const AdminDashboard = ({ token, onLogout }) => {
         setFormData({});
     };
 
-    // Get category name by ID - UPDATED to work with populated data
+    // Get category name by ID - FIXED to properly display subcategory names
     const getCategoryName = (item) => {
         if (activeTab === 'packages') {
             // Find category by ID
             const category = allCategories.find(cat => cat._id === item.categoryId);
             if (category) {
                 // If has subcategory index, get subcategory name
-                if (item.subcategoryIndex !== undefined && category.subcategories && category.subcategories[item.subcategoryIndex]) {
+                if (item.subcategoryIndex !== undefined && item.subcategoryIndex !== null &&
+                    category.subcategories && category.subcategories[item.subcategoryIndex]) {
                     return `${category.name} > ${category.subcategories[item.subcategoryIndex].name}`;
                 }
                 return category.name;
@@ -278,27 +289,7 @@ const AdminDashboard = ({ token, onLogout }) => {
 
     return (
         <div className="min-h-screen bg-gray-100 p-6">
-            <div className="max-w-7xl mx-auto">
-                {/* Header with logout button */}
-                <div className="flex justify-between items-center mb-8">
-                    <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-                    <button
-                        onClick={() => {
-                            if (typeof onLogout === 'function') {
-                                onLogout();
-                            } else {
-                                console.error('onLogout not available');
-                                if (typeof window !== 'undefined') {
-                                    localStorage.removeItem('adminToken');
-                                    window.location.href = '/admin/login';
-                                }
-                            }
-                        }}
-                        className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
-                    >
-                        Logout
-                    </button>
-                </div>
+            <div className="max-w-7xl mx-auto">               
 
                 {/* Tab Navigation */}
                 <div className="bg-white rounded-lg shadow mb-6">
@@ -475,6 +466,7 @@ const AdminDashboard = ({ token, onLogout }) => {
     );
 };
 
+
 // Package Form Component - UPDATED to properly handle categoryId
 const PackageForm = ({ formData, setFormData, categories }) => {
     const handleChange = (e) => {
@@ -631,16 +623,12 @@ const PackageForm = ({ formData, setFormData, categories }) => {
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">Image URL *</label>
-                    <input
-                        type="url"
-                        name="image"
-                        value={formData.image || ''}
-                        onChange={handleChange}
-                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500"
-                        required
-                    />
-                </div>
+  <ImageUpload
+    value={formData.image || ''}
+    onChange={(imageUrl) => setFormData(prev => ({ ...prev, image: imageUrl }))}
+    required={true}
+  />
+</div>
 
                 <div>
                     <label className="block text-sm font-medium text-gray-700">Category *</label>
@@ -659,9 +647,8 @@ const PackageForm = ({ formData, setFormData, categories }) => {
                         ))}
                     </select>
                 </div>
-
                 {/* FIXED: Subcategory selection with better logic */}
-                {selectedCategory?.hasSubcategories && selectedCategory?.subcategories?.length > 0 && (
+                {selectedCategory?.subcategories?.length > 0 && (
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Subcategory</label>
                         <select
@@ -671,17 +658,18 @@ const PackageForm = ({ formData, setFormData, categories }) => {
                             className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500"
                         >
                             <option value="">Select a subcategory (optional)</option>
-                            {selectedCategory.subcategories.map((subcategory, index) => (
-                                <option key={index} value={`${selectedCategory._id}-${index}`}>
-                                    {subcategory.name}
+                            {selectedCategory.subcategories.map((sub, index) => (
+                                <option key={index} value={index}>  {/* Use index as value */}
+                                    {sub.name}
                                 </option>
                             ))}
                         </select>
                         <p className="mt-1 text-xs text-gray-500">
-                            Current selection: {formData.subcategoryId || 'None'}
+                            Selected index: {formData.subcategoryId || 'None'}
                         </p>
                     </div>
                 )}
+
 
                 <div className="flex items-center">
                     <input
