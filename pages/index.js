@@ -83,7 +83,7 @@ export default function PricingPage() {
     if (subcategorySlug) {
       // Filter by subcategory slug
       setActiveSubcategory(subcategorySlug);
-      
+
       // Find the parent category slug first
       let parentCategorySlug = categorySlug;
       if (!parentCategorySlug) {
@@ -95,18 +95,18 @@ export default function PricingPage() {
           }
         }
       }
-      
+
       if (parentCategorySlug) {
         setActiveCategory(parentCategorySlug);
         const category = findCategoryBySlug(parentCategorySlug);
         const subcategory = category?.subcategories?.find(sub => sub.slug === subcategorySlug);
-        
+
         if (subcategory) {
           // Find the subcategory index to match with package data
           const subcategoryIndex = category.subcategories.findIndex(sub => sub.slug === subcategorySlug);
-          
+
           // Filter packages by category ID and subcategory index
-          setFilteredPackages(packages.filter(pkg => 
+          setFilteredPackages(packages.filter(pkg =>
             pkg.categoryId === category._id && pkg.subcategoryIndex === subcategoryIndex
           ));
         }
@@ -115,9 +115,9 @@ export default function PricingPage() {
       // Filter by category slug
       setActiveCategory(categorySlug);
       setActiveSubcategory(null);
-      
+
       const category = findCategoryBySlug(categorySlug);
-      
+
       if (category) {
         // Filter packages by category ID
         setFilteredPackages(packages.filter(pkg => pkg.categoryId === category._id));
@@ -236,8 +236,8 @@ export default function PricingPage() {
             <Package size={64} className="text-red-400 mx-auto mb-4" />
             <h2 className="text-2xl font-bold mb-2">Error Loading Data</h2>
             <p className="text-gray-400 mb-4">{error}</p>
-            <button 
-              onClick={() => window.location.reload()} 
+            <button
+              onClick={() => window.location.reload()}
               className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg transition-colors"
             >
               Retry
@@ -273,14 +273,11 @@ export default function PricingPage() {
               {/* Page header with breadcrumbs */}
               <div className="mb-8">
                 <div className="flex items-center text-sm text-gray-400 mb-2">
-                  <Link href="/pricing" className="hover:text-purple-400 transition-colors">
-                    Home
-                  </Link>
 
                   {activeCategory && (
                     <>
                       <ChevronRight size={16} className="mx-1 text-gray-500" />
-                      <Link 
+                      <Link
                         href={`/category/${activeCategory}`}
                         className="hover:text-purple-400 transition-colors"
                       >
@@ -300,20 +297,20 @@ export default function PricingPage() {
               </div>
 
               {/* Filter and Sort Controls */}
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 bg-gray-900 p-4 rounded-lg border border-gray-800">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 bg-gray-900 px-4 py-2 rounded-lg border border-gray-800">
                 <div className="mb-4 sm:mb-0">
-                  <button 
-                    onClick={() => setIsFilterOpen(!isFilterOpen)} 
+                  <button
+                    onClick={() => setIsFilterOpen(!isFilterOpen)}
                     className="flex items-center text-gray-300 hover:text-purple-400 transition-colors"
                   >
                     <Filter size={18} className="mr-2" />
                     <span>Filter</span>
                   </button>
                 </div>
-                
+
                 <div className="flex space-x-2">
-                  <select 
-                    value={sortBy} 
+                  <select
+                    value={sortBy}
                     onChange={(e) => setSortBy(e.target.value)}
                     className="bg-gray-800 border border-gray-700 text-gray-300 rounded-md px-3 py-1.5 focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                   >

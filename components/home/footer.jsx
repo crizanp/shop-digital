@@ -22,9 +22,9 @@ export default function Footer() {
     return (
         <footer className="bg-black text-white py-8 px-4 md:px-8">
             <div className="max-w-7xl mx-auto">
-               
 
-              
+
+
 
                 {/* Horizontal Line */}
 
@@ -46,11 +46,11 @@ export default function Footer() {
                     <div className="col-span-1 flex flex-col items-center text-center mb-6 md:mb-0">
                         <div className="mb-2 relative w-34 h-14">
                             <Image
-  src="/transparentLogo.png"
-  alt="Logo"
-  width={200}
-  height={100}
-/>
+                                src="/transparentLogo.png"
+                                alt="Logo"
+                                width={300}
+                                height={100}
+                            />
                         </div>
                         <p className="text-gray-400 text-xs">© 2025 Foxbeep. All Rights Reserved</p>
                         {/* <div className="flex items-center mt-3 text-xs text-gray-400">

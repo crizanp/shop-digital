@@ -195,7 +195,7 @@ const PackageCard = ({
 // Usage example component
 const PackageGrid = ({ packages = [], categories = [] }) => {
   return (
-    <div className="bg-black min-h-screen p-6">
+    <div className="bg-black min-h-screen py-6">
       <div className="container mx-auto">
         <div className="">
           {packages.map((packageData, index) => (

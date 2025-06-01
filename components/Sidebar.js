@@ -93,7 +93,7 @@ const Sidebar = ({ categories = [], activeCategory, activeSubcategory }) => {
                     <div className="flex items-center justify-between mb-8">
                         <div className="flex items-center">
                             <Package className="text-purple-400 mr-2" size={24} />
-                            <h2 className="text-xl font-bold text-white">Packages</h2>
+                            <h2 className="text-xl font-bold text-white">Our Offered Services</h2>
                         </div>
                         {isMobile && (
                             <button onClick={() => setIsOpen(false)} aria-label="Close menu">
