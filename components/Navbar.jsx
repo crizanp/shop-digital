@@ -106,7 +106,7 @@ const Navbar = () => {
                             <div key={item.id} className="relative group">
                                 <Link
                                     href={item.href}
-                                    className={`font-medium text-xs md:text-sm lg:text-base whitespace-nowrap hover:text-purple-400 transition-colors duration-200 flex items-center py-2 px-1 md:px-2 ${item.active ? 'text-purple-400' : 'text-gray-300'}`}
+                                    className={`font-medium text-xs md:text-sm lg:text-base whitespace-nowrap hover:text-green-400 transition-colors duration-200 flex items-center py-2 px-1 md:px-2 ${item.active ? 'text-green-400' : 'text-gray-300'}`}
                                     onMouseEnter={() => item.hasDropdown && setActiveDropdown(index)}
                                 >
                                     {item.name}
@@ -131,7 +131,7 @@ const Navbar = () => {
                     {/* Mobile menu button - visible until xl breakpoint */}
                     <div className="xl:hidden flex items-center">
                         <button
-                            className="text-gray-300 hover:text-purple-400 focus:outline-none"
+                            className="text-gray-300 hover:text-green-400 focus:outline-none"
                             onClick={() => setIsOpen(!isOpen)}
                         >
                             {isOpen ? <X size={24} /> : <Menu size={24} />}
@@ -150,7 +150,7 @@ const Navbar = () => {
                                     {item.hasDropdown ? (
                                         <div>
                                             <button
-                                                className={`flex items-center justify-between w-full py-2 font-medium hover:text-purple-400 focus:outline-none ${item.active ? 'text-purple-400' : 'text-gray-300'}`}
+                                                className={`flex items-center justify-between w-full py-2 font-medium hover:text-green-400 focus:outline-none ${item.active ? 'text-green-400' : 'text-gray-300'}`}
                                                 onClick={() => toggleDropdown(index)}
                                             >
                                                 {item.name}
@@ -160,7 +160,7 @@ const Navbar = () => {
                                                 />
                                             </button>
                                             {activeDropdown === index && (
-                                                <div className="pl-4 mt-2 border-l-2 border-purple-400">
+                                                <div className="pl-4 mt-2 border-l-2 border-green-400">
                                                     {/* Placeholder for dropdown content */}
                                                     <p className="text-sm text-gray-400 py-2">Subcategories for {item.name} would appear here</p>
                                                 </div>
@@ -169,7 +169,7 @@ const Navbar = () => {
                                     ) : (
                                         <Link
                                             href={item.href}
-                                            className={`block py-2 font-medium hover:text-purple-400 ${item.active ? 'text-purple-400' : 'text-gray-300'}`}
+                                            className={`block py-2 font-medium hover:text-green-400 ${item.active ? 'text-green-400' : 'text-gray-300'}`}
                                             onClick={() => setIsOpen(false)}
                                         >
                                             {item.name}

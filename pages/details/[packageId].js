@@ -75,7 +75,7 @@ export default function PackageDetail() {
         <Navbar />
         <div className="min-h-screen bg-black text-gray-200 flex items-center justify-center">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-purple-500 mx-auto mb-4"></div>
+            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-green-500 mx-auto mb-4"></div>
             <p className="text-xl text-gray-300">Loading package details...</p>
             <p className="text-sm text-gray-500 mt-2">Please wait while we fetch the information</p>
           </div>
@@ -121,7 +121,7 @@ export default function PackageDetail() {
               
               <Link 
                 href="/pricing"
-                className="flex items-center justify-center bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="flex items-center justify-center bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-green-500"
               >
                 Browse All Packages
               </Link>
@@ -130,7 +130,7 @@ export default function PackageDetail() {
             {!isNotFound && (
               <button 
                 onClick={handleRetry}
-                className="mt-4 flex items-center justify-center mx-auto text-purple-400 hover:text-purple-300 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 rounded px-3 py-1"
+                className="mt-4 flex items-center justify-center mx-auto text-green-400 hover:text-green-300 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 rounded px-3 py-1"
               >
                 <RefreshCw size={16} className="mr-1" />
                 Try Again
@@ -193,7 +193,7 @@ export default function PackageDetail() {
           <p className="text-gray-400 mb-4">Unable to load package details</p>
           <button 
             onClick={() => router.push('/pricing')}
-            className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-green-500"
           >
             Browse All Packages
           </button>
