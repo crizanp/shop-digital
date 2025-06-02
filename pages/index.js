@@ -27,7 +27,7 @@ export default function PricingPage() {
   // Fetch categories from API
   const fetchCategories = async () => {
     try {
-      const response = await fetch('http://localhost:3000/api/admin/categories');
+      const response = await fetch('/api/admin/categories');
       if (!response.ok) {
         throw new Error('Failed to fetch categories');
       }
@@ -42,7 +42,7 @@ export default function PricingPage() {
   // Fetch packages from API
   const fetchPackages = async () => {
     try {
-      const response = await fetch('http://localhost:3000/api/admin/packages');
+      const response = await fetch('/api/admin/packages');
       if (!response.ok) {
         throw new Error('Failed to fetch packages');
       }
