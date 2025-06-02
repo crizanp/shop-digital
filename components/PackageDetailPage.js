@@ -345,7 +345,7 @@ const PackageDetailPage = ({
                 )}
                 <div className="flex items-center mt-3">
                   <span className="inline-flex bg-green-900/80 text-white px-4 py-1.5 rounded-full text-lg font-bold">
-                    Starting at {packageData.price}
+                    Starting at ${packageData.price}
                   </span>
                 </div>
               </div>
