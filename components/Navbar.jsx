@@ -7,36 +7,36 @@ import { useSmoothScroll, handleHashScroll } from '../hook/scrolling';
 
 // Categories data imported from external file
 const categories = [
-  {
-    "id": 1,
-    "name": "Design Services",
-    "hasSubcategories": false,
-    "slug": "design-services"
-  },
-  {
-    "id": 2,
-    "name": "Website Services",
-    "hasSubcategories": false,
-    "slug": "website-services"
-  },
-  {
-    "id": 3,
-    "name": "Website Maintenance",
-    "hasSubcategories": false,
-    "slug": "website-maintenance"
-  },
-  {
-    "id": 4,
-    "name": "Digital Marketing",
-    "hasSubcategories": false,
-    "slug": "digital-marketing"
-  },
-  {
-    "id": 5,
-    "name": "Social Media Management",
-    "hasSubcategories": false,
-    "slug": "social-media-management"
-  }
+    {
+        "id": 1,
+        "name": "Design Services",
+        "hasSubcategories": false,
+        "slug": "design-services"
+    },
+    {
+        "id": 2,
+        "name": "Website Services",
+        "hasSubcategories": false,
+        "slug": "website-services"
+    },
+    {
+        "id": 3,
+        "name": "Website Maintenance",
+        "hasSubcategories": false,
+        "slug": "website-maintenance"
+    },
+    {
+        "id": 4,
+        "name": "Digital Marketing",
+        "hasSubcategories": false,
+        "slug": "digital-marketing"
+    },
+    {
+        "id": 5,
+        "name": "Social Media Management",
+        "hasSubcategories": false,
+        "slug": "social-media-management"
+    }
 ];
 
 const Navbar = () => {
@@ -65,7 +65,7 @@ const Navbar = () => {
         hasDropdown: category.hasSubcategories,
         id: category.id
     }));
-    
+
     const toggleDropdown = (index) => {
         if (activeDropdown === index) {
             setActiveDropdown(null);
@@ -86,7 +86,7 @@ const Navbar = () => {
             <div className="max-w-7xl mx-auto">
                 <div className="flex justify-between items-center h-16 md:h-18 lg:h-20">
                     {/* Logo */}
-                    <div className="flex items-left">
+                    <div className="flex items-start -ml-2">
                         <Link href="/" className="flex items-left" onClick={closeAllDropdowns}>
                             <div className="relative w-32 h-12 md:w-36 md:h-14 lg:w-40 lg:h-30">
                                 <Image

@@ -188,60 +188,27 @@ const PackageDetailPage = ({
           <ArrowLeft className="w-5 h-5 mr-1" />
           <span className="font-medium">Back to Packages</span>
         </Link>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 order-2 lg:order-1">
 
-        {/* Header Section - Hero Style */}
-        <div className="relative bg-white rounded-xl overflow-hidden mb-6 shadow-lg shadow-green-900/30">
-          <div className="absolute inset-0 bg-black/80 z-10 rounded-xl"></div>
+            <div className="relative bg-white rounded-xl overflow-hidden shadow-lg shadow-green-900/30">
+              <div className="absolute inset-0 bg-black/30 z-10 rounded-xl"></div>
 
-          {/* Image container - now dynamic */}
-          {/* Image container with fixed height */}
-          <div className="relative h-48 md:h-64 lg:h-72">
-            <Image
-              src={packageData.image || '/api/placeholder/800/400'}
-              alt={packageData.title}
-              fill
-              className="object-cover brightness-75 rounded-xl"
-              priority
-            />
-          </div>
-
-
-          {/* Header overlay - now absolute positioned over dynamic image */}
-          <div className="absolute inset-0 p-6 z-20 text-white flex items-end">
-            <div className="max-w-3xl">
-              {/* Package badges */}
-              <div className="flex items-center gap-2 mb-3">
-                {packageData.featugreen && (
-                  <span className="inline-flex bg-gradient-to-r from-green-600 to-pink-600 text-white px-3 py-1 rounded-full text-sm font-medium items-center">
-                    <Star size={14} className="mr-1 fill-current" />
-                    Featugreen
-                  </span>
-                )}
-                {categoryInfo && (
-                  <span className="inline-flex bg-black/70 text-white px-3 py-1 rounded-full text-sm">
-                    {categoryInfo.subcategoryName || categoryInfo.categoryName}
-                  </span>
-                )}
-              </div>
-
-              <h1 className="text-3xl md:text-5xl font-bold tracking-tight">{packageData.title}</h1>
-              {packageData.subtitle && (
-                <p className="text-xl md:text-2xl mt-2 text-gray-200 font-light">{packageData.subtitle}</p>
-              )}
-              <div className="flex items-center mt-3">
-                <span className="inline-flex bg-green-900/80 text-white px-4 py-1.5 rounded-full text-lg font-bold">
-                  Starting at {packageData.price}
-                </span>
+              {/* Image container - now dynamic */}
+              <div className="relative">
+                <Image
+                  src={packageData.image || '/api/placeholder/800/400'}
+                  alt={packageData.title}
+                  width={0}
+                  height={0}
+                  sizes="90vw"
+                  style={{ width: '100%', height: 'auto' }}
+                  className="brightness-75"
+                  priority
+                />
               </div>
             </div>
-          </div>
-        </div>
 
-
-        {/* Main Content Area - Two-Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column - Tabs Content */}
-          <div className="lg:col-span-2 order-2 lg:order-1">
             {/* Tabs Navigation */}
             <div className="bg-gray-900 rounded-t-lg overflow-hidden shadow-sm border border-gray-800 border-b-0">
               <div className="flex overflow-x-auto">
@@ -356,6 +323,33 @@ const PackageDetailPage = ({
 
           {/* Right Column - Features and Pricing Options */}
           <div className="space-y-6 order-1 lg:order-2">
+            <div className="bg-gray-900 rounded-lg p-5 shadow-md border border-gray-800 z-20 text-white">
+              <div className="max-w-3xl">
+                <div className="flex items-center gap-2 mb-3">
+                  {packageData.featugreen && (
+                    <span className="inline-flex bg-gradient-to-r from-green-600 to-pink-600 text-white px-3 py-1 rounded-full text-sm font-medium items-center">
+                      <Star size={14} className="mr-1 fill-current" />
+                      Featugreen
+                    </span>
+                  )}
+                  {categoryInfo && (
+                    <span className="inline-flex bg-black/70 text-white px-3 py-1 rounded-full text-sm">
+                      {categoryInfo.subcategoryName || categoryInfo.categoryName}
+                    </span>
+                  )}
+                </div>
+
+                <h1 className="text-xl md:text-3xl font-bold tracking-tight">{packageData.title}</h1>
+                {packageData.subtitle && (
+                  <p className=" mt-2 text-gray-200 font-light">{packageData.subtitle}</p>
+                )}
+                <div className="flex items-center mt-3">
+                  <span className="inline-flex bg-green-900/80 text-white px-4 py-1.5 rounded-full text-lg font-bold">
+                    Starting at {packageData.price}
+                  </span>
+                </div>
+              </div>
+            </div>
             {/* Features Card */}
             {(packageData.features?.length > 0 || packageData.description) && (
               <div className="bg-gray-900 rounded-lg p-5 shadow-md border border-gray-800">
