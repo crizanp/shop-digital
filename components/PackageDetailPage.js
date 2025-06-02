@@ -174,7 +174,7 @@ const PackageDetailPage = ({
     return (
       <div className="flex flex-col justify-center items-center h-96 text-gray-400 bg-gray-900">
         <div className="text-xl mb-4">Package not found</div>
-        <Link href="/" className="text-purple-400 hover:text-purple-300">
+        <Link href="/" className="text-green-400 hover:text-green-300">
           Return to packages
         </Link>
       </div>
@@ -184,59 +184,58 @@ const PackageDetailPage = ({
   return (
     <div className='bg-black min-h-screen'>
       <div className="container mx-auto max-w-7xl px-4 pt-12 bg-black text-gray-300">
-        <Link href="/" className="inline-flex items-center text-purple-400 hover:text-purple-300 mb-4 transition-colors">
+        <Link href="/" className="inline-flex items-center text-green-400 hover:text-green-300 mb-4 transition-colors">
           <ArrowLeft className="w-5 h-5 mr-1" />
           <span className="font-medium">Back to Packages</span>
         </Link>
 
         {/* Header Section - Hero Style */}
-       <div className="relative bg-white rounded-xl overflow-hidden mb-6 shadow-lg shadow-purple-900/30">
-  <div className="absolute inset-0 bg-black/80 z-10 rounded-xl"></div>
-  
-  {/* Image container - now dynamic */}
-  <div className="relative">
-    <Image
-      src={packageData.image || '/api/placeholder/800/400'}
-      alt={packageData.title}
-      width={0}
-      height={0}
-      sizes="100vw"
-      style={{ width: '100%', height: 'auto' }}
-      className="brightness-75"
-      priority
-    />
-  </div>
-  
-  {/* Header overlay - now absolute positioned over dynamic image */}
-  <div className="absolute inset-0 p-6 z-20 text-white flex items-end">
-    <div className="max-w-3xl">
-      {/* Package badges */}
-      <div className="flex items-center gap-2 mb-3">
-        {packageData.featured && (
-          <span className="inline-flex bg-gradient-to-r from-purple-600 to-pink-600 text-white px-3 py-1 rounded-full text-sm font-medium items-center">
-            <Star size={14} className="mr-1 fill-current" />
-            Featured
-          </span>
-        )}
-        {categoryInfo && (
-          <span className="inline-flex bg-black/70 text-white px-3 py-1 rounded-full text-sm">
-            {categoryInfo.subcategoryName || categoryInfo.categoryName}
-          </span>
-        )}
-      </div>
-      
-      <h1 className="text-3xl md:text-5xl font-bold tracking-tight">{packageData.title}</h1>
-      {packageData.subtitle && (
-        <p className="text-xl md:text-2xl mt-2 text-gray-200 font-light">{packageData.subtitle}</p>
-      )}
-      <div className="flex items-center mt-3">
-        <span className="inline-flex bg-purple-900/80 text-white px-4 py-1.5 rounded-full text-lg font-bold">
-          Starting at {packageData.price}
-        </span>
-      </div>
-    </div>
-  </div>
-</div>
+        <div className="relative bg-white rounded-xl overflow-hidden mb-6 shadow-lg shadow-green-900/30">
+          <div className="absolute inset-0 bg-black/80 z-10 rounded-xl"></div>
+
+          {/* Image container - now dynamic */}
+          {/* Image container with fixed height */}
+          <div className="relative h-48 md:h-64 lg:h-72">
+            <Image
+              src={packageData.image || '/api/placeholder/800/400'}
+              alt={packageData.title}
+              fill
+              className="object-cover brightness-75 rounded-xl"
+              priority
+            />
+          </div>
+
+
+          {/* Header overlay - now absolute positioned over dynamic image */}
+          <div className="absolute inset-0 p-6 z-20 text-white flex items-end">
+            <div className="max-w-3xl">
+              {/* Package badges */}
+              <div className="flex items-center gap-2 mb-3">
+                {packageData.featugreen && (
+                  <span className="inline-flex bg-gradient-to-r from-green-600 to-pink-600 text-white px-3 py-1 rounded-full text-sm font-medium items-center">
+                    <Star size={14} className="mr-1 fill-current" />
+                    Featugreen
+                  </span>
+                )}
+                {categoryInfo && (
+                  <span className="inline-flex bg-black/70 text-white px-3 py-1 rounded-full text-sm">
+                    {categoryInfo.subcategoryName || categoryInfo.categoryName}
+                  </span>
+                )}
+              </div>
+
+              <h1 className="text-3xl md:text-5xl font-bold tracking-tight">{packageData.title}</h1>
+              {packageData.subtitle && (
+                <p className="text-xl md:text-2xl mt-2 text-gray-200 font-light">{packageData.subtitle}</p>
+              )}
+              <div className="flex items-center mt-3">
+                <span className="inline-flex bg-green-900/80 text-white px-4 py-1.5 rounded-full text-lg font-bold">
+                  Starting at {packageData.price}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
 
 
         {/* Main Content Area - Two-Column Layout */}
@@ -248,13 +247,13 @@ const PackageDetailPage = ({
               <div className="flex overflow-x-auto">
                 <button
                   onClick={() => setActiveTab('description')}
-                  className={`py-4 px-8 font-medium text-base whitespace-nowrap cursor-pointer transition-colors duration-300 ${activeTab === 'description' ? 'text-purple-400 border-b-2 border-purple-400 bg-purple-900/20' : 'text-gray-400 hover:text-purple-300 hover:bg-gray-800'}`}
+                  className={`py-4 px-8 font-medium text-base whitespace-nowrap cursor-pointer transition-colors duration-300 ${activeTab === 'description' ? 'text-green-400 border-b-2 border-green-400 bg-green-900/20' : 'text-gray-400 hover:text-green-300 hover:bg-gray-800'}`}
                 >
                   Description
                 </button>
                 <button
                   onClick={() => setActiveTab('faq')}
-                  className={`py-4 px-8 font-medium text-base whitespace-nowrap cursor-pointer transition-colors duration-300 ${activeTab === 'faq' ? 'text-purple-400 border-b-2 border-purple-400 bg-purple-900/20' : 'text-gray-400 hover:text-purple-300 hover:bg-gray-800'}`}
+                  className={`py-4 px-8 font-medium text-base whitespace-nowrap cursor-pointer transition-colors duration-300 ${activeTab === 'faq' ? 'text-green-400 border-b-2 border-green-400 bg-green-900/20' : 'text-gray-400 hover:text-green-300 hover:bg-gray-800'}`}
                 >
                   FAQ
                 </button>
@@ -337,7 +336,7 @@ const PackageDetailPage = ({
                     packageData.faqs.map((faq, index) => (
                       <div key={faq._id || index} className="border-b border-gray-700 pb-4 last:border-b-0">
                         <div className="flex items-start">
-                          <HelpCircle className="w-5 h-5 text-purple-400 mt-1 mr-3 shrink-0" />
+                          <HelpCircle className="w-5 h-5 text-green-400 mt-1 mr-3 shrink-0" />
                           <h3 className="text-lg font-semibold text-gray-200">{faq.question}</h3>
                         </div>
                         <p className="mt-2 text-gray-400 ml-8 text-base leading-relaxed">{faq.answer}</p>
@@ -368,8 +367,8 @@ const PackageDetailPage = ({
                   {packageData.features?.length > 0 ? (
                     packageData.features.map((feature, index) => (
                       <li key={index} className="flex items-start">
-                        <div className="bg-purple-900/40 p-1 rounded-full mt-0.5 mr-3 shrink-0">
-                          <CheckCircle className="w-4 h-4 text-purple-400" />
+                        <div className="bg-green-900/40 p-1 rounded-full mt-0.5 mr-3 shrink-0">
+                          <CheckCircle className="w-4 h-4 text-green-400" />
                         </div>
                         <span className="text-gray-300 text-base">{feature}</span>
                       </li>
@@ -383,8 +382,8 @@ const PackageDetailPage = ({
                       "Fast loading performance"
                     ].map((feature, index) => (
                       <li key={index} className="flex items-start">
-                        <div className="bg-purple-900/40 p-1 rounded-full mt-0.5 mr-3 shrink-0">
-                          <CheckCircle className="w-4 h-4 text-purple-400" />
+                        <div className="bg-green-900/40 p-1 rounded-full mt-0.5 mr-3 shrink-0">
+                          <CheckCircle className="w-4 h-4 text-green-400" />
                         </div>
                         <span className="text-gray-300 text-base">{feature}</span>
                       </li>
@@ -416,8 +415,8 @@ const PackageDetailPage = ({
                               <div
                                 key={option._id || optionIndex}
                                 className={`flex items-center justify-between p-3 rounded-lg cursor-pointer transition-all duration-200 border-2 ${isSelected
-                                  ? 'bg-purple-900/30 border-purple-500'
-                                  : 'bg-gray-800 border-gray-700 hover:bg-purple-900/10 hover:border-purple-600'
+                                  ? 'bg-green-900/30 border-green-500'
+                                  : 'bg-gray-800 border-gray-700 hover:bg-green-900/10 hover:border-green-600'
                                   }`}
                                 onClick={() => handleMultiSelect(categoryIndex, optionIndex)}
                               >
@@ -426,7 +425,7 @@ const PackageDetailPage = ({
                                     type="checkbox"
                                     checked={isSelected}
                                     onChange={() => { }} // Handled by onClick above
-                                    className="h-4 w-4 text-purple-500 bg-gray-700 border-gray-600 rounded focus:ring-purple-600 mr-3"
+                                    className="h-4 w-4 text-green-500 bg-gray-700 border-gray-600 rounded focus:ring-green-600 mr-3"
                                   />
                                   <span className="text-gray-300 font-medium">{option.name}</span>
                                 </div>
@@ -436,7 +435,7 @@ const PackageDetailPage = ({
                                     ? 'text-green-400'
                                     : option.price && option.price.includes('-')
                                       ? 'text-blue-400'
-                                      : 'text-purple-400'
+                                      : 'text-green-400'
                                   }`}>
                                   {formatPriceDisplay(option.price)}
                                 </span>
@@ -451,7 +450,7 @@ const PackageDetailPage = ({
               ) : (
                 <div className="text-center py-6 text-gray-400">
                   <p>Standard package pricing applies</p>
-                  <p className="text-2xl font-bold text-purple-400 mt-2">{packageData.price}</p>
+                  <p className="text-2xl font-bold text-green-400 mt-2">{packageData.price}</p>
                 </div>
               )}
 
@@ -474,7 +473,7 @@ const PackageDetailPage = ({
                         min="1"
                         value={quantity}
                         onChange={handleQuantityChange}
-                        className="w-full px-4 py-2 text-center text-xl font-bold bg-gray-800 text-gray-200 border-2 border-purple-700 focus:ring-purple-500 focus:border-purple-500"
+                        className="w-full px-4 py-2 text-center text-xl font-bold bg-gray-800 text-gray-200 border-2 border-green-700 focus:ring-green-500 focus:border-green-500"
                       />
                       <button
                         onClick={() => setQuantity(prev => prev + 1)}
@@ -490,7 +489,7 @@ const PackageDetailPage = ({
                 <div className="flex justify-center items-center mb-6">
                   <div className="text-center">
                     <div className="text-gray-400 font-medium text-lg mb-1">TOTAL PRICE</div>
-                    <div className="text-3xl font-bold text-purple-400">{calculateTotal()}</div>
+                    <div className="text-3xl font-bold text-green-400">{calculateTotal()}</div>
                   </div>
                 </div>
 
@@ -498,7 +497,7 @@ const PackageDetailPage = ({
                 <div className="flex justify-center">
                   <button
                     onClick={handleQuotationRequest}
-                    className="bg-purple-700 hover:bg-purple-600 text-white font-bold py-3 px-6 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 flex items-center shadow-lg"
+                    className="bg-green-700 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 flex items-center shadow-lg"
                   >
                     <FileText className="w-5 h-5 mr-2" />
                     GET QUOTATION
@@ -508,13 +507,13 @@ const PackageDetailPage = ({
             </div>
 
             {/* Support Info */}
-            <div className="bg-gradient-to-r from-gray-900 to-purple-900/30 rounded-lg p-4 shadow-sm border border-gray-800">
+            <div className="bg-gradient-to-r from-gray-900 to-green-900/30 rounded-lg p-4 shadow-sm border border-gray-800">
               <div className="flex items-start">
-                <Info className="w-5 h-5 text-purple-400 mt-1 mr-3 shrink-0" />
+                <Info className="w-5 h-5 text-green-400 mt-1 mr-3 shrink-0" />
                 <div>
                   <h3 className="font-semibold text-gray-200 text-base">Need Help?</h3>
                   <p className="text-gray-400 mt-1">Have questions about this package? Contact our support team for assistance.</p>
-                  <a href="/contact" className="inline-block mt-2 text-purple-400 font-medium hover:text-purple-300 transition-colors">
+                  <a href="/contact" className="inline-block mt-2 text-green-400 font-medium hover:text-green-300 transition-colors">
                     Contact Support →
                   </a>
                 </div>

@@ -216,7 +216,7 @@ export default function PricingPage() {
         <Navbar />
         <div className="min-h-screen bg-black text-gray-200 flex items-center justify-center">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-purple-500 mx-auto mb-4"></div>
+            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-green-500 mx-auto mb-4"></div>
             <p className="text-xl">Loading packages...</p>
           </div>
         </div>
@@ -238,7 +238,7 @@ export default function PricingPage() {
             <p className="text-gray-400 mb-4">{error}</p>
             <button
               onClick={() => window.location.reload()}
-              className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg transition-colors"
+              className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg transition-colors"
             >
               Retry
             </button>
@@ -257,7 +257,7 @@ export default function PricingPage() {
       <Navbar />
 
       <div className="min-h-screen bg-black text-gray-200">
-        <div className="container mx-auto pt-16 pb-10 px-4">
+        <div className="container mx-auto sm:pt-16 sm:pb-10 px-4">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             {/* Sidebar - takes 1/4 of screen on large screens */}
             <div className="lg:col-span-1">
@@ -268,18 +268,16 @@ export default function PricingPage() {
               />
             </div>
 
-            {/* Package Cards - takes 3/4 of screen on large screens */}
             <div className="lg:col-span-3">
-              {/* Page header with breadcrumbs */}
-              <div className="mb-8">
+              <div className="">
                 <div className="flex items-center text-sm text-gray-400 mb-2">
 
                   {activeCategory && (
                     <>
-                      <ChevronRight size={16} className="mx-1 text-gray-500" />
+                      {/* <ChevronRight size={16} className="mx-1 text-gray-500" /> */}
                       <Link
                         href={`/category/${activeCategory}`}
-                        className="hover:text-purple-400 transition-colors"
+                        className="hover:text-green-400 transition-colors"
                       >
                         {getActiveCategoryName()}
                       </Link>
@@ -288,20 +286,17 @@ export default function PricingPage() {
                   {activeSubcategory && (
                     <>
                       <ChevronRight size={16} className="mx-1 text-gray-500" />
-                      <span className="text-purple-400">{getActiveSubcategoryName()}</span>
+                      <span className="text-green-400">{getActiveSubcategoryName()}</span>
                     </>
                   )}
                 </div>
-                <h1 className="text-3xl font-bold text-white mb-2">{getHeaderTitle()}</h1>
-                <p className="text-gray-400">{getHeaderDescription()}</p>
               </div>
 
-              {/* Filter and Sort Controls */}
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 bg-gray-900 px-4 py-2 rounded-lg border border-gray-800">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 bg-gray-900 px-4 py-2 rounded-lg border border-gray-800">
                 <div className="mb-4 sm:mb-0">
                   <button
                     onClick={() => setIsFilterOpen(!isFilterOpen)}
-                    className="flex items-center text-gray-300 hover:text-purple-400 transition-colors"
+                    className="flex items-center text-gray-300 hover:text-green-400 transition-colors"
                   >
                     <Filter size={18} className="mr-2" />
                     <span>Filter</span>
@@ -312,7 +307,7 @@ export default function PricingPage() {
                   <select
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value)}
-                    className="bg-gray-800 border border-gray-700 text-gray-300 rounded-md px-3 py-1.5 focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    className="bg-gray-800 border border-gray-700 text-gray-300 rounded-md px-3 py-1.5 focus:ring-2 focus:ring-green-500 focus:border-green-500"
                   >
                     <option value="default">Default Sorting</option>
                     <option value="price-low-high">Price: Low to High</option>
@@ -323,6 +318,7 @@ export default function PricingPage() {
                   </select>
                 </div>
               </div>
+                <p className="text-gray-400 p-6">{getHeaderDescription()}</p>
 
               {displayedPackages.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
@@ -339,7 +335,7 @@ export default function PricingPage() {
                 </div>
               ) : (
                 <div className="bg-gray-900 p-8 rounded-2xl border border-gray-800 shadow-xl text-center">
-                  <Package size={48} className="text-purple-400 mx-auto mb-4" />
+                  <Package size={48} className="text-green-400 mx-auto mb-4" />
                   <h3 className="text-xl font-semibold text-white mb-2">No packages found</h3>
                   <p className="text-gray-400">We couldn&apos;t find any packages matching your criteria.</p>
                 </div>
@@ -350,7 +346,7 @@ export default function PricingPage() {
                 <div className="flex justify-center mt-10">
                   <nav className="inline-flex rounded-lg shadow-lg">
                     <button className="px-4 py-2 bg-gray-900 border border-gray-700 rounded-l-lg text-gray-300 hover:bg-gray-800 transition-colors">Previous</button>
-                    <button className="px-4 py-2 bg-purple-600 border border-purple-600 text-white">1</button>
+                    <button className="px-4 py-2 bg-green-600 border border-green-600 text-white">1</button>
                     <button className="px-4 py-2 bg-gray-900 border border-gray-700 text-gray-300 hover:bg-gray-800 transition-colors">2</button>
                     <button className="px-4 py-2 bg-gray-900 border border-gray-700 text-gray-300 hover:bg-gray-800 transition-colors">3</button>
                     <button className="px-4 py-2 bg-gray-900 border border-gray-700 rounded-r-lg text-gray-300 hover:bg-gray-800 transition-colors">Next</button>

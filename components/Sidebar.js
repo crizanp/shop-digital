@@ -64,7 +64,7 @@ const Sidebar = ({ categories = [], activeCategory, activeSubcategory }) => {
             <div className="lg:hidden fixed bottom-4 right-4 z-50 hide-scrollbar">
                 <button
                     onClick={() => setIsOpen(!isOpen)}
-                    className="bg-purple-700 text-white p-3 rounded-full shadow-lg flex items-center justify-center hover:bg-purple-600 transition"
+                    className="bg-green-700 text-white p-3 rounded-full shadow-lg flex items-center justify-center hover:bg-green-600 transition"
                     aria-label={isOpen ? "Close categories menu" : "Open categories menu"}
                 >
                     {isOpen ? <X size={24} /> : <Menu size={24} />}
@@ -92,7 +92,7 @@ const Sidebar = ({ categories = [], activeCategory, activeSubcategory }) => {
                     {/* Header section */}
                     <div className="flex items-center justify-between mb-8">
                         <div className="flex items-center">
-                            <Package className="text-purple-400 mr-2" size={24} />
+                            <Package className="text-green-400 mr-2" size={24} />
                             <h2 className="text-xl font-bold text-white">Our Offered Services</h2>
                         </div>
                         {isMobile && (
@@ -110,7 +110,7 @@ const Sidebar = ({ categories = [], activeCategory, activeSubcategory }) => {
                         <input
                             type="text"
                             placeholder="Search categories..."
-                            className="w-full pl-10 p-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 transition text-gray-200 placeholder-gray-500"
+                            className="w-full pl-10 p-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition text-gray-200 placeholder-gray-500"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -129,8 +129,8 @@ const Sidebar = ({ categories = [], activeCategory, activeSubcategory }) => {
                         <Link
                             href="/"
                             className={`block py-3 px-2 rounded-lg transition-all duration-300 ${!activeCategory && !activeSubcategory
-                                    ? 'bg-purple-600 text-white font-semibold'
-                                    : 'text-gray-300 hover:text-purple-400 hover:bg-gray-800'
+                                    ? 'bg-green-600 text-white font-semibold'
+                                    : 'text-gray-300 hover:text-green-400 hover:bg-gray-800'
                                 }`}
                             onClick={() => isMobile && setIsOpen(false)}
                         >
@@ -151,23 +151,23 @@ const Sidebar = ({ categories = [], activeCategory, activeSubcategory }) => {
                                         <Link
                                             href={`/category/${category.slug}`}
                                             className={`${activeCategory === category.slug
-                                                ? 'text-purple-400 font-semibold'
-                                                : 'text-gray-300 group-hover:text-purple-400'} 
+                                                ? 'text-green-400 font-semibold'
+                                                : 'text-gray-300 group-hover:text-green-400'} 
                                                 flex-grow transition duration-300 flex items-center`}
                                             onClick={() => isMobile && setIsOpen(false)}
                                         >
                                             <span className="mr-2">{category.name}</span>
-                                            {category.hasSubcategories && (
-                                                <span className="text-xs bg-gray-800 text-purple-400 px-2 py-0.5 rounded-full">
+                                            {/* {category.hasSubcategories && (
+                                                <span className="text-xs bg-gray-800 text-green-400 px-2 py-0.5 rounded-full">
                                                     {category.subcategories.length}
                                                 </span>
-                                            )}
+                                            )} */}
                                         </Link>
 
                                         {category.hasSubcategories && (
                                             <button
                                                 onClick={() => toggleCategory(category.slug)}
-                                                className="p-1 text-gray-400 hover:text-purple-400 focus:outline-none"
+                                                className="p-1 text-gray-400 hover:text-green-400 focus:outline-none"
                                                 aria-label={expandedCategories[category.slug]
                                                     ? "Collapse category"
                                                     : "Expand category"}
@@ -196,8 +196,8 @@ const Sidebar = ({ categories = [], activeCategory, activeSubcategory }) => {
                                                     <Link
                                                         href={`/subcategory/${subcategory.slug}`}
                                                         className={`${activeSubcategory === subcategory.slug
-                                                            ? 'text-purple-400 font-medium'
-                                                            : 'text-gray-400 hover:text-purple-400'} 
+                                                            ? 'text-green-400 font-medium'
+                                                            : 'text-gray-400 hover:text-green-400'} 
                                                             transition duration-300 block`}
                                                         onClick={() => isMobile && setIsOpen(false)}
                                                     >
@@ -211,11 +211,11 @@ const Sidebar = ({ categories = [], activeCategory, activeSubcategory }) => {
                             ))
                         ) : (
                             <div className="text-center text-gray-400 py-6 bg-gray-800/50 rounded-lg">
-                                <Search className="mx-auto mb-2 text-purple-500" size={24} />
+                                <Search className="mx-auto mb-2 text-green-500" size={24} />
                                 <p>No categories found</p>
                                 <button
                                     onClick={() => setSearchTerm('')}
-                                    className="mt-2 text-purple-400 hover:text-purple-300 text-sm font-medium"
+                                    className="mt-2 text-green-400 hover:text-green-300 text-sm font-medium"
                                 >
                                     Clear search
                                 </button>
@@ -227,8 +227,8 @@ const Sidebar = ({ categories = [], activeCategory, activeSubcategory }) => {
                     {isMobile && (
                         <div className="mt-6 flex space-x-2">
                             <button
-                                className="flex-1 bg-purple-700 text-white py-3 px-4 rounded-lg 
-                                    hover:bg-purple-600 transition duration-300 flex items-center justify-center font-medium"
+                                className="flex-1 bg-green-700 text-white py-3 px-4 rounded-lg 
+                                    hover:bg-green-600 transition duration-300 flex items-center justify-center font-medium"
                                 onClick={() => setIsOpen(false)}
                             >
                                 Apply Filters

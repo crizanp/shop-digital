@@ -244,7 +244,23 @@ const AdminDashboard = ({ token, onLogout }) => {
         }
         return 'No Category';
     };
+    const removePricingSection = (pricingIndex) => {
+        const pricing = formData.pricing || [];
+        setFormData(prev => ({
+            ...prev,
+            pricing: pricing.filter((_, i) => i !== pricingIndex)
+        }));
+    };
 
+    const removePricingOption = (pricingIndex, optionIndex) => {
+        const pricing = formData.pricing || [];
+        const options = pricing[pricingIndex]?.options || [];
+        pricing[pricingIndex] = {
+            ...pricing[pricingIndex],
+            options: options.filter((_, i) => i !== optionIndex)
+        };
+        setFormData(prev => ({ ...prev, pricing }));
+    };
     if (!token || token === 'undefined') {
         return (
             <div className="min-h-screen bg-gray-100 flex items-center justify-center">
@@ -553,7 +569,23 @@ const PackageForm = ({ formData, setFormData, categories }) => {
         };
         setFormData(prev => ({ ...prev, pricing }));
     };
+    const removePricingSection = (pricingIndex) => {
+        const pricing = formData.pricing || [];
+        setFormData(prev => ({
+            ...prev,
+            pricing: pricing.filter((_, i) => i !== pricingIndex)
+        }));
+    };
 
+    const removePricingOption = (pricingIndex, optionIndex) => {
+        const pricing = formData.pricing || [];
+        const options = pricing[pricingIndex]?.options || [];
+        pricing[pricingIndex] = {
+            ...pricing[pricingIndex],
+            options: options.filter((_, i) => i !== optionIndex)
+        };
+        setFormData(prev => ({ ...prev, pricing }));
+    };
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Basic Information */}
@@ -768,34 +800,48 @@ const PackageForm = ({ formData, setFormData, categories }) => {
                 <h4 className="text-lg font-medium text-gray-900 mb-4">Pricing Sections</h4>
                 {(formData.pricing || []).map((pricingSection, pricingIndex) => (
                     <div key={pricingIndex} className="border p-4 rounded-lg mb-4">
-                        <div className="mb-4">
+                        <div className="flex justify-between items-center mb-4">
                             <label className="block text-sm font-medium text-gray-700">Section Title</label>
-                            <input
-                                type="text"
-                                value={pricingSection.title || ''}
-                                onChange={(e) => handlePricingChange(pricingIndex, 'title', e.target.value)}
-                                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500"
-                            />
+                            <button
+                                type="button"
+                                onClick={() => removePricingSection(pricingIndex)}
+                                className="text-red-600 hover:text-red-800 text-sm"
+                            >
+                                Delete Section
+                            </button>
                         </div>
+                        <input
+                            type="text"
+                            value={pricingSection.title || ''}
+                            onChange={(e) => handlePricingChange(pricingIndex, 'title', e.target.value)}
+                            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500"
+                        />
 
-                        <div className="mb-4">
+                        <div className="mb-4 mt-4">
                             <label className="block text-sm font-medium text-gray-700 mb-2">Options</label>
                             {(pricingSection.options || []).map((option, optionIndex) => (
-                                <div key={optionIndex} className="grid grid-cols-2 gap-2 mb-2">
+                                <div key={optionIndex} className="flex gap-2 mb-2">
                                     <input
                                         type="text"
                                         placeholder="Option Name"
                                         value={option.name || ''}
                                         onChange={(e) => handlePricingOptionChange(pricingIndex, optionIndex, 'name', e.target.value)}
-                                        className="border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500"
+                                        className="flex-1 border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500"
                                     />
                                     <input
                                         type="text"
                                         placeholder="Price"
                                         value={option.price || ''}
                                         onChange={(e) => handlePricingOptionChange(pricingIndex, optionIndex, 'price', e.target.value)}
-                                        className="border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500"
+                                        className="flex-1 border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500"
                                     />
+                                    <button
+                                        type="button"
+                                        onClick={() => removePricingOption(pricingIndex, optionIndex)}
+                                        className="text-red-600 hover:text-red-800 text-sm px-2"
+                                    >
+                                        Remove
+                                    </button>
                                 </div>
                             ))}
                             <button
