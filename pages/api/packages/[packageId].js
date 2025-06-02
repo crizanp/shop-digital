@@ -2,7 +2,7 @@
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import Head from 'next/head';
-import PackageDetailPage from '../../components/PackageDetailPage';
+import PackageDetailPage from '../../../components/PackageDetailPage';
 import Navbar from '@/components/Navbar';
 import { Package, ArrowLeft, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
