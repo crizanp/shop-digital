@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ChevronDown, ChevronUp, Menu, X, Search, Layers, Package } from 'lucide-react';
+import { ChevronDown, ChevronUp, Menu, X, Search, Package } from 'lucide-react';
 
 const Sidebar = ({ categories = [], activeCategory, activeSubcategory }) => {
     const [isOpen, setIsOpen] = useState(true);
@@ -8,7 +8,6 @@ const Sidebar = ({ categories = [], activeCategory, activeSubcategory }) => {
     const [isMobile, setIsMobile] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
 
-    // Check viewport width on mount and resize
     useEffect(() => {
         const checkViewport = () => {
             setIsMobile(window.innerWidth < 1024);
@@ -16,237 +15,161 @@ const Sidebar = ({ categories = [], activeCategory, activeSubcategory }) => {
         };
         checkViewport();
         window.addEventListener('resize', checkViewport);
-
         return () => window.removeEventListener('resize', checkViewport);
     }, []);
 
-    // Initialize expanded state based on active category
     useEffect(() => {
         if (activeCategory) {
-            setExpandedCategories(prev => ({
-                ...prev,
-                [activeCategory]: true
-            }));
+            setExpandedCategories(prev => ({ ...prev, [activeCategory]: true }));
         }
     }, [activeCategory]);
 
-    // Auto-expand categories with subcategories
     useEffect(() => {
-        if (categories.length > 0) {
+        if (categories && categories.length) {
             const expanded = {};
-            categories.forEach(category => {
-                if (category.hasSubcategories) {
-                    expanded[category.slug] = true;
-                }
+            categories.forEach(cat => {
+                if (cat.hasSubcategories) expanded[cat.slug] = true; // sensible default open
             });
             setExpandedCategories(expanded);
         }
     }, [categories]);
 
-    const toggleCategory = (categorySlug) => {
-        setExpandedCategories(prev => ({
-            ...prev,
-            [categorySlug]: !prev[categorySlug]
-        }));
-    };
+    const toggleCategory = (slug) =>
+        setExpandedCategories(prev => ({ ...prev, [slug]: !prev[slug] }));
 
-    // Filter categories based on search term
-    const filteredCategories = categories.filter(category =>
-        category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (category.subcategories && category.subcategories.some(sub =>
-            sub.name.toLowerCase().includes(searchTerm.toLowerCase())
-        ))
-    );
+    const filtered = categories.filter(cat => {
+        const q = searchTerm.trim().toLowerCase();
+        if (!q) return true;
+        if (cat.name.toLowerCase().includes(q)) return true;
+        return (cat.subcategories || []).some(s => s.name.toLowerCase().includes(q));
+    });
 
     return (
         <>
-            {/* Mobile toggle button - fixed at the bottom */}
-            <div className="lg:hidden fixed bottom-4 right-4 z-50 hide-scrollbar">
+            {/* Mobile toggle */}
+            <div className="lg:hidden fixed bottom-4 right-4 z-50">
                 <button
-                    onClick={() => setIsOpen(!isOpen)}
-                    className="bg-green-700 text-white p-3 rounded-full shadow-lg flex items-center justify-center hover:bg-green-600 transition"
-                    aria-label={isOpen ? "Close categories menu" : "Open categories menu"}
+                    onClick={() => setIsOpen(v => !v)}
+                    className="bg-purple-600 text-white p-3 rounded-full shadow-lg hover:bg-purple-500 transition"
+                    aria-label={isOpen ? 'Close categories' : 'Open categories'}
                 >
-                    {isOpen ? <X size={24} /> : <Menu size={24} />}
+                    {isOpen ? <X size={20} /> : <Menu size={20} />}
                 </button>
             </div>
 
-            {/* Overlay for mobile */}
+            {/* Backdrop for mobile */}
             {isOpen && isMobile && (
-                <div
-                    className="fixed inset-0 bg-black bg-opacity-70 z-40"
-                    onClick={() => setIsOpen(false)}
-                />
+                <div className="fixed inset-0 bg-black/30 z-40" onClick={() => setIsOpen(false)} />
             )}
 
-            {/* Sidebar container with conditional positioning */}
-            <div
-                className={`bg-gray-900 rounded-2xl shadow-xl border border-gray-800 transition-all duration-300 ease-in-out hide-scrollbar
-                    ${isMobile
-                        ? `fixed bottom-0 left-0 right-0 z-40 max-h-[80vh] overflow-y-auto
-                           ${isOpen ? 'translate-y-0' : 'translate-y-full'}`
-                        : 'sticky top-4'}`
-                }
-            >
-                <div className="p-6">
-                    {/* Header section */}
-                    <div className="flex items-center justify-between mb-8">
-                        <div className="flex items-center">
-                            <Package className="text-green-400 mr-2" size={24} />
-                            <h2 className="text-xl font-bold text-white">Our Offered Services</h2>
-                        </div>
-                        {isMobile && (
-                            <button onClick={() => setIsOpen(false)} aria-label="Close menu">
-                                <X size={24} className="text-gray-400 hover:text-white transition-colors" />
-                            </button>
-                        )}
+                    <aside
+                        className={`bg-white rounded-2xl shadow-sm border border-gray-100 transition-all duration-200
+                            ${isMobile ? 'fixed bottom-0 left-0 right-0 max-h-[80vh] overflow-auto z-50' : 'sticky top-20 z-40'}`}
+                        style={{ padding: 18 }}
+                    >
+                <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-3">
+                        <Package size={22} className="text-purple-600" />
+                        <h3 className="text-lg font-semibold text-gray-900">Our Services</h3>
                     </div>
+                    {isMobile && (
+                        <button onClick={() => setIsOpen(false)} className="text-gray-500">
+                            <X size={20} />
+                        </button>
+                    )}
+                </div>
 
-                    {/* Search box */}
-                    <div className="relative mb-6">
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <Search className="text-gray-500" size={20} />
-                        </div>
+                <div className="mb-4">
+                    <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                            <Search size={18} />
+                        </span>
                         <input
-                            type="text"
-                            placeholder="Search categories..."
-                            className="w-full pl-10 p-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition text-gray-200 placeholder-gray-500"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
+                            placeholder="Search categories"
+                            className="w-full pl-10 pr-10 py-2 border border-gray-200 rounded-md text-gray-800 placeholder-gray-400 focus:ring-2 focus:ring-purple-200"
                         />
                         {searchTerm && (
                             <button
                                 onClick={() => setSearchTerm('')}
-                                className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                aria-label="Clear search"
                             >
-                                <X className="text-gray-500 hover:text-gray-300" size={20} />
+                                <X size={16} />
                             </button>
                         )}
                     </div>
+                </div>
 
-                    {/* All Packages Link */}
-                    <div className="mb-4">
-                        <Link
-                            href="/"
-                            className={`block py-3 px-2 rounded-lg transition-all duration-300 ${!activeCategory && !activeSubcategory
-                                    ? 'bg-green-600 text-white font-semibold'
-                                    : 'text-gray-300 hover:text-green-400 hover:bg-gray-800'
-                                }`}
-                            onClick={() => isMobile && setIsOpen(false)}
-                        >
-                            <div className="flex items-center">
-                                <Package size={18} className="mr-2" />
-                                All Packages
-                            </div>
-                        </Link>
-                    </div>
+                <nav className="space-y-1 max-h-[56vh] overflow-auto pr-2">
+                    <Link
+                        href="/"
+                        className={`block rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+                            !activeCategory && !activeSubcategory ? 'bg-purple-600 text-white' : 'text-gray-700 hover:bg-gray-50 hover:text-purple-600'
+                        }`}
+                        onClick={() => isMobile && setIsOpen(false)}
+                    >
+                        All Packages
+                    </Link>
 
-                    {/* Categories list with animation */}
-                    <div className="space-y-0 overflow-y-auto max-h-[60vh] pr-2 hide-scrollbar">
-                        {filteredCategories.length > 0 ? (
-                            filteredCategories.map((category) => (
-                                <div key={category._id} className="border-b border-gray-800 last:border-b-0">
-                                    {/* Main Category */}
-                                    <div className="py-3 flex items-center justify-between group">
-                                        <Link
-                                            href={`/category/${category.slug}`}
-                                            className={`${activeCategory === category.slug
-                                                ? 'text-green-400 font-semibold'
-                                                : 'text-gray-300 group-hover:text-green-400'} 
-                                                flex-grow transition duration-300 flex items-center`}
-                                            onClick={() => isMobile && setIsOpen(false)}
+                    {filtered.length ? (
+                        filtered.map((cat) => (
+                            <div key={cat._id} className="pt-2">
+                                <div className="flex items-center justify-between">
+                                    <Link
+                                        href={`/category/${cat.slug}`}
+                                        className={`flex-1 text-sm font-medium px-2 py-2 rounded-md transition ${
+                                            activeCategory === cat.slug ? 'text-purple-600' : 'text-gray-800 hover:text-purple-600'
+                                        }`}
+                                        onClick={() => isMobile && setIsOpen(false)}
+                                    >
+                                        {cat.name}
+                                    </Link>
+
+                                    {(cat.hasSubcategories && (cat.subcategories || []).length > 0) && (
+                                        <button
+                                            onClick={() => toggleCategory(cat.slug)}
+                                            aria-expanded={!!expandedCategories[cat.slug]}
+                                            className="p-1 text-gray-400 hover:text-purple-600"
                                         >
-                                            <span className="mr-2">{category.name}</span>
-                                            {/* {category.hasSubcategories && (
-                                                <span className="text-xs bg-gray-800 text-green-400 px-2 py-0.5 rounded-full">
-                                                    {category.subcategories.length}
-                                                </span>
-                                            )} */}
-                                        </Link>
-
-                                        {category.hasSubcategories && (
-                                            <button
-                                                onClick={() => toggleCategory(category.slug)}
-                                                className="p-1 text-gray-400 hover:text-green-400 focus:outline-none"
-                                                aria-label={expandedCategories[category.slug]
-                                                    ? "Collapse category"
-                                                    : "Expand category"}
-                                            >
-                                                {expandedCategories[category.slug]
-                                                    ? <ChevronUp size={18} />
-                                                    : <ChevronDown size={18} />}
-                                            </button>
-                                        )}
-                                    </div>
-
-                                    {/* Subcategories with smooth animation */}
-                                    {category.hasSubcategories && category.subcategories && (
-                                        <div
-                                            className={`overflow-hidden transition-all duration-300 ease-in-out
-                                                ${expandedCategories[category.slug] ? 'max-h-96' : 'max-h-0'}`}
-                                        >
-                                            {category.subcategories.map((subcategory) => (
-                                                <div
-                                                    key={subcategory._id}
-                                                    className={`py-3 pl-6 border-t border-gray-800 
-                                                        ${activeSubcategory === subcategory.slug
-                                                            ? 'bg-gray-800 rounded-lg'
-                                                            : 'hover:bg-gray-800/50 rounded-lg'} transition`}
-                                                >
-                                                    <Link
-                                                        href={`/subcategory/${subcategory.slug}`}
-                                                        className={`${activeSubcategory === subcategory.slug
-                                                            ? 'text-green-400 font-medium'
-                                                            : 'text-gray-400 hover:text-green-400'} 
-                                                            transition duration-300 block`}
-                                                        onClick={() => isMobile && setIsOpen(false)}
-                                                    >
-                                                        {subcategory.name}
-                                                    </Link>
-                                                </div>
-                                            ))}
-                                        </div>
+                                            {expandedCategories[cat.slug] ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                                        </button>
                                     )}
                                 </div>
-                            ))
-                        ) : (
-                            <div className="text-center text-gray-400 py-6 bg-gray-800/50 rounded-lg">
-                                <Search className="mx-auto mb-2 text-green-500" size={24} />
-                                <p>No categories found</p>
-                                <button
-                                    onClick={() => setSearchTerm('')}
-                                    className="mt-2 text-green-400 hover:text-green-300 text-sm font-medium"
-                                >
-                                    Clear search
-                                </button>
-                            </div>
-                        )}
-                    </div>
 
-                    {/* Mobile-only action buttons */}
-                    {isMobile && (
-                        <div className="mt-6 flex space-x-2">
-                            <button
-                                className="flex-1 bg-green-700 text-white py-3 px-4 rounded-lg 
-                                    hover:bg-green-600 transition duration-300 flex items-center justify-center font-medium"
-                                onClick={() => setIsOpen(false)}
-                            >
-                                Apply Filters
-                            </button>
-                            <button
-                                className="flex-1 bg-gray-800 text-gray-300 py-3 px-4 rounded-lg 
-                                    hover:bg-gray-700 transition duration-300 flex items-center justify-center font-medium"
-                                onClick={() => {
-                                    setSearchTerm('');
-                                    setIsOpen(false);
-                                }}
-                            >
-                                Reset
-                            </button>
+                                {cat.hasSubcategories && (cat.subcategories || []).length > 0 && (
+                                    <div className={`mt-1 pl-4 transition-all ${expandedCategories[cat.slug] ? 'max-h-96' : 'max-h-0 overflow-hidden'}`}>
+                                        {(cat.subcategories || []).map(sub => (
+                                            <Link
+                                                key={sub._id}
+                                                href={`/subcategory/${sub.slug}`}
+                                                className={`block text-sm py-2 px-2 rounded-md ${activeSubcategory === sub.slug ? 'text-purple-600 font-medium' : 'text-gray-600 hover:text-purple-600'}`}
+                                                onClick={() => isMobile && setIsOpen(false)}
+                                            >
+                                                {sub.name}
+                                            </Link>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        ))
+                    ) : (
+                        <div className="py-6 text-center text-gray-600">
+                            <Search size={28} className="mx-auto mb-2 text-purple-500" />
+                            <p className="text-sm">No categories found</p>
+                            <button onClick={() => setSearchTerm('')} className="mt-2 text-sm text-purple-600">Clear</button>
                         </div>
                     )}
-                </div>
-            </div>
+                </nav>
+
+                {isMobile && (
+                    <div className="mt-4 flex gap-3">
+                        <button onClick={() => setIsOpen(false)} className="flex-1 bg-purple-600 text-white py-2 rounded-md">Apply</button>
+                        <button onClick={() => { setSearchTerm(''); setIsOpen(false); }} className="flex-1 bg-gray-100 text-gray-700 py-2 rounded-md">Reset</button>
+                    </div>
+                )}
+            </aside>
         </>
     );
 };

@@ -6,8 +6,8 @@ import Footer from './home/footer';
 
 const Layout = ({
   children,
-  title = 'Build with Purpose | Custom Software Development Company',
-  description = 'Your trusted partner in creating powerful, scalable software solutions across industries like Finance, Healthcare, Education, and Real Estate. We specialize in Web, Mobile, AI, Blockchain, and more.',
+  title = 'Foxbeep — Creative Video & Media Services',
+  description = 'Foxbeep offers professional video, animation, and social media content services to help brands tell their story with clarity and style.',
   keywords = 'software development, custom software, web development, mobile apps, AI solutions, blockchain, cloud development, UI/UX design, IT services',
   ogImage = '/images/logo.jpg',
   canonical = '',
@@ -74,7 +74,7 @@ const Layout = ({
         <link rel="manifest" href="/images/favicon.png" />
         <link rel="mask-icon" href="/images/favicon.png" color="#5bbad5" />
         <meta name="msapplication-TileColor" content="#da532c" />
-        <meta name="theme-color" content="#ffffff" />
+  <meta name="theme-color" content="#6d28d9" />
 
         {/* Structured Data */}
         <script

@@ -8,13 +8,13 @@ import { Filter, SortAsc, SortDesc, Package, ChevronRight, ArrowRight } from 'lu
 import Navbar from '@/components/Navbar';
 import Link from 'next/link';
 
-export default function PricingPage() {
+export default function PricingPage({ initialCategories = [], initialPackages = [], initialPagination = {} }) {
   const router = useRouter();
   const { categorySlug, subcategorySlug } = router.query;
 
   // State management
-  const [categories, setCategories] = useState([]);
-  const [packages, setPackages] = useState([]);
+  const [categories, setCategories] = useState(initialCategories);
+  const [packages, setPackages] = useState(initialPackages);
   const [filteredPackages, setFilteredPackages] = useState([]);
   const [displayedPackages, setDisplayedPackages] = useState([]);
   const [activeCategory, setActiveCategory] = useState(null);
@@ -30,23 +30,11 @@ export default function PricingPage() {
   const [totalItems, setTotalItems] = useState(0);
   const [hasNextPage, setHasNextPage] = useState(false);
   const [hasPrevPage, setHasPrevPage] = useState(false);
-  const [packagesPerPage] = useState(12);
+  const [packagesPerPage] = useState(6);
   const [loadingMore, setLoadingMore] = useState(false);
 
-  // Fetch categories from API
-  const fetchCategories = async () => {
-    try {
-      const response = await fetch('/api/categories');
-      if (!response.ok) {
-        throw new Error('Failed to fetch categories');
-      }
-      const data = await response.json();
-      setCategories(data.categories || []);
-    } catch (err) {
-      setError('Failed to load categories');
-      console.error('Error fetching categories:', err);
-    }
-  };
+  // categories are provided by server-side props; keep fetchCategories for future use
+  const fetchCategories = async () => {};
 
   // Fetch packages from API with pagination
   const fetchPackages = async (page = 1, categoryId = null, subcategoryIndex = null, reset = false) => {
@@ -96,15 +84,16 @@ export default function PricingPage() {
     }
   };
 
-  // Load initial data
+  // Initialize pagination state from server props
   useEffect(() => {
-    const loadData = async () => {
-      setLoading(true);
-      await fetchCategories();
-      await fetchPackages(1, null, null, true);
-      setLoading(false);
-    };
-    loadData();
+    if (initialPagination) {
+      setCurrentPage(initialPagination.currentPage || 1);
+      setTotalPages(initialPagination.totalPages || 1);
+      setTotalItems(initialPagination.totalItems || 0);
+      setHasNextPage(initialPagination.hasNextPage || false);
+      setHasPrevPage(initialPagination.hasPrevPage || false);
+    }
+    setLoading(false);
   }, []);
 
   // Helper function to find category by slug
@@ -302,10 +291,10 @@ export default function PricingPage() {
           <title>Loading... | Professional Design Solutions</title>
         </Head>
         <Navbar />
-        <div className="min-h-screen bg-black text-gray-200 flex items-center justify-center">
+        <div className="min-h-screen bg-white text-gray-900 flex items-center justify-center">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-green-500 mx-auto mb-4"></div>
-            <p className="text-xl">Loading packages...</p>
+            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-purple-500 mx-auto mb-4"></div>
+            <p className="text-xl text-gray-900">Loading packages...</p>
           </div>
         </div>
       </>
@@ -319,14 +308,14 @@ export default function PricingPage() {
           <title>Error | Professional Design Solutions</title>
         </Head>
         <Navbar />
-        <div className="min-h-screen bg-black text-gray-200 flex items-center justify-center">
+        <div className="min-h-screen bg-white text-gray-900 flex items-center justify-center">
           <div className="text-center">
-            <Package size={64} className="text-red-400 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold mb-2">Error Loading Data</h2>
-            <p className="text-gray-400 mb-4">{error}</p>
+            <Package size={64} className="text-red-500 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold mb-2 text-gray-900">Error Loading Data</h2>
+            <p className="text-gray-700 mb-4">{error}</p>
             <button
               onClick={() => window.location.reload()}
-              className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg transition-colors"
+              className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg transition-colors"
             >
               Retry
             </button>
@@ -344,7 +333,7 @@ export default function PricingPage() {
       </Head>
       <Navbar />
 
-      <div className="min-h-screen bg-black text-gray-200">
+      <div className="min-h-screen bg-white text-gray-900">
         <div className="container mx-auto sm:pt-16 sm:pb-10 px-4">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             {/* Sidebar - takes 1/4 of screen on large screens */}
@@ -365,7 +354,7 @@ export default function PricingPage() {
                       {/* <ChevronRight size={16} className="mx-1 text-gray-500" /> */}
                       <Link
                         href={`/category/${activeCategory}`}
-                        className="hover:text-green-400 transition-colors"
+                        className="hover:text-purple-500 transition-colors"
                       >
                         {getActiveCategoryName()}
                       </Link>
@@ -374,17 +363,17 @@ export default function PricingPage() {
                   {activeSubcategory && (
                     <>
                       <ChevronRight size={16} className="mx-1 text-gray-500" />
-                      <span className="text-green-400">{getActiveSubcategoryName()}</span>
+                      <span className="text-purple-500">{getActiveSubcategoryName()}</span>
                     </>
                   )}
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 bg-gray-900 px-4 py-2 rounded-lg border border-gray-800">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 bg-gray-50 px-4 py-2 rounded-lg border border-gray-200">
                 <div className="mb-4 sm:mb-0">
                   <button
                     onClick={() => setIsFilterOpen(!isFilterOpen)}
-                    className="flex items-center text-gray-300 hover:text-green-400 transition-colors"
+                    className="flex items-center text-gray-600 hover:text-purple-500 transition-colors"
                   >
                     <Filter size={18} className="mr-2" />
                     <span>Filter</span>
@@ -395,7 +384,7 @@ export default function PricingPage() {
                   <select
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value)}
-                    className="bg-gray-800 border border-gray-700 text-gray-300 rounded-md px-3 py-1.5 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                    className="bg-gray-100 border border-gray-200 text-gray-700 rounded-md px-3 py-1.5 focus:ring-2 focus:ring-purple-300 focus:border-purple-300"
                   >
                     <option value="default">Default Sorting</option>
                     <option value="price-low-high">Price: Low to High</option>
@@ -406,15 +395,14 @@ export default function PricingPage() {
                   </select>
                 </div>
               </div>
-                <p className="text-gray-400 p-6">{getHeaderDescription()}</p>
+                <p className="text-gray-700 p-6">{getHeaderDescription()}</p>
 
-              {/* Pagination Stats */}
-              {totalItems > 0 && renderPaginationStats()}
+              {/* Pagination stats hidden on main page */}
 
               {loading ? (
                 <div className="text-center py-8">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto mb-4"></div>
-                  <p className="text-gray-400">Loading packages...</p>
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
+                  <p className="text-gray-700">Loading packages...</p>
                 </div>
               ) : displayedPackages.length > 0 ? (
                 <>
@@ -437,7 +425,7 @@ export default function PricingPage() {
                       <button
                         onClick={loadMorePackages}
                         disabled={loadingMore}
-                        className="bg-green-600 hover:bg-green-700 disabled:bg-gray-600 text-white px-6 py-3 rounded-lg transition-colors font-medium flex items-center space-x-2"
+                        className="bg-purple-600 hover:bg-purple-700 disabled:bg-gray-200 text-white px-6 py-3 rounded-lg transition-colors font-medium flex items-center space-x-2"
                       >
                         {loadingMore ? (
                           <>
@@ -456,18 +444,18 @@ export default function PricingPage() {
 
                   {/* Pagination Info */}
                   {!hasNextPage && totalItems > packagesPerPage && (
-                    <div className="text-center mt-8 p-4 bg-gray-900 rounded-lg border border-gray-800">
-                      <p className="text-gray-400">
+                    <div className="text-center mt-8 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                      <p className="text-gray-700">
                         You&apos;ve reached the end! Showing all {totalItems} packages.
                       </p>
                     </div>
                   )}
                 </>
               ) : (
-                <div className="bg-gray-900 p-8 rounded-2xl border border-gray-800 shadow-xl text-center">
-                  <Package size={48} className="text-green-400 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-white mb-2">No packages found</h3>
-                  <p className="text-gray-400">We couldn&apos;t find any packages matching your criteria.</p>
+                <div className="bg-gray-50 p-8 rounded-2xl border border-gray-200 shadow text-center">
+                  <Package size={48} className="text-purple-500 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No packages found</h3>
+                  <p className="text-gray-700">We couldn&apos;t find any packages matching your criteria.</p>
                 </div>
               )}
             </div>
@@ -476,4 +464,28 @@ export default function PricingPage() {
       </div>
     </>
   );
+}
+
+// Server-side rendering to fetch categories and first page of packages (6 per page)
+export async function getServerSideProps(context) {
+  const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
+  const host = context.req.headers.host;
+  const baseUrl = `${protocol}://${host}`;
+
+  // Fetch categories
+  const categoriesRes = await fetch(`${baseUrl}/api/categories`);
+  const categoriesData = await categoriesRes.json();
+  const categories = categoriesData.categories || [];
+
+  // Fetch first page of packages (limit enforced to 6 server-side already)
+  const packagesRes = await fetch(`${baseUrl}/api/packages?page=1&limit=6`);
+  const packagesData = await packagesRes.json();
+
+  return {
+    props: {
+      initialCategories: categories,
+      initialPackages: packagesData.packages || [],
+      initialPagination: packagesData.pagination || {}
+    }
+  };
 }

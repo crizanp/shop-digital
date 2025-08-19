@@ -76,18 +76,18 @@ const Navbar = ({ categories = [], activeCategory, activeSubcategory }) => {
     // Don't render until mounted to avoid hydration issues
     if (!isMounted) {
         return (
-            <nav className="fixed top-0 left-0 w-full bg-black z-50 text-white pr-6 xl:pr-0">
+            <nav className="fixed top-0 left-0 w-full bg-white z-50 text-gray-900 pr-6 xl:pr-0 shadow-sm border-b border-gray-100">
                 <div className="max-w-7xl mx-auto">
                     <div className="flex justify-between items-center h-16 md:h-18 lg:h-20">
-                        <div className="flex items-start -ml-2">
-                            <Link href="/" className="flex items-left">
+                        <div className="flex items-center -ml-2">
+                            <Link href="/" className="flex items-center">
                                 <div className="relative w-32 h-12 md:w-36 md:h-14 lg:w-40 lg:h-30">
-                                    <div className="w-full h-full bg-gray-700 animate-pulse rounded"></div>
+                                    <div className="w-full h-full bg-gray-200 animate-pulse rounded"></div>
                                 </div>
                             </Link>
                         </div>
                         <div className="xl:hidden">
-                            <div className="w-6 h-6 bg-gray-700 animate-pulse rounded"></div>
+                            <div className="w-6 h-6 bg-gray-200 animate-pulse rounded"></div>
                         </div>
                     </div>
                 </div>
@@ -97,36 +97,32 @@ const Navbar = ({ categories = [], activeCategory, activeSubcategory }) => {
 
     return (
         <nav
-            className={`fixed top-0 left-0 w-full bg-black z-50 text-white pr-6 xl:pr-0 transition-all duration-300 ${
-                scrolled ? 'shadow-lg' : ''
+            className={`fixed top-0 left-0 w-full bg-white z-50 text-gray-900 pr-6 xl:pr-0 transition-all duration-300 ${
+                scrolled ? 'shadow-lg border-b border-gray-200' : 'shadow-sm border-b border-gray-100'
             }`}
             onMouseLeave={closeAllDropdowns}
         >
             <div className="max-w-7xl mx-auto">
                 <div className="flex justify-between items-center h-16 md:h-18 lg:h-20">
                     {/* Logo */}
-                    <div className="flex items-start -ml-2">
-                        <Link 
-                            href="/" 
-                            className="flex items-left" 
-                            onClick={() => handleLinkClick('/')}
-                        >
-                            <div className="relative w-32 h-12 md:w-36 md:h-14 lg:w-40 lg:h-30">
-                                <Image
-                                    src="/logo.png"
-                                    alt="Logo"
-                                    fill
-                                    className="object-contain brightness-150 invert"
-                                    priority
-                                    onError={(e) => {
-                                        // Fallback to text logo if image fails
-                                        e.target.style.display = 'none';
-                                        e.target.parentNode.innerHTML = '<div class="text-white font-bold text-xl">LOGO</div>';
-                                    }}
-                                />
-                            </div>
-                        </Link>
-                    </div>
+                        <div className="flex items-center -ml-2">
+                            <Link 
+                                href="/" 
+                                className="flex items-center" 
+                                onClick={() => handleLinkClick('/')}
+                            >
+                                <div className="relative w-28 h-10 md:w-32 md:h-12 lg:w-36 lg:h-8">
+                                    <Image
+                                        src="/images/logo_black.png"
+                                        alt="Logo"
+                                        width={140}
+                                        height={38}
+                                        className="object-contain"
+                                        priority
+                                    />
+                                </div>
+                            </Link>
+                        </div>
 
                     {/* Desktop Navigation - hidden on mobile and lg, shown on xl and up */}
                     <div className="hidden xl:flex items-center justify-end space-x-1 md:space-x-2 lg:space-x-4 xl:space-x-6 flex-1">
@@ -141,10 +137,10 @@ const Navbar = ({ categories = [], activeCategory, activeSubcategory }) => {
                                 return (
                                     <div key={category._id || category.id || `cat-${index}`} className="relative group">
                                         <Link
-                                            href={`/category/${categorySlug}`}
-                                            className={`font-medium text-xs md:text-sm lg:text-base whitespace-nowrap hover:text-green-400 transition-colors duration-200 flex items-center py-2 px-1 md:px-2 ${
-                                                activeCategory === categorySlug ? 'text-green-400' : 'text-gray-300'
-                                            }`}
+                                                        href={`/category/${categorySlug}`}
+                                                        className={`font-medium text-xs md:text-sm lg:text-base whitespace-nowrap hover:text-purple-500 transition-colors duration-200 flex items-center py-2 px-1 md:px-2 ${
+                                                            activeCategory === categorySlug ? 'text-purple-600' : 'text-gray-700'
+                                                        }`}
                                             onMouseEnter={() => hasSubcategories && setActiveDropdown(index)}
                                             onClick={() => handleLinkClick(`/category/${categorySlug}`)}
                                         >
@@ -162,7 +158,7 @@ const Navbar = ({ categories = [], activeCategory, activeSubcategory }) => {
                                         {/* Desktop Dropdown */}
                                         {hasSubcategories && subcategories.length > 0 && activeDropdown === index && (
                                             <div 
-                                                className="fixed left-0 w-full bg-gray-900 border-t border-gray-800 shadow-lg shadow-black/50 z-20"
+                                                className="fixed left-0 w-full bg-white border-t border-gray-200 shadow-lg shadow-black/5 z-20"
                                                 style={{ top: '5rem' }}
                                             >
                                                 <div className="container mx-auto py-4 md:py-6 lg:py-8 px-4">
@@ -171,14 +167,14 @@ const Navbar = ({ categories = [], activeCategory, activeSubcategory }) => {
                                                             const subcategorySlug = subcategory.slug || subcategory.name?.toLowerCase().replace(/\s+/g, '-') || `subcategory-${subIndex}`;
                                                             const subcategoryName = subcategory.name || `Subcategory ${subIndex + 1}`;
                                                             
-                                                            return (
+                                                                return (
                                                                 <Link
                                                                     key={subcategory._id || subcategory.id || `sub-${subIndex}`}
                                                                     href={`/subcategory/${subcategorySlug}`}
                                                                     className={`block p-3 rounded-lg transition-colors duration-200 ${
                                                                         activeSubcategory === subcategorySlug
-                                                                            ? 'bg-green-600 text-white'
-                                                                            : 'hover:bg-gray-800 text-gray-300 hover:text-green-400'
+                                                                            ? 'bg-purple-600 text-white'
+                                                                            : 'hover:bg-gray-50 text-gray-700 hover:text-purple-600'
                                                                     }`}
                                                                     onClick={() => {
                                                                         handleLinkClick(`/subcategory/${subcategorySlug}`);
@@ -187,7 +183,7 @@ const Navbar = ({ categories = [], activeCategory, activeSubcategory }) => {
                                                                 >
                                                                     <div className="font-medium">{subcategoryName}</div>
                                                                     {subcategory.description && (
-                                                                        <div className="text-sm text-gray-400 mt-1">
+                                                                        <div className="text-sm text-gray-500 mt-1">
                                                                             {subcategory.description}
                                                                         </div>
                                                                     )}
@@ -204,16 +200,16 @@ const Navbar = ({ categories = [], activeCategory, activeSubcategory }) => {
                         ) : (
                             // Fallback navigation items if no categories
                             <div className="flex items-center space-x-6">
-                                <Link href="/" className="text-gray-300 hover:text-green-400 transition-colors">
+                                <Link href="/" className="text-gray-700 hover:text-purple-600 transition-colors">
                                     Home
                                 </Link>
-                                <Link href="/about" className="text-gray-300 hover:text-green-400 transition-colors">
+                                <Link href="/about" className="text-gray-700 hover:text-purple-600 transition-colors">
                                     About
                                 </Link>
-                                <Link href="/services" className="text-gray-300 hover:text-green-400 transition-colors">
+                                <Link href="/services" className="text-gray-700 hover:text-purple-600 transition-colors">
                                     Services
                                 </Link>
-                                <Link href="/contact" className="text-gray-300 hover:text-green-400 transition-colors">
+                                <Link href="/contact" className="text-gray-700 hover:text-purple-600 transition-colors">
                                     Contact
                                 </Link>
                             </div>
@@ -223,7 +219,7 @@ const Navbar = ({ categories = [], activeCategory, activeSubcategory }) => {
                     {/* Mobile menu button - visible until xl breakpoint */}
                     <div className="xl:hidden flex items-center">
                         <button
-                            className="text-gray-300 hover:text-green-400 focus:outline-none transition-colors"
+                            className="text-gray-700 hover:text-purple-600 focus:outline-none transition-colors"
                             onClick={() => setIsOpen(!isOpen)}
                             aria-label={isOpen ? "Close menu" : "Open menu"}
                         >
