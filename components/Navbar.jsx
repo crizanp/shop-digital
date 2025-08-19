@@ -3,91 +3,114 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ChevronDown, Menu, X } from 'lucide-react';
-import { useSmoothScroll, handleHashScroll } from '../hook/scrolling';
 
-// Categories data imported from external file
-const categories = [
-    {
-        "id": 1,
-        "name": "Design Services",
-        "hasSubcategories": false,
-        "slug": "design-services"
-    },
-    {
-        "id": 2,
-        "name": "Website Services",
-        "hasSubcategories": false,
-        "slug": "website-services"
-    },
-    {
-        "id": 3,
-        "name": "Website Maintenance",
-        "hasSubcategories": false,
-        "slug": "website-maintenance"
-    },
-    {
-        "id": 4,
-        "name": "Digital Marketing",
-        "hasSubcategories": false,
-        "slug": "digital-marketing"
-    },
-    {
-        "id": 5,
-        "name": "Social Media Management",
-        "hasSubcategories": false,
-        "slug": "social-media-management"
-    }
-];
-
-const Navbar = () => {
+const Navbar = ({ categories = [], activeCategory, activeSubcategory }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const [activeDropdown, setActiveDropdown] = useState(null);
-    useSmoothScroll();
-    handleHashScroll();
+    const [isMounted, setIsMounted] = useState(false);
 
+    // Handle client-side mounting
     useEffect(() => {
-        const handleScroll = () => {
-            if (window.scrollY > 20) {
-                setScrolled(true);
-            } else {
-                setScrolled(false);
-            }
-        };
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
+        setIsMounted(true);
     }, []);
 
-    // Transform the categories data to match the navItems structure
-    const navItems = categories.map(category => ({
-        name: category.name,
-        href: `/category/${category.id}`,
-        hasDropdown: category.hasSubcategories,
-        id: category.id
-    }));
+    // Handle scroll effect
+    useEffect(() => {
+        const handleScroll = () => {
+            setScrolled(window.scrollY > 20);
+        };
+        
+        if (typeof window !== 'undefined') {
+            window.addEventListener('scroll', handleScroll);
+            return () => window.removeEventListener('scroll', handleScroll);
+        }
+    }, []);
+
+    // Auto-expand dropdown for active category with subcategories
+    useEffect(() => {
+        if (activeCategory && categories.length > 0) {
+            const categoryIndex = categories.findIndex(cat => 
+                cat.slug === activeCategory || cat.name?.toLowerCase().replace(/\s+/g, '-') === activeCategory
+            );
+            const category = categories[categoryIndex];
+            if (category && (category.hasSubcategories || (category.subcategories && category.subcategories.length > 0))) {
+                setActiveDropdown(categoryIndex);
+            }
+        }
+    }, [activeCategory, categories]);
+
+    // Safe scroll to element function
+    const scrollToElement = (elementId) => {
+        if (typeof window !== 'undefined') {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+    };
 
     const toggleDropdown = (index) => {
-        if (activeDropdown === index) {
-            setActiveDropdown(null);
-        } else {
-            setActiveDropdown(index);
-        }
+        setActiveDropdown(activeDropdown === index ? null : index);
     };
 
     const closeAllDropdowns = () => {
         setActiveDropdown(null);
     };
 
+    const handleMobileNavClick = () => {
+        setIsOpen(false);
+        setActiveDropdown(null);
+    };
+
+    const handleLinkClick = (href) => {
+        // Handle hash links for smooth scrolling
+        if (href.startsWith('#')) {
+            const elementId = href.substring(1);
+            scrollToElement(elementId);
+            return;
+        }
+        closeAllDropdowns();
+    };
+
+    // Don't render until mounted to avoid hydration issues
+    if (!isMounted) {
+        return (
+            <nav className="fixed top-0 left-0 w-full bg-black z-50 text-white pr-6 xl:pr-0">
+                <div className="max-w-7xl mx-auto">
+                    <div className="flex justify-between items-center h-16 md:h-18 lg:h-20">
+                        <div className="flex items-start -ml-2">
+                            <Link href="/" className="flex items-left">
+                                <div className="relative w-32 h-12 md:w-36 md:h-14 lg:w-40 lg:h-30">
+                                    <div className="w-full h-full bg-gray-700 animate-pulse rounded"></div>
+                                </div>
+                            </Link>
+                        </div>
+                        <div className="xl:hidden">
+                            <div className="w-6 h-6 bg-gray-700 animate-pulse rounded"></div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        );
+    }
+
     return (
         <nav
-            className={`fixed top-0 left-0 w-full bg-black z-50 text-white pr-6 xl:pr:0 transition-all duration-300 : ''}`}
+            className={`fixed top-0 left-0 w-full bg-black z-50 text-white pr-6 xl:pr-0 transition-all duration-300 ${
+                scrolled ? 'shadow-lg' : ''
+            }`}
             onMouseLeave={closeAllDropdowns}
         >
             <div className="max-w-7xl mx-auto">
                 <div className="flex justify-between items-center h-16 md:h-18 lg:h-20">
                     {/* Logo */}
                     <div className="flex items-start -ml-2">
-                        <Link href="/" className="flex items-left" onClick={closeAllDropdowns}>
+                        <Link 
+                            href="/" 
+                            className="flex items-left" 
+                            onClick={() => handleLinkClick('/')}
+                        >
                             <div className="relative w-32 h-12 md:w-36 md:h-14 lg:w-40 lg:h-30">
                                 <Image
                                     src="/logo.png"
@@ -95,6 +118,11 @@ const Navbar = () => {
                                     fill
                                     className="object-contain brightness-150 invert"
                                     priority
+                                    onError={(e) => {
+                                        // Fallback to text logo if image fails
+                                        e.target.style.display = 'none';
+                                        e.target.parentNode.innerHTML = '<div class="text-white font-bold text-xl">LOGO</div>';
+                                    }}
                                 />
                             </div>
                         </Link>
@@ -102,37 +130,102 @@ const Navbar = () => {
 
                     {/* Desktop Navigation - hidden on mobile and lg, shown on xl and up */}
                     <div className="hidden xl:flex items-center justify-end space-x-1 md:space-x-2 lg:space-x-4 xl:space-x-6 flex-1">
-                        {navItems.map((item, index) => (
-                            <div key={item.id} className="relative group">
-                                <Link
-                                    href={item.href}
-                                    className={`font-medium text-xs md:text-sm lg:text-base whitespace-nowrap hover:text-green-400 transition-colors duration-200 flex items-center py-2 px-1 md:px-2 ${item.active ? 'text-green-400' : 'text-gray-300'}`}
-                                    onMouseEnter={() => item.hasDropdown && setActiveDropdown(index)}
-                                >
-                                    {item.name}
-                                    {item.hasDropdown && (
-                                        <ChevronDown size={14} className="ml-1 transition-transform group-hover:rotate-180 duration-200" />
-                                    )}
-                                </Link>
+                        {categories && categories.length > 0 ? (
+                            categories.map((category, index) => {
+                                // Ensure category has required properties
+                                const categorySlug = category.slug || category.name?.toLowerCase().replace(/\s+/g, '-') || `category-${index}`;
+                                const categoryName = category.name || `Category ${index + 1}`;
+                                const hasSubcategories = category.hasSubcategories || (category.subcategories && category.subcategories.length > 0);
+                                const subcategories = category.subcategories || [];
 
-                                {item.hasDropdown && activeDropdown === index && (
-                                    <div className="fixed left-0 w-full bg-gray-900 border-t border-gray-800 shadow-lg shadow-black/50 z-20"
-                                        style={{ top: '5rem' }}>
-                                        <div className="container mx-auto py-4 md:py-6 lg:py-8 px-4">
-                                            {/* Placeholder for dropdown content */}
-                                            <p className="text-sm text-gray-400">Subcategories for {item.name} would appear here</p>
-                                        </div>
+                                return (
+                                    <div key={category._id || category.id || `cat-${index}`} className="relative group">
+                                        <Link
+                                            href={`/category/${categorySlug}`}
+                                            className={`font-medium text-xs md:text-sm lg:text-base whitespace-nowrap hover:text-green-400 transition-colors duration-200 flex items-center py-2 px-1 md:px-2 ${
+                                                activeCategory === categorySlug ? 'text-green-400' : 'text-gray-300'
+                                            }`}
+                                            onMouseEnter={() => hasSubcategories && setActiveDropdown(index)}
+                                            onClick={() => handleLinkClick(`/category/${categorySlug}`)}
+                                        >
+                                            {categoryName}
+                                            {hasSubcategories && (
+                                                <ChevronDown 
+                                                    size={14} 
+                                                    className={`ml-1 transition-transform duration-200 ${
+                                                        activeDropdown === index ? 'rotate-180' : ''
+                                                    }`} 
+                                                />
+                                            )}
+                                        </Link>
+
+                                        {/* Desktop Dropdown */}
+                                        {hasSubcategories && subcategories.length > 0 && activeDropdown === index && (
+                                            <div 
+                                                className="fixed left-0 w-full bg-gray-900 border-t border-gray-800 shadow-lg shadow-black/50 z-20"
+                                                style={{ top: '5rem' }}
+                                            >
+                                                <div className="container mx-auto py-4 md:py-6 lg:py-8 px-4">
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                                                        {subcategories.map((subcategory, subIndex) => {
+                                                            const subcategorySlug = subcategory.slug || subcategory.name?.toLowerCase().replace(/\s+/g, '-') || `subcategory-${subIndex}`;
+                                                            const subcategoryName = subcategory.name || `Subcategory ${subIndex + 1}`;
+                                                            
+                                                            return (
+                                                                <Link
+                                                                    key={subcategory._id || subcategory.id || `sub-${subIndex}`}
+                                                                    href={`/subcategory/${subcategorySlug}`}
+                                                                    className={`block p-3 rounded-lg transition-colors duration-200 ${
+                                                                        activeSubcategory === subcategorySlug
+                                                                            ? 'bg-green-600 text-white'
+                                                                            : 'hover:bg-gray-800 text-gray-300 hover:text-green-400'
+                                                                    }`}
+                                                                    onClick={() => {
+                                                                        handleLinkClick(`/subcategory/${subcategorySlug}`);
+                                                                        closeAllDropdowns();
+                                                                    }}
+                                                                >
+                                                                    <div className="font-medium">{subcategoryName}</div>
+                                                                    {subcategory.description && (
+                                                                        <div className="text-sm text-gray-400 mt-1">
+                                                                            {subcategory.description}
+                                                                        </div>
+                                                                    )}
+                                                                </Link>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
-                                )}
+                                );
+                            })
+                        ) : (
+                            // Fallback navigation items if no categories
+                            <div className="flex items-center space-x-6">
+                                <Link href="/" className="text-gray-300 hover:text-green-400 transition-colors">
+                                    Home
+                                </Link>
+                                <Link href="/about" className="text-gray-300 hover:text-green-400 transition-colors">
+                                    About
+                                </Link>
+                                <Link href="/services" className="text-gray-300 hover:text-green-400 transition-colors">
+                                    Services
+                                </Link>
+                                <Link href="/contact" className="text-gray-300 hover:text-green-400 transition-colors">
+                                    Contact
+                                </Link>
                             </div>
-                        ))}
+                        )}
                     </div>
 
                     {/* Mobile menu button - visible until xl breakpoint */}
                     <div className="xl:hidden flex items-center">
                         <button
-                            className="text-gray-300 hover:text-green-400 focus:outline-none"
+                            className="text-gray-300 hover:text-green-400 focus:outline-none transition-colors"
                             onClick={() => setIsOpen(!isOpen)}
+                            aria-label={isOpen ? "Close menu" : "Open menu"}
                         >
                             {isOpen ? <X size={24} /> : <Menu size={24} />}
                         </button>
@@ -145,38 +238,123 @@ const Navbar = () => {
                 <div className="xl:hidden bg-gray-900 border-t border-gray-800 overflow-hidden max-h-screen overflow-y-auto">
                     <div className="container mx-auto px-4 py-3">
                         <ul className="space-y-1">
-                            {navItems.map((item, index) => (
-                                <li key={item.id} className="py-1">
-                                    {item.hasDropdown ? (
-                                        <div>
-                                            <button
-                                                className={`flex items-center justify-between w-full py-2 font-medium hover:text-green-400 focus:outline-none ${item.active ? 'text-green-400' : 'text-gray-300'}`}
-                                                onClick={() => toggleDropdown(index)}
-                                            >
-                                                {item.name}
-                                                <ChevronDown
-                                                    size={16}
-                                                    className={`transition-transform duration-200 ease-in-out ${activeDropdown === index ? 'transform rotate-180' : ''}`}
-                                                />
-                                            </button>
-                                            {activeDropdown === index && (
-                                                <div className="pl-4 mt-2 border-l-2 border-green-400">
-                                                    {/* Placeholder for dropdown content */}
-                                                    <p className="text-sm text-gray-400 py-2">Subcategories for {item.name} would appear here</p>
+                            {categories && categories.length > 0 ? (
+                                categories.map((category, index) => {
+                                    const categorySlug = category.slug || category.name?.toLowerCase().replace(/\s+/g, '-') || `category-${index}`;
+                                    const categoryName = category.name || `Category ${index + 1}`;
+                                    const hasSubcategories = category.hasSubcategories || (category.subcategories && category.subcategories.length > 0);
+                                    const subcategories = category.subcategories || [];
+
+                                    return (
+                                        <li key={category._id || category.id || `mobile-cat-${index}`} className="py-1">
+                                            {hasSubcategories ? (
+                                                <div>
+                                                    {/* Category with subcategories */}
+                                                    <div className="flex items-center justify-between">
+                                                        <Link
+                                                            href={`/category/${categorySlug}`}
+                                                            className={`flex-1 py-2 font-medium hover:text-green-400 transition-colors duration-200 ${
+                                                                activeCategory === categorySlug ? 'text-green-400' : 'text-gray-300'
+                                                            }`}
+                                                            onClick={handleMobileNavClick}
+                                                        >
+                                                            {categoryName}
+                                                        </Link>
+                                                        <button
+                                                            className="p-2 text-gray-400 hover:text-green-400 focus:outline-none transition-colors"
+                                                            onClick={() => toggleDropdown(index)}
+                                                            aria-label={activeDropdown === index ? "Collapse subcategories" : "Expand subcategories"}
+                                                        >
+                                                            <ChevronDown
+                                                                size={16}
+                                                                className={`transition-transform duration-200 ease-in-out ${
+                                                                    activeDropdown === index ? 'transform rotate-180' : ''
+                                                                }`}
+                                                            />
+                                                        </button>
+                                                    </div>
+                                                    
+                                                    {/* Mobile Subcategories */}
+                                                    {activeDropdown === index && subcategories.length > 0 && (
+                                                        <div className="pl-4 mt-2 border-l-2 border-green-400 space-y-1">
+                                                            {subcategories.map((subcategory, subIndex) => {
+                                                                const subcategorySlug = subcategory.slug || subcategory.name?.toLowerCase().replace(/\s+/g, '-') || `subcategory-${subIndex}`;
+                                                                const subcategoryName = subcategory.name || `Subcategory ${subIndex + 1}`;
+                                                                
+                                                                return (
+                                                                    <Link
+                                                                        key={subcategory._id || subcategory.id || `mobile-sub-${subIndex}`}
+                                                                        href={`/subcategory/${subcategorySlug}`}
+                                                                        className={`block py-2 text-sm transition-colors duration-200 ${
+                                                                            activeSubcategory === subcategorySlug
+                                                                                ? 'text-green-400 font-medium'
+                                                                                : 'text-gray-400 hover:text-green-400'
+                                                                        }`}
+                                                                        onClick={handleMobileNavClick}
+                                                                    >
+                                                                        {subcategoryName}
+                                                                    </Link>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    )}
                                                 </div>
+                                            ) : (
+                                                /* Category without subcategories */
+                                                <Link
+                                                    href={`/category/${categorySlug}`}
+                                                    className={`block py-2 font-medium hover:text-green-400 transition-colors duration-200 ${
+                                                        activeCategory === categorySlug ? 'text-green-400' : 'text-gray-300'
+                                                    }`}
+                                                    onClick={handleMobileNavClick}
+                                                >
+                                                    {categoryName}
+                                                </Link>
                                             )}
-                                        </div>
-                                    ) : (
-                                        <Link
-                                            href={item.href}
-                                            className={`block py-2 font-medium hover:text-green-400 ${item.active ? 'text-green-400' : 'text-gray-300'}`}
-                                            onClick={() => setIsOpen(false)}
+                                        </li>
+                                    );
+                                })
+                            ) : (
+                                // Fallback mobile navigation
+                                <>
+                                    <li>
+                                        <Link 
+                                            href="/" 
+                                            className="block py-2 font-medium text-gray-300 hover:text-green-400 transition-colors"
+                                            onClick={handleMobileNavClick}
                                         >
-                                            {item.name}
+                                            Home
                                         </Link>
-                                    )}
-                                </li>
-                            ))}
+                                    </li>
+                                    <li>
+                                        <Link 
+                                            href="/about" 
+                                            className="block py-2 font-medium text-gray-300 hover:text-green-400 transition-colors"
+                                            onClick={handleMobileNavClick}
+                                        >
+                                            About
+                                        </Link>
+                                    </li>
+                                    <li>
+                                        <Link 
+                                            href="/services" 
+                                            className="block py-2 font-medium text-gray-300 hover:text-green-400 transition-colors"
+                                            onClick={handleMobileNavClick}
+                                        >
+                                            Services
+                                        </Link>
+                                    </li>
+                                    <li>
+                                        <Link 
+                                            href="/contact" 
+                                            className="block py-2 font-medium text-gray-300 hover:text-green-400 transition-colors"
+                                            onClick={handleMobileNavClick}
+                                        >
+                                            Contact
+                                        </Link>
+                                    </li>
+                                </>
+                            )}
                         </ul>
                     </div>
                 </div>

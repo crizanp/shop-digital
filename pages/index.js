@@ -4,7 +4,7 @@ import Sidebar from '../components/Sidebar';
 import PackageCard from '../components/PackageCard';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { Filter, SortAsc, SortDesc, Package, ChevronRight } from 'lucide-react';
+import { Filter, SortAsc, SortDesc, Package, ChevronRight, ArrowRight } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Link from 'next/link';
 
@@ -23,11 +23,20 @@ export default function PricingPage() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const [hasNextPage, setHasNextPage] = useState(false);
+  const [hasPrevPage, setHasPrevPage] = useState(false);
+  const [packagesPerPage] = useState(12);
+  const [loadingMore, setLoadingMore] = useState(false);
 
   // Fetch categories from API
   const fetchCategories = async () => {
     try {
-      const response = await fetch('/api/admin/categories');
+      const response = await fetch('/api/categories');
       if (!response.ok) {
         throw new Error('Failed to fetch categories');
       }
@@ -39,18 +48,51 @@ export default function PricingPage() {
     }
   };
 
-  // Fetch packages from API
-  const fetchPackages = async () => {
+  // Fetch packages from API with pagination
+  const fetchPackages = async (page = 1, categoryId = null, subcategoryIndex = null, reset = false) => {
     try {
-      const response = await fetch('/api/admin/packages');
+      if (reset) {
+        setLoadingMore(true);
+      }
+      
+      // Build query parameters
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: packagesPerPage.toString()
+      });
+      
+      if (categoryId) {
+        params.append('categoryId', categoryId);
+      }
+      
+      if (subcategoryIndex !== null && subcategoryIndex !== undefined) {
+        params.append('subcategoryIndex', subcategoryIndex.toString());
+      }
+      
+      const response = await fetch(`/api/packages?${params.toString()}`);
       if (!response.ok) {
         throw new Error('Failed to fetch packages');
       }
       const data = await response.json();
-      setPackages(data.packages || []);
+      
+      if (reset || page === 1) {
+        setPackages(data.packages || []);
+      } else {
+        setPackages(prev => [...prev, ...(data.packages || [])]);
+      }
+      
+      // Update pagination state
+      setCurrentPage(data.pagination.currentPage);
+      setTotalPages(data.pagination.totalPages);
+      setTotalItems(data.pagination.totalItems);
+      setHasNextPage(data.pagination.hasNextPage);
+      setHasPrevPage(data.pagination.hasPrevPage);
+      
     } catch (err) {
       setError('Failed to load packages');
       console.error('Error fetching packages:', err);
+    } finally {
+      setLoadingMore(false);
     }
   };
 
@@ -58,7 +100,8 @@ export default function PricingPage() {
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
-      await Promise.all([fetchCategories(), fetchPackages()]);
+      await fetchCategories();
+      await fetchPackages(1, null, null, true);
       setLoading(false);
     };
     loadData();
@@ -80,59 +123,67 @@ export default function PricingPage() {
   useEffect(() => {
     if (!router.isReady) return;
 
-    if (subcategorySlug) {
-      // Filter by subcategory slug
-      setActiveSubcategory(subcategorySlug);
+    const loadFilteredData = async () => {
+      setLoading(true);
+      
+      if (subcategorySlug) {
+        // Filter by subcategory slug
+        setActiveSubcategory(subcategorySlug);
 
-      // Find the parent category slug first
-      let parentCategorySlug = categorySlug;
-      if (!parentCategorySlug) {
-        // Try to find parent category from subcategory
-        for (const category of categories) {
-          if (category.subcategories && category.subcategories.some(sub => sub.slug === subcategorySlug)) {
-            parentCategorySlug = category.slug;
-            break;
+        // Find the parent category slug first
+        let parentCategorySlug = categorySlug;
+        if (!parentCategorySlug) {
+          // Try to find parent category from subcategory
+          for (const category of categories) {
+            if (category.subcategories && category.subcategories.some(sub => sub.slug === subcategorySlug)) {
+              parentCategorySlug = category.slug;
+              break;
+            }
           }
         }
-      }
 
-      if (parentCategorySlug) {
-        setActiveCategory(parentCategorySlug);
-        const category = findCategoryBySlug(parentCategorySlug);
-        const subcategory = category?.subcategories?.find(sub => sub.slug === subcategorySlug);
+        if (parentCategorySlug) {
+          setActiveCategory(parentCategorySlug);
+          const category = findCategoryBySlug(parentCategorySlug);
+          const subcategory = category?.subcategories?.find(sub => sub.slug === subcategorySlug);
 
-        if (subcategory) {
-          // Find the subcategory index to match with package data
-          const subcategoryIndex = category.subcategories.findIndex(sub => sub.slug === subcategorySlug);
-
-          // Filter packages by category ID and subcategory index
-          setFilteredPackages(packages.filter(pkg =>
-            pkg.categoryId === category._id && pkg.subcategoryIndex === subcategoryIndex
-          ));
+          if (subcategory) {
+            // Find the subcategory index to match with package data
+            const subcategoryIndex = category.subcategories.findIndex(sub => sub.slug === subcategorySlug);
+            
+            // Fetch packages with category and subcategory filters
+            await fetchPackages(1, category._id, subcategoryIndex, true);
+          }
         }
-      }
-    } else if (categorySlug) {
-      // Filter by category slug
-      setActiveCategory(categorySlug);
-      setActiveSubcategory(null);
+      } else if (categorySlug) {
+        // Filter by category slug
+        setActiveCategory(categorySlug);
+        setActiveSubcategory(null);
 
-      const category = findCategoryBySlug(categorySlug);
+        const category = findCategoryBySlug(categorySlug);
 
-      if (category) {
-        // Filter packages by category ID
-        setFilteredPackages(packages.filter(pkg => pkg.categoryId === category._id));
+        if (category) {
+          // Fetch packages with category filter
+          await fetchPackages(1, category._id, null, true);
+        }
+      } else {
+        // No filter, show all packages
+        setActiveCategory(null);
+        setActiveSubcategory(null);
+        await fetchPackages(1, null, null, true);
       }
-    } else {
-      // No filter, show all packages
-      setFilteredPackages(packages);
-      setActiveCategory(null);
-      setActiveSubcategory(null);
+      
+      setLoading(false);
+    };
+
+    if (categories.length > 0) {
+      loadFilteredData();
     }
-  }, [router.isReady, categorySlug, subcategorySlug, categories, packages]);
+  }, [router.isReady, categorySlug, subcategorySlug, categories]);
 
-  // Apply sorting whenever filteredPackages or sortBy changes
+  // Apply sorting whenever packages or sortBy changes
   useEffect(() => {
-    let sorted = [...filteredPackages];
+    let sorted = [...packages];
 
     switch (sortBy) {
       case 'price-low-high':
@@ -163,7 +214,7 @@ export default function PricingPage() {
     }
 
     setDisplayedPackages(sorted);
-  }, [filteredPackages, sortBy]);
+  }, [packages, sortBy]);
 
   // Find active category/subcategory names
   const getActiveCategoryName = () => {
@@ -205,6 +256,43 @@ export default function PricingPage() {
     } else {
       return 'Choose a design package and place the order online. Your design will be ready within the time frame you choose! We will email you the final design.';
     }
+  };
+
+  // Load more packages function
+  const loadMorePackages = async () => {
+    if (!hasNextPage || loadingMore) return;
+    
+    const nextPage = currentPage + 1;
+    let categoryId = null;
+    let subcategoryIndex = null;
+    
+    // Get current filter parameters
+    if (activeCategory) {
+      const category = findCategoryBySlug(activeCategory);
+      if (category) {
+        categoryId = category._id;
+        
+        if (activeSubcategory) {
+          const subcategory = category.subcategories?.find(sub => sub.slug === activeSubcategory);
+          if (subcategory) {
+            subcategoryIndex = category.subcategories.findIndex(sub => sub.slug === activeSubcategory);
+          }
+        }
+      }
+    }
+    
+    await fetchPackages(nextPage, categoryId, subcategoryIndex, false);
+  };
+
+  const renderPaginationStats = () => {
+    const startItem = (currentPage - 1) * packagesPerPage + 1;
+    const endItem = Math.min(currentPage * packagesPerPage, totalItems);
+    
+    return (
+      <div className="text-sm text-gray-400 mb-4">
+        Showing {startItem}-{endItem} of {totalItems} packages
+      </div>
+    );
   };
 
   if (loading) {
@@ -320,37 +408,66 @@ export default function PricingPage() {
               </div>
                 <p className="text-gray-400 p-6">{getHeaderDescription()}</p>
 
-              {displayedPackages.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
-                  {displayedPackages.map((pkg) => (
-                    <PackageCard
-                      key={pkg._id}
-                      packageData={pkg}
-                      categoryData={categories}
-                      showCategory={true}
-                      showFeatures={true}
-                      maxFeatures={3}
-                    />
-                  ))}
+              {/* Pagination Stats */}
+              {totalItems > 0 && renderPaginationStats()}
+
+              {loading ? (
+                <div className="text-center py-8">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto mb-4"></div>
+                  <p className="text-gray-400">Loading packages...</p>
                 </div>
+              ) : displayedPackages.length > 0 ? (
+                <>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
+                    {displayedPackages.map((pkg) => (
+                      <PackageCard
+                        key={pkg._id}
+                        packageData={pkg}
+                        categoryData={categories}
+                        showCategory={true}
+                        showFeatures={true}
+                        maxFeatures={3}
+                      />
+                    ))}
+                  </div>
+
+                  {/* Load More Button */}
+                  {hasNextPage && (
+                    <div className="flex justify-center mt-8">
+                      <button
+                        onClick={loadMorePackages}
+                        disabled={loadingMore}
+                        className="bg-green-600 hover:bg-green-700 disabled:bg-gray-600 text-white px-6 py-3 rounded-lg transition-colors font-medium flex items-center space-x-2"
+                      >
+                        {loadingMore ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                            <span>Loading...</span>
+                          </>
+                        ) : (
+                          <>
+                            <span>Load More</span>
+                            <ArrowRight size={16} />
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Pagination Info */}
+                  {!hasNextPage && totalItems > packagesPerPage && (
+                    <div className="text-center mt-8 p-4 bg-gray-900 rounded-lg border border-gray-800">
+                      <p className="text-gray-400">
+                        You&apos;ve reached the end! Showing all {totalItems} packages.
+                      </p>
+                    </div>
+                  )}
+                </>
               ) : (
                 <div className="bg-gray-900 p-8 rounded-2xl border border-gray-800 shadow-xl text-center">
                   <Package size={48} className="text-green-400 mx-auto mb-4" />
                   <h3 className="text-xl font-semibold text-white mb-2">No packages found</h3>
                   <p className="text-gray-400">We couldn&apos;t find any packages matching your criteria.</p>
-                </div>
-              )}
-
-              {/* Pagination - can be added if needed */}
-              {displayedPackages.length > 12 && (
-                <div className="flex justify-center mt-10">
-                  <nav className="inline-flex rounded-lg shadow-lg">
-                    <button className="px-4 py-2 bg-gray-900 border border-gray-700 rounded-l-lg text-gray-300 hover:bg-gray-800 transition-colors">Previous</button>
-                    <button className="px-4 py-2 bg-green-600 border border-green-600 text-white">1</button>
-                    <button className="px-4 py-2 bg-gray-900 border border-gray-700 text-gray-300 hover:bg-gray-800 transition-colors">2</button>
-                    <button className="px-4 py-2 bg-gray-900 border border-gray-700 text-gray-300 hover:bg-gray-800 transition-colors">3</button>
-                    <button className="px-4 py-2 bg-gray-900 border border-gray-700 rounded-r-lg text-gray-300 hover:bg-gray-800 transition-colors">Next</button>
-                  </nav>
                 </div>
               )}
             </div>
