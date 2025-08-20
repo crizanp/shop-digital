@@ -15,7 +15,21 @@ const Sidebar = ({ categories = [], activeCategory, activeSubcategory }) => {
         };
         checkViewport();
         window.addEventListener('resize', checkViewport);
-        return () => window.removeEventListener('resize', checkViewport);
+
+        const onOpen = () => setIsOpen(true);
+        const onToggle = () => setIsOpen(v => !v);
+        const onKey = (e) => { if (e.key === 'Escape') setIsOpen(false); };
+
+        window.addEventListener('openSidebar', onOpen);
+        window.addEventListener('toggleSidebar', onToggle);
+        window.addEventListener('keydown', onKey);
+
+        return () => {
+            window.removeEventListener('resize', checkViewport);
+            window.removeEventListener('openSidebar', onOpen);
+            window.removeEventListener('toggleSidebar', onToggle);
+            window.removeEventListener('keydown', onKey);
+        };
     }, []);
 
     useEffect(() => {
@@ -46,7 +60,7 @@ const Sidebar = ({ categories = [], activeCategory, activeSubcategory }) => {
 
     return (
         <>
-            {/* Mobile toggle */}
+            {/* Mobile floating toggle (optional) - keep for convenience */}
             <div className="lg:hidden fixed bottom-4 right-4 z-50">
                 <button
                     onClick={() => setIsOpen(v => !v)}
@@ -63,9 +77,10 @@ const Sidebar = ({ categories = [], activeCategory, activeSubcategory }) => {
             )}
 
                     <aside
-                        className={`bg-white rounded-2xl shadow-sm border border-gray-100 transition-all duration-200
-                            ${isMobile ? 'fixed bottom-0 left-0 right-0 max-h-[80vh] overflow-auto z-50' : 'sticky top-20 z-40'}`}
+                        className={`bg-white rounded-2xl shadow-sm border border-gray-100 transition-transform duration-300 ease-in-out
+                            ${isMobile ? `fixed inset-y-0 left-0 w-3/4 max-w-xs z-50 transform ${isOpen ? 'translate-x-0' : '-translate-x-full'}` : 'sticky top-20 z-40'}`}
                         style={{ padding: 18 }}
+                        aria-hidden={!isOpen && isMobile}
                     >
                 <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-3">

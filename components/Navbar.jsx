@@ -1,16 +1,13 @@
 "use client";
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ChevronDown, Menu, X } from 'lucide-react';
+import { ChevronDown, Menu, X, MoreVertical } from 'lucide-react';
 
 const Navbar = ({ activeCategory, activeSubcategory }) => {
     const [isOpen, setIsOpen] = useState(false);
-    const [scrolled, setScrolled] = useState(false);
     const [activeDropdown, setActiveDropdown] = useState(null);
-    const [isMounted, setIsMounted] = useState(false);
 
-    // Hardcoded categories for the navbar only
     const categories = [
         { _id: 'cat-1', name: 'Video Editing', slug: 'video-editing', hasSubcategories: false, subcategories: [] },
         {
@@ -64,130 +61,82 @@ const Navbar = ({ activeCategory, activeSubcategory }) => {
         }
     ];
 
-    useEffect(() => {
-        setIsMounted(true);
-        const handleScroll = () => setScrolled(window.scrollY > 10);
-        
-        window.addEventListener('scroll', handleScroll);
-        
-        return () => {
-            window.removeEventListener('scroll', handleScroll);
-        };
-    }, []);
-
-    const closeAllDropdowns = () => {
-        setActiveDropdown(null);
-        setIsOpen(false);
-    };
-
     const handleLinkClick = (href) => {
         if (href && href.startsWith('#')) {
-            const elementId = href.substring(1);
-            const el = document.getElementById(elementId);
+            const el = document.getElementById(href.substring(1));
             if (el) el.scrollIntoView({ behavior: 'smooth' });
         }
-        closeAllDropdowns();
+        setIsOpen(false);
+        setActiveDropdown(null);
     };
 
-    // Loading skeleton
-    if (!isMounted) {
-        return (
-            <nav className="fixed top-0 left-0 w-full bg-white/95 backdrop-blur-sm z-50 border-b border-gray-200">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between items-center h-16">
-                        <div className="w-32 h-8 bg-gray-200 animate-pulse rounded"></div>
-                        <div className="w-6 h-6 bg-gray-200 animate-pulse rounded lg:hidden"></div>
-                    </div>
-                </div>
-            </nav>
-        );
-    }
-
     return (
-        <nav
-            className={`fixed top-0 left-0 w-full bg-white/95 backdrop-blur-sm z-50 transition-all duration-300 ${
-                scrolled ? 'shadow-md border-b border-gray-300' : 'shadow-sm border-b border-gray-200'
-            }`}
-        >
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                {/* Main navbar content */}
+        <nav className="fixed top-0 left-0 w-full backdrop-blur-sm z-50 transition-all duration-300" style={{ backgroundColor: '#f2e4ff' }}>
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+
+                {/* Left: Show category (mobile) */}
+                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 lg:hidden">
+                    <button
+                        className="flex items-center space-x-2 bg-white border border-gray-200 px-3 py-2 rounded-md text-sm font-medium shadow-sm hover:bg-gray-50 text-black"
+                        onClick={() => { if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('openSidebar')); }}
+                        aria-label="Show categories"
+                    >
+                        <Menu size={16} className="text-black" />
+                        <span>Show category</span>
+                        <ChevronDown size={14} className="text-black" />
+                    </button>
+                </div>
+
                 <div className="flex justify-between items-center h-16">
-                    {/* Logo */}
-                    <div className="flex-shrink-0">
-                        <Link href="/" onClick={() => handleLinkClick('/')}>
-                            <div className="relative w-28 h-8 sm:w-32 sm:h-9 md:w-36 md:h-10">
-                                <Image 
-                                    src="/images/logo_black.png" 
-                                    alt="Foxbeep" 
-                                    fill
-                                    className="object-contain" 
-                                    priority 
-                                />
+                    {/* Desktop logo (left) */}
+                    <div className="flex-shrink-0 hidden lg:block">
+                        <Link href="/" onClick={() => handleLinkClick('/')}> 
+                            <div className="relative w-32 h-10 sm:w-36 sm:h-12 md:w-40 md:h-14">
+                                <Image src="/images/logo_black.png" alt="Foxbeep" fill className="object-contain" priority />
                             </div>
                         </Link>
                     </div>
 
-                    {/* Desktop Navigation */}
+                    {/* Mobile centered logo */}
+                    <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 lg:hidden">
+                        <Link href="/" onClick={() => handleLinkClick('/')}> 
+                            <div className="relative w-36 h-12 sm:w-40 sm:h-14">
+                                <Image src="/images/logo_black.png" alt="Foxbeep" fill className="object-contain" priority />
+                            </div>
+                        </Link>
+                    </div>
+
+                    {/* Desktop nav */}
                     <div className="hidden lg:flex items-center space-x-1">
                         {categories.map((category, index) => {
                             const categorySlug = category.slug || category.name?.toLowerCase().replace(/\s+/g, '-');
-                            const categoryName = category.name;
-                            const hasSubcategories = category.hasSubcategories && category.subcategories?.length > 0;
-
+                            const hasSub = category.hasSubcategories && category.subcategories?.length > 0;
                             return (
-                                <div 
-                                    key={category._id} 
-                                    className="relative dropdown-container"
-                                    onMouseEnter={() => hasSubcategories && setActiveDropdown(index)}
-                                    onMouseLeave={() => setActiveDropdown(null)}
-                                >
+                                <div key={category._id} className="relative" onMouseEnter={() => hasSub && setActiveDropdown(index)} onMouseLeave={() => setActiveDropdown(null)}>
                                     <Link
                                         href={categorySlug === 'wordpress-plugins' ? '/plugins' : `/category/${categorySlug}`}
-                                        className={`flex items-center px-3 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
-                                            activeCategory === categorySlug
-                                                ? 'bg-purple-600 text-white shadow-sm'
-                                                : 'text-gray-700 hover:text-purple-600 hover:bg-purple-50'
-                                        }`}
+                                        className={`flex items-center px-4 py-2 text-sm font-semibold rounded-md transition-all duration-200 ${activeCategory === categorySlug ? 'bg-purple-600 text-white' : 'text-gray-700 hover:text-purple-600 hover:bg-purple-50'}`}
                                         onClick={() => handleLinkClick(categorySlug === 'wordpress-plugins' ? '/plugins' : `/category/${categorySlug}`)}
+                                        style={{ fontSize: 'clamp(12px, 1.2vw, 14px)' }}
                                     >
-                                        {categoryName}
-                                        {hasSubcategories && (
-                                            <ChevronDown 
-                                                size={16} 
-                                                className={`ml-1 transition-transform duration-200 ${
-                                                    activeDropdown === index ? 'rotate-180' : ''
-                                                }`} 
-                                            />
-                                        )}
+                                        {category.name}
+                                        {hasSub && <ChevronDown size={16} className={`ml-1 transition-transform duration-200 ${activeDropdown === index ? 'rotate-180' : ''}`} />}
                                     </Link>
 
-                                    {/* Desktop Dropdown */}
-                                    {hasSubcategories && activeDropdown === index && (
-                                        <div 
-                                            className="absolute top-full left-0 pt-2 w-64 z-50"
-                                            onMouseEnter={() => setActiveDropdown(index)}
-                                            onMouseLeave={() => setActiveDropdown(null)}
-                                        >
+                                    {hasSub && activeDropdown === index && (
+                                        <div className="absolute top-full left-0 pt-2 w-64 z-50" onMouseEnter={() => setActiveDropdown(index)} onMouseLeave={() => setActiveDropdown(null)}>
                                             <div className="bg-white rounded-lg shadow-xl border border-gray-200 py-2">
-                                                {category.subcategories.map((subcategory) => {
-                                                    const subcategorySlug = subcategory.slug;
-                                                    const subcategoryName = subcategory.name;
-
-                                                    return (
-                                                        <Link
-                                                            key={subcategory._id}
-                                                            href={categorySlug === 'wordpress-plugins' ? `/plugins?category=${subcategorySlug}` : `/subcategory/${subcategorySlug}`}
-                                                            className={`block px-4 py-2 text-sm transition-colors duration-200 ${
-                                                                activeSubcategory === subcategorySlug
-                                                                    ? 'bg-purple-600 text-white'
-                                                                    : 'text-gray-700 hover:bg-purple-50 hover:text-purple-600'
-                                                            }`}
-                                                            onClick={() => handleLinkClick(categorySlug === 'wordpress-plugins' ? `/plugins?category=${subcategorySlug}` : `/subcategory/${subcategorySlug}`)}
-                                                        >
-                                                            {subcategoryName}
-                                                        </Link>
-                                                    );
-                                                })}
+                                                {category.subcategories.map((sub) => (
+                                                    <Link
+                                                        key={sub._id}
+                                                        href={categorySlug === 'wordpress-plugins' ? `/plugins?category=${sub.slug}` : `/subcategory/${sub.slug}`}
+                                                        className={`block px-4 py-2 text-xs sm:text-sm transition-colors duration-200 ${activeSubcategory === sub.slug ? 'bg-purple-600 text-white' : 'text-gray-700 hover:bg-purple-50 hover:text-purple-600'}`}
+                                                        onClick={() => handleLinkClick(categorySlug === 'wordpress-plugins' ? `/plugins?category=${sub.slug}` : `/subcategory/${sub.slug}`)}
+                                                        style={{ fontSize: 'clamp(11px, 1.0vw, 13px)' }}
+                                                    >
+                                                        {sub.name}
+                                                    </Link>
+                                                ))}
                                             </div>
                                         </div>
                                     )}
@@ -196,87 +145,64 @@ const Navbar = ({ activeCategory, activeSubcategory }) => {
                         })}
                     </div>
 
-                    {/* Mobile menu button */}
-                    <div className="lg:hidden">
+                    {/* Right: mobile toggle for navbar menu */}
+                    <div className="lg:hidden absolute right-4 top-1/2 transform -translate-y-1/2 z-50">
                         <button
                             className="p-2 text-gray-700 hover:text-purple-600 hover:bg-gray-100 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500"
-                            onClick={() => setIsOpen(!isOpen)}
+                            onClick={() => setIsOpen(v => !v)}
+                            aria-expanded={isOpen}
                             aria-label={isOpen ? 'Close menu' : 'Open menu'}
                         >
-                            {isOpen ? <X size={20} /> : <Menu size={20} />}
+                            {isOpen ? <X size={22} /> : <MoreVertical size={20} />}
                         </button>
                     </div>
                 </div>
 
-                {/* Mobile Navigation */}
-                <div className={`lg:hidden transition-all duration-300 ease-in-out ${
-                    isOpen ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0'
-                } overflow-hidden`}>
-                    <div className="py-2 space-y-1 border-t border-gray-200">
-                        {categories.map((category, index) => {
-                            const categorySlug = category.slug;
-                            const categoryName = category.name;
-                            const hasSubcategories = category.hasSubcategories && category.subcategories?.length > 0;
-
-                            return (
-                                <div key={category._id}>
-                                    <div className="flex items-center">
-                                        <Link
-                                            href={categorySlug === 'wordpress-plugins' ? '/plugins' : `/category/${categorySlug}`}
-                                            className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-                                                activeCategory === categorySlug
-                                                    ? 'bg-purple-600 text-white'
-                                                    : 'text-gray-700 hover:bg-gray-100'
-                                            }`}
-                                            onClick={() => handleLinkClick(categorySlug === 'wordpress-plugins' ? '/plugins' : `/category/${categorySlug}`)}
-                                        >
-                                            {categoryName}
-                                        </Link>
-                                        {hasSubcategories && (
-                                            <button
-                                                className="p-2 text-gray-500 hover:text-purple-600 transition-colors"
-                                                onClick={() => setActiveDropdown(activeDropdown === index ? null : index)}
-                                                aria-label={activeDropdown === index ? 'Collapse' : 'Expand'}
+                {/* Mobile menu overlay (doesn't push navbar) */}
+                {isOpen && (
+                    <div className="lg:hidden absolute left-4 right-4 top-full z-40 transition-all duration-300 ease-in-out">
+                        <div className="bg-white border-t border-gray-200 shadow-md py-2 space-y-1 rounded-lg overflow-hidden">
+                            {categories.map((category, index) => {
+                                const hasSub = category.hasSubcategories && category.subcategories?.length > 0;
+                                return (
+                                    <div key={category._id}>
+                                        <div className="flex items-center">
+                                            <Link
+                                                href={category.slug === 'wordpress-plugins' ? '/plugins' : `/category/${category.slug}`}
+                                                className={`flex-1 px-4 py-2 text-xs sm:text-sm rounded-md transition-colors ${activeCategory === category.slug ? 'bg-purple-600 text-white' : 'text-gray-700 hover:bg-gray-100'}`}
+                                                onClick={() => handleLinkClick(category.slug === 'wordpress-plugins' ? '/plugins' : `/category/${category.slug}`)}
+                                                style={{ fontSize: 'clamp(10px, 1.0vw, 13px)' }}
                                             >
-                                                <ChevronDown 
-                                                    size={16} 
-                                                    className={`transition-transform duration-200 ${
-                                                        activeDropdown === index ? 'rotate-180' : ''
-                                                    }`} 
-                                                />
-                                            </button>
+                                                {category.name}
+                                            </Link>
+                                            {hasSub && (
+                                                <button className="p-2 text-gray-500 hover:text-purple-600" onClick={() => setActiveDropdown(activeDropdown === index ? null : index)} aria-label={activeDropdown === index ? 'Collapse' : 'Expand'}>
+                                                    <ChevronDown size={16} className={`${activeDropdown === index ? 'rotate-180' : ''} transition-transform`} />
+                                                </button>
+                                            )}
+                                        </div>
+
+                                        {hasSub && activeDropdown === index && (
+                                            <div className="ml-4 mt-1 space-y-1 border-l-2 border-purple-200 pl-3">
+                                                {category.subcategories.map((sub) => (
+                                                    <Link
+                                                        key={sub._id}
+                                                        href={category.slug === 'wordpress-plugins' ? `/plugins?category=${sub.slug}` : `/subcategory/${sub.slug}`}
+                                                        className={`block px-3 py-2 rounded-md transition-colors text-xs sm:text-sm ${activeSubcategory === sub.slug ? 'bg-purple-100 text-purple-700 font-medium' : 'text-gray-600 hover:bg-gray-50 hover:text-purple-600'}`}
+                                                        onClick={() => handleLinkClick(category.slug === 'wordpress-plugins' ? `/plugins?category=${sub.slug}` : `/subcategory/${sub.slug}`)}
+                                                        style={{ fontSize: 'clamp(10px, 0.9vw, 12px)' }}
+                                                    >
+                                                        {sub.name}
+                                                    </Link>
+                                                ))}
+                                            </div>
                                         )}
                                     </div>
-
-                                    {/* Mobile Subcategories */}
-                                    {hasSubcategories && activeDropdown === index && (
-                                        <div className="ml-4 mt-1 space-y-1 border-l-2 border-purple-200 pl-3">
-                                            {category.subcategories.map((subcategory) => {
-                                                const subcategorySlug = subcategory.slug;
-                                                const subcategoryName = subcategory.name;
-
-                                                return (
-                                                    <Link
-                                                        key={subcategory._id}
-                                                        href={categorySlug === 'wordpress-plugins' ? `/plugins?category=${subcategorySlug}` : `/subcategory/${subcategorySlug}`}
-                                                        className={`block px-3 py-2 text-sm rounded-md transition-colors ${
-                                                            activeSubcategory === subcategorySlug
-                                                                ? 'bg-purple-100 text-purple-700 font-medium'
-                                                                : 'text-gray-600 hover:bg-gray-50 hover:text-purple-600'
-                                                        }`}
-                                                        onClick={() => handleLinkClick(categorySlug === 'wordpress-plugins' ? `/plugins?category=${subcategorySlug}` : `/subcategory/${subcategorySlug}`)}
-                                                    >
-                                                        {subcategoryName}
-                                                    </Link>
-                                                );
-                                            })}
-                                        </div>
-                                    )}
-                                </div>
-                            );
-                        })}
+                                );
+                            })}
+                        </div>
                     </div>
-                </div>
+                )}
             </div>
         </nav>
     );
