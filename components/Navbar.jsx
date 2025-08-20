@@ -83,13 +83,12 @@ const Navbar = ({ activeCategory, activeSubcategory }) => {
                     >
                         <Menu size={16} className="text-black" />
                         <span>Show category</span>
-                        <ChevronDown size={14} className="text-black" />
                     </button>
                 </div>
 
                 <div className="flex justify-between items-center h-16">
                     {/* Desktop logo (left) */}
-                    <div className="flex-shrink-0 hidden lg:block">
+                    <div className="flex-shrink-0 hidden lg:block ">
                         <Link href="/" onClick={() => handleLinkClick('/')}> 
                             <div className="relative w-32 h-10 sm:w-36 sm:h-12 md:w-40 md:h-14">
                                 <Image src="/images/logo_black.png" alt="Foxbeep" fill className="object-contain" priority />
@@ -98,7 +97,7 @@ const Navbar = ({ activeCategory, activeSubcategory }) => {
                     </div>
 
                     {/* Mobile centered logo */}
-                    <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 lg:hidden">
+                    <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 lg:hidden ml-6">
                         <Link href="/" onClick={() => handleLinkClick('/')}> 
                             <div className="relative w-36 h-12 sm:w-40 sm:h-14">
                                 <Image src="/images/logo_black.png" alt="Foxbeep" fill className="object-contain" priority />

@@ -76,16 +76,16 @@ const Sidebar = ({ categories = [], activeCategory, activeSubcategory }) => {
                 <div className="fixed inset-0 bg-black/30 z-40" onClick={() => setIsOpen(false)} />
             )}
 
-                    <aside
-                        className={`bg-white rounded-2xl shadow-sm border border-gray-100 transition-transform duration-300 ease-in-out
-                            ${isMobile ? `fixed inset-y-0 left-0 w-3/4 max-w-xs z-50 transform ${isOpen ? 'translate-x-0' : '-translate-x-full'}` : 'sticky top-20 z-40'}`}
-                        style={{ padding: 18 }}
-                        aria-hidden={!isOpen && isMobile}
-                    >
+            <aside
+                className={`bg-white rounded-2xl shadow-sm border border-gray-100 transition-transform duration-300 ease-in-out
+                            ${isMobile ? `fixed inset-y-0 left-0 w-3/4 max-w-xs z-50 transform ${isOpen ? 'translate-x-0' : '-translate-x-full'}` : 'relative z-40'}`}
+                style={{ padding: 18 }}
+                aria-hidden={!isOpen && isMobile}
+            >
                 <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-3">
-                        <Package size={22} className="text-purple-600" />
-                        <h3 className="text-lg font-semibold text-gray-900">Our Services</h3>
+                        <Package size={22} className="text-black" />
+                        <h3 className="text-xl font-semibold text-gray-900">Product Category</h3>
                     </div>
                     {isMobile && (
                         <button onClick={() => setIsOpen(false)} className="text-gray-500">
@@ -117,12 +117,11 @@ const Sidebar = ({ categories = [], activeCategory, activeSubcategory }) => {
                     </div>
                 </div>
 
-                <nav className="space-y-1 max-h-[56vh] overflow-auto pr-2">
+                <nav className={`space-y-1 pr-2 ${isMobile ? 'max-h-[56vh] overflow-auto' : ''}`}>
                     <Link
                         href="/"
-                        className={`block rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-                            !activeCategory && !activeSubcategory ? 'bg-purple-600 text-white' : 'text-gray-700 hover:bg-gray-50 hover:text-purple-600'
-                        }`}
+                        className={`block rounded-md px-3 py-2 text-sm font-medium transition-colors ${!activeCategory && !activeSubcategory ? 'bg-purple-600 text-white' : 'text-gray-700 hover:bg-gray-50 hover:text-purple-600'
+                            }`}
                         onClick={() => isMobile && setIsOpen(false)}
                     >
                         All Packages
@@ -134,9 +133,8 @@ const Sidebar = ({ categories = [], activeCategory, activeSubcategory }) => {
                                 <div className="flex items-center justify-between">
                                     <Link
                                         href={cat.slug === 'wordpress-plugins' ? '/plugins' : `/category/${cat.slug}`}
-                                        className={`flex-1 text-sm font-medium px-2 py-2 rounded-md transition ${
-                                            activeCategory === cat.slug ? 'text-purple-600' : 'text-gray-800 hover:text-purple-600'
-                                        }`}
+                                        className={`flex-1 text-sm font-medium px-2 py-2 rounded-md transition ${activeCategory === cat.slug ? 'text-purple-600' : 'text-gray-800 hover:text-purple-600'
+                                            }`}
                                         onClick={() => isMobile && setIsOpen(false)}
                                     >
                                         {cat.name}
