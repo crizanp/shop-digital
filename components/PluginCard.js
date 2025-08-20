@@ -5,8 +5,9 @@ import { useRouter } from 'next/router';
 import { Download, Star, Shield, ExternalLink } from 'lucide-react';
 
 const PluginCard = ({ pluginData, showCategory = true, lightTheme = true }) => {
-  if (!pluginData) return null;
   const router = useRouter();
+  
+  if (!pluginData) return null;
 
   const {
     _id,
