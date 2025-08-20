@@ -89,7 +89,7 @@ const PluginDetailPage = ({
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-96 text-gray-400 bg-gray-900">
+      <div className={`flex justify-center items-center h-96 ${lightTheme ? 'text-gray-700 bg-white' : 'text-gray-400 bg-gray-900'}`}>
         <div className="animate-pulse text-xl">Loading plugin details...</div>
       </div>
     );
@@ -97,7 +97,7 @@ const PluginDetailPage = ({
 
   if (!pluginData) {
     return (
-      <div className="flex flex-col justify-center items-center h-96 text-gray-400 bg-gray-900">
+      <div className={`flex flex-col justify-center items-center h-96 ${lightTheme ? 'text-gray-700 bg-white' : 'text-gray-400 bg-gray-900'}`}>
         <div className="text-xl mb-4">Plugin not found</div>
         <Link href="/plugins" className="text-green-400 hover:text-green-300">
           Return to plugins
@@ -127,12 +127,17 @@ const PluginDetailPage = ({
     <div className={`plugin-detail ${outerBg} min-h-screen`}>
       {lightTheme && (
         <style jsx global>{`
-          .plugin-detail * { color: #0f172a !important; }
+          /* don't override elements explicitly marked to preserve their color */
+          .plugin-detail *:not(.preserve-color) { color: #0f172a !important; }
           .plugin-detail .download-btn, .plugin-detail .demo-btn { color: #ffffff !important; }
           .plugin-detail .download-btn svg, .plugin-detail .demo-btn svg { color: #ffffff !important; }
           .plugin-detail a { color: #7c3aed !important; }
           .plugin-detail svg { color: inherit !important; }
           .plugin-detail .bg-gradient-to-r { background-image: none !important; }
+
+          /* Strong override: any element inside .preserve-color keeps its color (icons & text)
+             This must come after the general rule and use the same specificity and !important. */
+          .plugin-detail .preserve-color, .plugin-detail .preserve-color * { color: #ffffff !important; fill: currentColor !important; stroke: currentColor !important; }
         `}</style>
       )}
       
@@ -143,7 +148,7 @@ const PluginDetailPage = ({
         </Link>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 order-2 lg:order-1">
+          <div className="lg:col-span-2 order-1 lg:order-1">
             {/* Image Carousel */}
             <div className={`${cardBgClass} rounded-xl overflow-hidden mb-6`}>
               <div className="relative">
@@ -165,13 +170,13 @@ const PluginDetailPage = ({
                       <>
                         <button
                           onClick={prevImage}
-                          className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
+                          className={`absolute left-4 top-1/2 transform -translate-y-1/2 p-2 rounded-full transition-colors ${lightTheme ? 'bg-white shadow-md hover:bg-white/95 text-gray-900' : 'bg-black/50 hover:bg-black/70 text-white'}`}
                         >
                           <ChevronLeft className="w-5 h-5" />
                         </button>
                         <button
                           onClick={nextImage}
-                          className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
+                          className={`absolute right-4 top-1/2 transform -translate-y-1/2 p-2 rounded-full transition-colors ${lightTheme ? 'bg-white shadow-md hover:bg-white/95 text-gray-900' : 'bg-black/50 hover:bg-black/70 text-white'}`}
                         >
                           <ChevronRight className="w-5 h-5" />
                         </button>
@@ -198,6 +203,42 @@ const PluginDetailPage = ({
                     <Package className="w-16 h-16 text-gray-500" />
                   </div>
                 )}
+              </div>
+            </div>
+
+            {/* Mobile title block: show on small screens before tabs */}
+            <div className="block lg:hidden px-0 mb-4">
+              <div className={`${cardBgClass} rounded-lg p-4 shadow-sm mb-4`}>
+                <div className="max-w-3xl">
+                  <div className="flex items-center gap-2 mb-3">
+                    {pluginData.featured && (
+                      <span className="inline-flex bg-gradient-to-r from-violet-500 to-pink-500 text-white px-3 py-1 rounded-full text-sm font-medium items-center">
+                        <Star size={14} className="mr-1 fill-current" />
+                        Featured
+                      </span>
+                    )}
+                    {categoryInfo && (
+                      <span className={`inline-flex px-3 py-1 rounded-full text-sm ${badgeBgClass}`}>
+                        {categoryInfo.subcategoryName || categoryInfo.categoryName}
+                      </span>
+                    )}
+                    {pluginData.isPremium && (
+                      <span className="inline-flex bg-gradient-to-r from-purple-500 to-violet-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                        Premium
+                      </span>
+                    )}
+                  </div>
+
+                  <h1 className="text-xl md:text-3xl font-bold tracking-tight">{pluginData.name}</h1>
+                  {pluginData.shortDescription && (
+                    <p className={`mt-2 ${secondaryText} font-light`}>{pluginData.shortDescription}</p>
+                  )}
+                  <div className="flex items-center mt-3">
+                    <span className="inline-flex bg-black text-white px-4 py-1.5 rounded-full text-lg font-bold preserve-color">
+                      {pluginData.price}
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -332,7 +373,7 @@ const PluginDetailPage = ({
           </div>
 
           {/* Right Column - Plugin Info and Download */}
-          <div className="space-y-6 order-1 lg:order-2">
+          <div className="space-y-6 order-2 lg:order-2">
             <div className={`${cardBgClass} rounded-lg p-5 shadow-sm`}>
               <div className="max-w-3xl">
                 <div className="flex items-center gap-2 mb-3">
@@ -354,33 +395,21 @@ const PluginDetailPage = ({
                   )}
                 </div>
 
-                <h1 className="text-xl md:text-3xl font-bold tracking-tight">{pluginData.name}</h1>
-                {pluginData.shortDescription && (
-                  <p className={`mt-2 ${secondaryText} font-light`}>{pluginData.shortDescription}</p>
-                )}
-                
-                <div className="flex items-center mt-4 space-x-4">
-                  <div className="flex items-center">
-                    {Array.from({ length: 5 }, (_, i) => (
-                      <Star
-                        key={i}
-                        className={`w-4 h-4 ${
-                          i < Math.floor(pluginData.rating?.average || 0)
-                            ? 'text-yellow-400 fill-current'
-                            : 'text-gray-400'
-                        }`}
-                      />
-                    ))}
-                    <span className={`ml-2 ${mutedText} text-sm`}>
-                      {pluginData.rating?.average?.toFixed(1) || '0.0'} ({pluginData.rating?.count || 0} reviews)
+                {/* Title/details block visible on lg and above (hidden on mobile because we show mobile title above) */}
+                <div className="hidden lg:block">
+                  <h1 className="text-xl md:text-3xl font-bold tracking-tight">{pluginData.name}</h1>
+                  {pluginData.shortDescription && (
+                    <p className={`mt-2 ${secondaryText} font-light`}>{pluginData.shortDescription}</p>
+                  )}
+                  <div className="flex items-center mt-4 space-x-4">
+                    {/* rating placeholder (kept hidden/commented as before) */}
+                  </div>
+
+                  <div className="flex items-center mt-3">
+                    <span className="inline-flex bg-black text-white px-4 py-1.5 rounded-full text-lg font-bold preserve-color">
+                      {pluginData.price}
                     </span>
                   </div>
-                </div>
-
-                <div className="flex items-center mt-3">
-                  <span className={`inline-flex ${priceBadge} text-white px-4 py-1.5 rounded-full text-lg font-bold starting-price`}>
-                    {pluginData.price}
-                  </span>
                 </div>
               </div>
             </div>
@@ -409,18 +438,18 @@ const PluginDetailPage = ({
               <div className="space-y-4">
                 <button
                   onClick={handleDownload}
-                  className={`w-full ${downloadButtonClass} font-bold py-3 px-6 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center shadow-lg download-btn`}
+                  className={`w-full ${lightTheme ? 'bg-black text-white preserve-color cursor-pointer' : downloadButtonClass} font-bold py-3 px-6 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center shadow-lg download-btn`}
                 >
-                  <Download className="w-5 h-5 mr-2" />
+                  <Download className="w-5 h-5 mr-2 text-white preserve-color" />
                   Download Now
                 </button>
 
                 {pluginData.demoUrl && (
                   <button
                     onClick={() => window.open(pluginData.demoUrl, '_blank')}
-                    className={`w-full ${buttonClass} font-bold py-3 px-6 rounded-xl text-lg transition-all duration-300 flex items-center justify-center demo-btn`}
+                    className={`w-full ${lightTheme ? 'bg-black text-white preserve-color cursor-pointer' : buttonClass} font-bold py-3 px-6 rounded-xl text-lg transition-all duration-300 flex items-center justify-center demo-btn`}
                   >
-                    <ExternalLink className="w-5 h-5 mr-2" />
+                    <ExternalLink className="w-5 h-5 mr-2 text-white preserve-color " />
                     View Demo
                   </button>
                 )}
@@ -470,7 +499,7 @@ const PluginDetailPage = ({
 
             {/* Tags */}
             {pluginData.tags?.length > 0 && (
-              <div className={`${cardBgClass} rounded-lg p-5 shadow-sm`}>
+              <div className={`${cardBgClass} rounded-lg p-5 shadow-sm mb-4`}>
                 <h2 className={`text-xl font-bold ${primaryText} mb-3`}>Tags</h2>
                 <div className="flex flex-wrap gap-2">
                   {pluginData.tags.map((tag, index) => (

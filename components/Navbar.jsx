@@ -72,7 +72,7 @@ const Navbar = ({ activeCategory, activeSubcategory }) => {
 
     return (
         <nav className="fixed top-0 left-0 w-full backdrop-blur-sm z-50 transition-all duration-300" style={{ backgroundColor: '#f2e4ff' }}>
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+        <div className=" mx-auto max-w-7xl relative">
 
                 {/* Left: Show category (mobile) */}
                     <div className="absolute left-4 top-1/2 transform -translate-y-1/2 lg:hidden">

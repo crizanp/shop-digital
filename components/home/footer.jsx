@@ -31,7 +31,7 @@ export default function Footer() {
                             <h3 className="text-gray-600 text-sm">Contact</h3>
                         </div>
                         <div className="space-y-2">
-                            <p className="text-lg font-bold text-gray-900">+977-9810570201</p>
+                            <p className="text-lg font-bold text-gray-900">+977-9705516131</p>
                             <p className="text-lg font-bold text-gray-900">info@foxbeep.com</p>
                         </div>
                     </div>
@@ -43,7 +43,7 @@ export default function Footer() {
                                 src="/images/logo_black.png"
                                 alt="Logo"
                                 width={300}
-                                height={100}
+                                height={90}
                             />
                         </div>
                         <p className="text-gray-600 text-xs">© 2025 Foxbeep. All Rights Reserved</p>
@@ -52,23 +52,21 @@ export default function Footer() {
                     {/* Social Links & Legal */}
                     <div className="col-span-1">
                         <div className="flex justify-center md:justify-end space-x-4 mb-4">
-                            <a href="#" className="text-gray-600 hover:text-purple-600 transition-colors">
+                            <a href="https://np.linkedin.com/company/foxbeep" className="text-gray-600 hover:text-purple-600 transition-colors">
                                 <Linkedin size={20} />
                             </a>
-                            <a href="#" className="text-gray-600 hover:text-purple-600 transition-colors">
+                            <a href="https://x.com/foxbeeptech" className="text-gray-600 hover:text-purple-600 transition-colors">
                                 <Twitter size={20} />
                             </a>
-                            <a href="#" className="text-gray-600 hover:text-purple-600 transition-colors">
+                            <a href="https://www.facebook.com/foxbeeptech" className="text-gray-600 hover:text-purple-600 transition-colors">
                                 <Facebook size={20} />
                             </a>
-                            <a href="#" className="text-gray-600 hover:text-purple-600 transition-colors">
-                                <Globe size={20} />
-                            </a>
+                            
                         </div>
                         <div className="flex justify-center md:justify-end text-gray-600 text-xs">
-                            <a href="#" className="hover:text-purple-600 transition-colors">Privacy Policy</a>
+                            <a href="https://www.foxbeep.com/privacypolicy" className="hover:text-purple-600 transition-colors">Privacy Policy</a>
                             <span className="mx-2">|</span>
-                            <a href="#" className="hover:text-purple-600 transition-colors">Terms & Conditions</a>
+                            <a href="https://www.foxbeep.com/termsandcondition" className="hover:text-purple-600 transition-colors">Terms & Conditions</a>
                         </div>
                     </div>
                 </div>

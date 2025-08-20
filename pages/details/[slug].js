@@ -37,7 +37,9 @@ export default function PackageDetailWrapper({ packageData, categories }) {
       </Head>
       <Navbar />
       <div className="bg-white text-gray-900">
-        <PackageDetailPage packageData={packageData} categoryData={categories} lightTheme />
+        <div className="container mx-auto max-w-7xl px-4">
+          <PackageDetailPage packageData={packageData} categoryData={categories} lightTheme />
+        </div>
       </div>
     </>
   );

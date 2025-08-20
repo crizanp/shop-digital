@@ -157,9 +157,44 @@ const PackageDetailPage = ({
     if (onQuotationRequest) {
       onQuotationRequest(quotationData);
     } else {
-      // Default behavior - you can customize this
-      console.log('Quotation Request:', quotationData);
-      alert('Quotation request submitted! We will contact you soon.');
+      // Default behavior: send to server API which returns a wa.me link or attempts server-side send
+      (async () => {
+        try {
+          const payload = {
+            packageTitle: quotationData.packageTitle,
+            categoryName: categoryInfo?.categoryName,
+            subcategoryName: categoryInfo?.subcategoryName,
+            quantity: quotationData.quantity,
+            totalPrice: quotationData.totalPrice,
+            addons: Object.values(selectedOptions || {}).flat().map(idx => {
+              // try to map to readable addon text if pricing is present
+              const found = packageData.pricing?.flatMap(p => p.options || []).filter(Boolean)[idx];
+              return found ? { title: found.title || found.name, price: found.price } : { name: String(idx) };
+            }),
+            recipient: '9705516131'
+          };
+
+          const resp = await fetch('/api/send-quotation-whatsapp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+
+          const data = await resp.json();
+          if (data.waLink) {
+            // Open WhatsApp link in a new tab/window
+            window.open(data.waLink, '_blank');
+          } else if (data.success) {
+            alert('Quotation sent successfully via WhatsApp API.');
+          } else {
+            console.error('WhatsApp send error:', data);
+            alert('Could not send quotation via WhatsApp.');
+          }
+        } catch (err) {
+          console.error('Error sending quotation:', err);
+          alert('Failed to send quotation.');
+        }
+      })();
     }
   };
 
