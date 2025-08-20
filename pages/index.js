@@ -5,7 +5,7 @@ import PackageCard from '../components/PackageCard';
 import PluginCard from '../components/PluginCard';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { Filter, SortAsc, SortDesc, Package, ChevronRight, ArrowRight } from 'lucide-react';
+import { Package, ChevronRight, ArrowRight } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Link from 'next/link';
 
@@ -22,7 +22,7 @@ export default function PricingPage({ initialCategories = [], initialPackages = 
   const [activeCategory, setActiveCategory] = useState(null);
   const [activeSubcategory, setActiveSubcategory] = useState(null);
   const [sortBy, setSortBy] = useState('default');
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
@@ -185,38 +185,89 @@ export default function PricingPage({ initialCategories = [], initialPackages = 
 
   // Apply sorting whenever packages or sortBy changes
   useEffect(() => {
-    let sorted = [...packages];
+    // Filter by search term (title, description, category/subcategory names) then sort
+    const term = searchTerm?.trim().toLowerCase();
 
+    const packageMatchesSearch = (pkg) => {
+      if (!term) return true;
+
+      const fields = [];
+      if (pkg.title) fields.push(pkg.title);
+      if (pkg.name) fields.push(pkg.name);
+      if (pkg.description) fields.push(pkg.description);
+      if (pkg.shortDescription) fields.push(pkg.shortDescription);
+      if (pkg.tags && Array.isArray(pkg.tags)) fields.push(pkg.tags.join(' '));
+
+      // Try to find category/subcategory names from categories list
+      try {
+        const cat = categories.find(c => c._id === pkg.categoryId || c.slug === pkg.categorySlug || c.name === pkg.categoryName);
+        if (cat) {
+          fields.push(cat.name);
+          if (cat.subcategories && Array.isArray(cat.subcategories)) {
+            const sub = cat.subcategories[pkg.subcategoryIndex] || cat.subcategories.find(s => s.slug === pkg.subcategorySlug || s.name === pkg.subcategoryName);
+            if (sub) fields.push(sub.name);
+          }
+        }
+      } catch (e) {
+        // ignore
+      }
+
+      const haystack = fields.filter(Boolean).join(' ').toLowerCase();
+      return haystack.includes(term);
+    };
+
+    let filtered = packages.filter(packageMatchesSearch);
+
+    // Sorting
     switch (sortBy) {
       case 'price-low-high':
-        sorted = sorted.sort((a, b) => {
-          const priceA = parseFloat(a.price.replace(/[^0-9.]/g, '')) || 0;
-          const priceB = parseFloat(b.price.replace(/[^0-9.]/g, '')) || 0;
+        filtered = filtered.sort((a, b) => {
+          const priceA = parseFloat((a.price || '').replace(/[^0-9.]/g, '')) || 0;
+          const priceB = parseFloat((b.price || '').replace(/[^0-9.]/g, '')) || 0;
           return priceA - priceB;
         });
         break;
       case 'price-high-low':
-        sorted = sorted.sort((a, b) => {
-          const priceA = parseFloat(a.price.replace(/[^0-9.]/g, '')) || 0;
-          const priceB = parseFloat(b.price.replace(/[^0-9.]/g, '')) || 0;
+        filtered = filtered.sort((a, b) => {
+          const priceA = parseFloat((a.price || '').replace(/[^0-9.]/g, '')) || 0;
+          const priceB = parseFloat((b.price || '').replace(/[^0-9.]/g, '')) || 0;
           return priceB - priceA;
         });
         break;
       case 'latest':
-        sorted = sorted.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        filtered = filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         break;
       case 'oldest':
-        sorted = sorted.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+        filtered = filtered.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
         break;
       case 'featured':
-        sorted = sorted.sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
+        // Place featured packages at the top, then sort by newest createdAt within each group
+        filtered = filtered.sort((a, b) => {
+          const fa = a.featured ? 1 : 0;
+          const fb = b.featured ? 1 : 0;
+          const byFeatured = fb - fa; // negative => a before b when a.featured
+          if (byFeatured !== 0) return byFeatured;
+          // if both have same featured flag, sort by newest first
+          return new Date(b.createdAt) - new Date(a.createdAt);
+        });
         break;
       default:
-        sorted = sorted.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        filtered = filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     }
 
-    setDisplayedPackages(sorted);
-  }, [packages, sortBy]);
+    // Always put featured packages at the top while preserving relative order
+    const featuredFirst = (() => {
+      const featured = [];
+      const others = [];
+      for (const p of filtered) {
+        if (p && p.featured) featured.push(p);
+        else others.push(p);
+      }
+      return [...featured, ...others];
+    })();
+
+    setDisplayedPackages(featuredFirst);
+  }, [packages, sortBy, searchTerm, categories]);
 
   // Find active category/subcategory names
   const getActiveCategoryName = () => {
@@ -362,38 +413,37 @@ export default function PricingPage({ initialCategories = [], initialPackages = 
             </div>
 
             <div className="lg:col-span-3">
-              <div className="">
-                <div className="flex items-center text-sm text-gray-400 mb-2">
-
-                  {activeCategory && (
-                    <>
-                      {/* <ChevronRight size={16} className="mx-1 text-gray-500" /> */}
-                      <Link
-                        href={`/category/${activeCategory}`}
-                        className="hover:text-purple-500 transition-colors"
-                      >
-                        {getActiveCategoryName()}
-                      </Link>
-                    </>
-                  )}
-                  {activeSubcategory && (
-                    <>
-                      <ChevronRight size={16} className="mx-1 text-gray-500" />
-                      <span className="text-purple-500">{getActiveSubcategoryName()}</span>
-                    </>
-                  )}
+              {!(router.pathname === '/' || router.asPath === '/') && (
+                <div className="mb-3 text-sm text-gray-500">
+                  <nav className="flex items-center space-x-2">
+                    <Link href="/" className="hover:text-purple-500">Home</Link>
+                    {(activeCategory || activeSubcategory) && (
+                      <>
+                        <ChevronRight size={14} className="text-gray-400" />
+                        {activeCategory && (
+                          <Link href={`/category/${activeCategory}`} className="hover:text-purple-500">{getActiveCategoryName()}</Link>
+                        )}
+                        {activeSubcategory && (
+                          <>
+                            <ChevronRight size={14} className="text-gray-400" />
+                            <span className="text-purple-500">{getActiveSubcategoryName()}</span>
+                          </>
+                        )}
+                      </>
+                    )}
+                  </nav>
                 </div>
-              </div>
+              )}
 
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 bg-gray-50 px-4 py-2 rounded-lg border border-gray-200">
-                <div className="mb-4 sm:mb-0">
-                  <button
-                    onClick={() => setIsFilterOpen(!isFilterOpen)}
-                    className="flex items-center text-gray-600 hover:text-purple-500 transition-colors"
-                  >
-                    <Filter size={18} className="mr-2" />
-                    <span>Filter</span>
-                  </button>
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 bg-purple-50 px-4 py-2 rounded-lg">
+                <div className="w-full sm:w-1/2 mb-3 sm:mb-0">
+                  <input
+                    type="search"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Search any packages"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-md "
+                  />
                 </div>
 
                 <div className="flex space-x-2">

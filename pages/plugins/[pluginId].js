@@ -72,7 +72,6 @@ export default function PluginDetail() {
   };
 
   return (
-    <Layout lightTheme={lightTheme}>
       <PluginDetailPage
         pluginData={pluginData}
         categoryData={categoryData}
@@ -80,6 +79,5 @@ export default function PluginDetail() {
         loading={loading}
         lightTheme={lightTheme}
       />
-    </Layout>
   );
 }
