@@ -205,6 +205,9 @@ const PackageDetailPage = ({
         <style jsx global>{`
           /* Force dark text color across the detail page in light theme to override leftover light classes */
           .package-detail * { color: #0f172a !important; }
+          /* Keep specific controls white even when the global color is forced */
+          .package-detail .starting-price, .package-detail .quotation-btn { color: #ffffff !important; }
+          .package-detail .quotation-btn svg { color: #ffffff !important; }
           .package-detail a { color: #7c3aed !important; }
           .package-detail svg { color: inherit !important; }
           .package-detail .bg-gradient-to-r { background-image: none !important; }
@@ -235,7 +238,7 @@ const PackageDetailPage = ({
             </div>
 
             {/* Tabs Navigation */}
-            <div className={`${lightTheme ? 'rounded-t-lg overflow-hidden shadow-sm border-b-0' : 'bg-gray-900 rounded-t-lg overflow-hidden shadow-sm border border-gray-800 border-b-0'}`}>
+            <div className={`${lightTheme ? 'my-4 rounded-t-lg overflow-hidden shadow-sm border-b-0' : 'bg-gray-900 rounded-t-lg overflow-hidden shadow-sm border border-gray-800 border-b-0'}`}>
               <div className="flex overflow-x-auto">
                 <button
                   onClick={() => setActiveTab('description')}
@@ -338,7 +341,7 @@ const PackageDetailPage = ({
                   <p className={` mt-2 ${secondaryText} font-light`}>{packageData.subtitle}</p>
                 )}
                 <div className="flex items-center mt-3">
-                  <span className={`inline-flex ${priceBadge} px-4 py-1.5 rounded-full text-lg font-bold`}>
+                  <span className={`inline-flex ${priceBadge} text-white px-4 py-1.5 rounded-full text-lg font-bold starting-price`} style={{ color: "white" }}>
                     Starting at ${packageData.price}
                   </span>
                 </div>
@@ -485,7 +488,7 @@ const PackageDetailPage = ({
                 <div className="flex justify-center">
                   <button
                     onClick={handleQuotationRequest}
-                    className={`${buttonClass} font-bold py-3 px-6 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 flex items-center shadow-lg`}
+                    className={`${buttonClass} font-bold py-3 px-6 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 flex items-center shadow-lg quotation-btn`}
                   >
                     <FileText className="w-5 h-5 mr-2" />
                     GET QUOTATION
@@ -495,7 +498,7 @@ const PackageDetailPage = ({
             </div>
 
             {/* Support Info */}
-            <div className="bg-gradient-to-r from-gray-900 to-green-900/30 rounded-lg p-4 shadow-sm border border-gray-800">
+            <div className="bg-gradient-to-r mb-4 from-gray-900 to-green-900/30 rounded-lg p-4 shadow-sm border border-gray-800">
               <div className="flex items-start">
                 <Info className="w-5 h-5 text-green-400 mt-1 mr-3 shrink-0" />
                 <div>
