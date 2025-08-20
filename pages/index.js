@@ -2,19 +2,21 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import PackageCard from '../components/PackageCard';
+import PluginCard from '../components/PluginCard';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { Filter, SortAsc, SortDesc, Package, ChevronRight, ArrowRight } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Link from 'next/link';
 
-export default function PricingPage({ initialCategories = [], initialPackages = [], initialPagination = {} }) {
+export default function PricingPage({ initialCategories = [], initialPackages = [], initialPagination = {}, initialPlugins = [] }) {
   const router = useRouter();
   const { categorySlug, subcategorySlug } = router.query;
 
   // State management
   const [categories, setCategories] = useState(initialCategories);
   const [packages, setPackages] = useState(initialPackages);
+  const [plugins, setPlugins] = useState(initialPlugins);
   const [filteredPackages, setFilteredPackages] = useState([]);
   const [displayedPackages, setDisplayedPackages] = useState([]);
   const [activeCategory, setActiveCategory] = useState(null);
@@ -458,6 +460,35 @@ export default function PricingPage({ initialCategories = [], initialPackages = 
                   <p className="text-gray-700">We couldn&apos;t find any packages matching your criteria.</p>
                 </div>
               )}
+
+              {/* WordPress Plugins Section */}
+              {plugins && plugins.length > 0 && (
+                <div className="mt-16">
+                  <div className="flex items-center justify-between mb-8">
+                    <div>
+                      <h2 className="text-2xl font-bold text-gray-900 mb-2">WordPress Plugins</h2>
+                      <p className="text-gray-600">Extend your WordPress site with powerful plugins</p>
+                    </div>
+                    <Link 
+                      href="/plugins"
+                      className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg transition-colors font-medium flex items-center space-x-2"
+                    >
+                      <span>View All Plugins</span>
+                      <ArrowRight size={16} />
+                    </Link>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {plugins.slice(0, 3).map((plugin) => (
+                      <PluginCard
+                        key={plugin._id}
+                        pluginData={plugin}
+                        lightTheme={true}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -472,20 +503,37 @@ export async function getServerSideProps(context) {
   const host = context.req.headers.host;
   const baseUrl = `${protocol}://${host}`;
 
-  // Fetch categories
-  const categoriesRes = await fetch(`${baseUrl}/api/categories`);
-  const categoriesData = await categoriesRes.json();
-  const categories = categoriesData.categories || [];
+  try {
+    // Fetch categories
+    const categoriesRes = await fetch(`${baseUrl}/api/categories`);
+    const categoriesData = await categoriesRes.json();
+    const categories = categoriesData.categories || [];
 
-  // Fetch first page of packages (limit enforced to 6 server-side already)
-  const packagesRes = await fetch(`${baseUrl}/api/packages?page=1&limit=6`);
-  const packagesData = await packagesRes.json();
+    // Fetch first page of packages (limit enforced to 6 server-side already)
+    const packagesRes = await fetch(`${baseUrl}/api/packages?page=1&limit=6`);
+    const packagesData = await packagesRes.json();
 
-  return {
-    props: {
-      initialCategories: categories,
-      initialPackages: packagesData.packages || [],
-      initialPagination: packagesData.pagination || {}
-    }
-  };
+    // Fetch some WordPress plugins for the index page
+    const pluginsRes = await fetch(`${baseUrl}/api/plugins?page=1&limit=3`);
+    const pluginsData = await pluginsRes.json();
+
+    return {
+      props: {
+        initialCategories: categories,
+        initialPackages: packagesData.packages || [],
+        initialPagination: packagesData.pagination || {},
+        initialPlugins: pluginsData.plugins || []
+      }
+    };
+  } catch (error) {
+    console.error('Error in getServerSideProps:', error);
+    return {
+      props: {
+        initialCategories: [],
+        initialPackages: [],
+        initialPagination: {},
+        initialPlugins: []
+      }
+    };
+  }
 }

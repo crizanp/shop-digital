@@ -203,6 +203,9 @@ const Navbar = ({ categories = [], activeCategory, activeSubcategory }) => {
                                 <Link href="/" className="text-gray-700 hover:text-purple-600 transition-colors">
                                     Home
                                 </Link>
+                                <Link href="/plugins" className="text-gray-700 hover:text-purple-600 transition-colors">
+                                    WordPress Plugins
+                                </Link>
                                 <Link href="/about" className="text-gray-700 hover:text-purple-600 transition-colors">
                                     About
                                 </Link>
@@ -320,6 +323,15 @@ const Navbar = ({ categories = [], activeCategory, activeSubcategory }) => {
                                             onClick={handleMobileNavClick}
                                         >
                                             Home
+                                        </Link>
+                                    </li>
+                                    <li>
+                                        <Link 
+                                            href="/plugins" 
+                                            className="block py-2 font-medium text-gray-300 hover:text-green-400 transition-colors"
+                                            onClick={handleMobileNavClick}
+                                        >
+                                            WordPress Plugins
                                         </Link>
                                     </li>
                                     <li>

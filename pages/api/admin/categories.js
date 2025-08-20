@@ -37,9 +37,15 @@ export default async function handler(req, res) {
 async function getCategories(req, res) {
   try {
     const categories = await Category.find({ isActive: true }).sort({ createdAt: -1 });
-    res.status(200).json({ categories });
+    res.status(200).json({ 
+      success: true,
+      categories 
+    });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to fetch categories' });
+    res.status(500).json({ 
+      success: false,
+      message: 'Failed to fetch categories' 
+    });
   }
 }
 

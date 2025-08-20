@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import ImageUpload from './ImageUpload';
+import AdminPluginDashboard from './AdminPluginDashboard';
 
 const AdminDashboard = ({ token, onLogout }) => {
     const [activeTab, setActiveTab] = useState('packages');
@@ -301,6 +302,15 @@ const AdminDashboard = ({ token, onLogout }) => {
                                 Packages
                             </button>
                             <button
+                                onClick={() => setActiveTab('plugins')}
+                                className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'plugins'
+                                    ? 'border-blue-500 text-blue-600'
+                                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                                    }`}
+                            >
+                                WordPress Plugins
+                            </button>
+                            <button
                                 onClick={() => setActiveTab('categories')}
                                 className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'categories'
                                     ? 'border-blue-500 text-blue-600'
@@ -313,145 +323,151 @@ const AdminDashboard = ({ token, onLogout }) => {
                     </div>
                 </div>
 
-                <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-xl font-semibold text-gray-900 capitalize">
-                        Manage {activeTab}
-                    </h2>
-                    <button
-                        onClick={() => setShowForm(true)}
-                        className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                    >
-                        Add New {activeTab.slice(0, -1)}
-                    </button>
-                </div>
-
-                {loading && (
-                    <div className="text-center py-8">
-                        <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                    </div>
-                )}
-
-                {!loading && (
-                    <div className="bg-white rounded-lg shadow overflow-hidden">
-                        <div className="overflow-x-auto">
-                            <table className="min-w-full divide-y divide-gray-200">
-                                <thead className="bg-gray-50">
-                                    <tr>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Name/Title
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            {activeTab === 'packages' ? 'Price' : 'Slug'}
-                                        </th>
-                                        {activeTab === 'packages' && (
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Category
-                                            </th>
-                                        )}
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Status
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Actions
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody className="bg-white divide-y divide-gray-200">
-                                    {(activeTab === 'packages' ? packages : categories).map((item) => (
-                                        <tr key={item._id}>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="text-sm font-medium text-gray-900">
-                                                    {item.title || item.name}
-                                                </div>
-                                                {item.subtitle && (
-                                                    <div className="text-sm text-gray-500">{item.subtitle}</div>
-                                                )}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                {item.price || item.slug}
-                                            </td>
-                                            {activeTab === 'packages' && (
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                    {getCategoryName(item)}
-                                                </td>
-                                            )}
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${item.isActive
-                                                    ? 'bg-green-100 text-green-800'
-                                                    : 'bg-red-100 text-red-800'
-                                                    }`}>
-                                                    {item.isActive ? 'Active' : 'Inactive'}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                                                <button
-                                                    onClick={() => handleEdit(item)}
-                                                    className="text-blue-600 hover:text-blue-900"
-                                                >
-                                                    Edit
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDelete(item._id)}
-                                                    className="text-red-600 hover:text-red-900"
-                                                >
-                                                    Delete
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                    {(activeTab === 'packages' ? packages : categories).length === 0 && (
-                                        <tr>
-                                            <td colSpan={activeTab === 'packages' ? "5" : "4"} className="px-6 py-4 text-center text-gray-500">
-                                                No {activeTab} found
-                                            </td>
-                                        </tr>
-                                    )}
-                                </tbody>
-                            </table>
+                {activeTab === 'plugins' ? (
+                    <AdminPluginDashboard token={token} />
+                ) : (
+                    <>
+                        <div className="flex justify-between items-center mb-6">
+                            <h2 className="text-xl font-semibold text-gray-900 capitalize">
+                                Manage {activeTab}
+                            </h2>
+                            <button
+                                onClick={() => setShowForm(true)}
+                                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                            >
+                                Add New {activeTab.slice(0, -1)}
+                            </button>
                         </div>
-                    </div>
-                )}
 
-                {showForm && (
-                    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
-                        <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-screen overflow-y-auto">
-                            <div className="px-6 py-4 border-b border-gray-200">
-                                <h3 className="text-lg font-medium text-gray-900">
-                                    {editingItem ? 'Edit' : 'Add New'} {activeTab.slice(0, -1)}
-                                </h3>
+                        {loading && (
+                            <div className="text-center py-8">
+                                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                             </div>
+                        )}
 
-                            <form onSubmit={handleSubmit} className="p-6 space-y-4">
-                                {activeTab === 'packages' ? (
-                                    <PackageForm
-                                        formData={formData}
-                                        setFormData={setFormData}
-                                        categories={allCategories}
-                                    />
-                                ) : (
-                                    <CategoryForm formData={formData} setFormData={setFormData} />
-                                )}
-
-                                <div className="flex justify-end space-x-3 pt-4">
-                                    <button
-                                        type="button"
-                                        onClick={resetForm}
-                                        className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
-                                        disabled={loading}
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button
-                                        type="submit"
-                                        disabled={loading}
-                                        className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50"
-                                    >
-                                        {loading ? 'Saving...' : 'Save'}
-                                    </button>
+                        {!loading && (
+                            <div className="bg-white rounded-lg shadow overflow-hidden">
+                                <div className="overflow-x-auto">
+                                    <table className="min-w-full divide-y divide-gray-200">
+                                        <thead className="bg-gray-50">
+                                            <tr>
+                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    Name/Title
+                                                </th>
+                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    {activeTab === 'packages' ? 'Price' : 'Slug'}
+                                                </th>
+                                                {activeTab === 'packages' && (
+                                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                        Category
+                                                    </th>
+                                                )}
+                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    Status
+                                                </th>
+                                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    Actions
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="bg-white divide-y divide-gray-200">
+                                            {(activeTab === 'packages' ? packages : categories).map((item) => (
+                                                <tr key={item._id}>
+                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                        <div className="text-sm font-medium text-gray-900">
+                                                            {item.title || item.name}
+                                                        </div>
+                                                        {item.subtitle && (
+                                                            <div className="text-sm text-gray-500">{item.subtitle}</div>
+                                                        )}
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                        {item.price || item.slug}
+                                                    </td>
+                                                    {activeTab === 'packages' && (
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                            {getCategoryName(item)}
+                                                        </td>
+                                                    )}
+                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${item.isActive
+                                                            ? 'bg-green-100 text-green-800'
+                                                            : 'bg-red-100 text-red-800'
+                                                            }`}>
+                                                            {item.isActive ? 'Active' : 'Inactive'}
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                                        <button
+                                                            onClick={() => handleEdit(item)}
+                                                            className="text-blue-600 hover:text-blue-900"
+                                                        >
+                                                            Edit
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleDelete(item._id)}
+                                                            className="text-red-600 hover:text-red-900"
+                                                        >
+                                                            Delete
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                            {(activeTab === 'packages' ? packages : categories).length === 0 && (
+                                                <tr>
+                                                    <td colSpan={activeTab === 'packages' ? "5" : "4"} className="px-6 py-4 text-center text-gray-500">
+                                                        No {activeTab} found
+                                                    </td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </table>
                                 </div>
-                            </form>
-                        </div>
-                    </div>
+                            </div>
+                        )}
+
+                        {showForm && (
+                            <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+                                <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-screen overflow-y-auto">
+                                    <div className="px-6 py-4 border-b border-gray-200">
+                                        <h3 className="text-lg font-medium text-gray-900">
+                                            {editingItem ? 'Edit' : 'Add New'} {activeTab.slice(0, -1)}
+                                        </h3>
+                                    </div>
+
+                                    <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                                        {activeTab === 'packages' ? (
+                                            <PackageForm
+                                                formData={formData}
+                                                setFormData={setFormData}
+                                                categories={allCategories}
+                                            />
+                                        ) : (
+                                            <CategoryForm formData={formData} setFormData={setFormData} />
+                                        )}
+
+                                        <div className="flex justify-end space-x-3 pt-4">
+                                            <button
+                                                type="button"
+                                                onClick={resetForm}
+                                                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+                                                disabled={loading}
+                                            >
+                                                Cancel
+                                            </button>
+                                            <button
+                                                type="submit"
+                                                disabled={loading}
+                                                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50"
+                                            >
+                                                {loading ? 'Saving...' : 'Save'}
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        )}
+                    </>
                 )}
             </div>
         </div>
