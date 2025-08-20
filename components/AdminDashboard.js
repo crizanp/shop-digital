@@ -266,8 +266,8 @@ const AdminDashboard = ({ token, onLogout }) => {
         return (
             <div className="min-h-screen bg-gray-100 flex items-center justify-center">
                 <div className="bg-white p-8 rounded-lg shadow-md">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-4">Authentication Required</h2>
-                    <p className="text-gray-600 mb-4">Please login to access the admin dashboard.</p>
+                    <h2 className="text-2xl font-bold text-black mb-4">Authentication Required</h2>
+                    <p className="text-black mb-4">Please login to access the admin dashboard.</p>
                     <button
                         onClick={() => {
                             if (typeof onLogout === 'function') {
@@ -295,8 +295,8 @@ const AdminDashboard = ({ token, onLogout }) => {
                             <button
                                 onClick={() => setActiveTab('packages')}
                                 className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'packages'
-                                    ? 'border-blue-500 text-blue-600'
-                                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                                    ? 'border-blue-500 text-black'
+                                    : 'border-transparent text-black hover:text-black'
                                     }`}
                             >
                                 Packages
@@ -304,8 +304,8 @@ const AdminDashboard = ({ token, onLogout }) => {
                             <button
                                 onClick={() => setActiveTab('plugins')}
                                 className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'plugins'
-                                    ? 'border-blue-500 text-blue-600'
-                                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                                    ? 'border-blue-500 text-black'
+                                    : 'border-transparent text-black hover:text-black'
                                     }`}
                             >
                                 WordPress Plugins
@@ -313,8 +313,8 @@ const AdminDashboard = ({ token, onLogout }) => {
                             <button
                                 onClick={() => setActiveTab('categories')}
                                 className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'categories'
-                                    ? 'border-blue-500 text-blue-600'
-                                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                                    ? 'border-blue-500 text-black'
+                                    : 'border-transparent text-black hover:text-black'
                                     }`}
                             >
                                 Categories
@@ -328,7 +328,7 @@ const AdminDashboard = ({ token, onLogout }) => {
                 ) : (
                     <>
                         <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-xl font-semibold text-gray-900 capitalize">
+                            <h2 className="text-xl font-semibold text-black capitalize">
                                 Manage {activeTab}
                             </h2>
                             <button
@@ -625,7 +625,7 @@ const PackageForm = ({ formData, setFormData, categories }) => {
                         name="title"
                         value={formData.title || ''}
                         onChange={handleChange}
-                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500"
+                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500 text-black"
                         required
                     />
                 </div>
@@ -637,7 +637,7 @@ const PackageForm = ({ formData, setFormData, categories }) => {
                         name="subtitle"
                         value={formData.subtitle || ''}
                         onChange={handleChange}
-                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500"
+                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500 text-black"
                     />
                 </div>
 
@@ -649,7 +649,7 @@ const PackageForm = ({ formData, setFormData, categories }) => {
                         value={formData.demoUrl || ''}
                         onChange={handleChange}
                         placeholder="https://example.com/demo (optional)"
-                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500"
+                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500 text-black"
                     />
                 </div>
 
@@ -661,7 +661,7 @@ const PackageForm = ({ formData, setFormData, categories }) => {
                         value={formData.price || ''}
                         onChange={handleChange}
                         placeholder="e.g. From: 99.00 USD/month"
-                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500"
+                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500 text-black"
                         required
                     />
                 </div>
@@ -680,7 +680,7 @@ const PackageForm = ({ formData, setFormData, categories }) => {
                         name="categoryId"
                         value={formData.categoryId || ''}
                         onChange={handleChange}
-                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500"
+                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500 text-black"
                         required
                     >
                         <option value="">Select a category</option>
@@ -698,7 +698,7 @@ const PackageForm = ({ formData, setFormData, categories }) => {
                             name="subcategoryId"
                             value={formData.subcategoryId || ''}
                             onChange={handleChange}
-                            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500"
+                            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500 text-black"
                         >
                             <option value="">Select a subcategory (optional)</option>
                             {selectedCategory.subcategories.map((sub, index) => (
@@ -746,7 +746,7 @@ const PackageForm = ({ formData, setFormData, categories }) => {
                         value={formData.description || ''}
                         onChange={handleChange}
                         rows={3}
-                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500"
+                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500 text-black"
                         required
                     />
                 </div>
@@ -758,7 +758,7 @@ const PackageForm = ({ formData, setFormData, categories }) => {
                         value={formData.longDescription || ''}
                         onChange={handleChange}
                         rows={6}
-                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500"
+                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500 text-black"
                         required
                     />
                 </div>
@@ -770,7 +770,7 @@ const PackageForm = ({ formData, setFormData, categories }) => {
                                 type="text"
                                 value={feature}
                                 onChange={(e) => handleArrayChange('features', index, e.target.value)}
-                                className="flex-1 border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500"
+                                className="flex-1 border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500 text-black"
                                 placeholder="Enter feature"
                             />
                             <button
@@ -803,7 +803,7 @@ const PackageForm = ({ formData, setFormData, categories }) => {
                                     type="text"
                                     value={faq.question || ''}
                                     onChange={(e) => handleFAQChange(index, 'question', e.target.value)}
-                                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500"
+                                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500 text-black"
                                 />
                             </div>
                             <div>
@@ -812,7 +812,7 @@ const PackageForm = ({ formData, setFormData, categories }) => {
                                     value={faq.answer || ''}
                                     onChange={(e) => handleFAQChange(index, 'answer', e.target.value)}
                                     rows={3}
-                                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500"
+                                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500 text-black"
                                 />
                             </div>
                             <button
@@ -852,7 +852,7 @@ const PackageForm = ({ formData, setFormData, categories }) => {
                             type="text"
                             value={pricingSection.title || ''}
                             onChange={(e) => handlePricingChange(pricingIndex, 'title', e.target.value)}
-                            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500"
+                            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500 text-black"
                         />
 
                         <div className="mb-4 mt-4">
@@ -864,14 +864,14 @@ const PackageForm = ({ formData, setFormData, categories }) => {
                                         placeholder="Option Name"
                                         value={option.name || ''}
                                         onChange={(e) => handlePricingOptionChange(pricingIndex, optionIndex, 'name', e.target.value)}
-                                        className="flex-1 border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500"
+                                        className="flex-1 border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500 text-black"
                                     />
                                     <input
                                         type="text"
                                         placeholder="Price"
                                         value={option.price || ''}
                                         onChange={(e) => handlePricingOptionChange(pricingIndex, optionIndex, 'price', e.target.value)}
-                                        className="flex-1 border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500"
+                                        className="flex-1 border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500 text-black"
                                     />
                                     <button
                                         type="button"
@@ -945,7 +945,7 @@ const CategoryForm = ({ formData, setFormData }) => {
                     name="name"
                     value={formData.name || ''}
                     onChange={handleChange}
-                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500 text-black"
                     required
                 />
             </div>
@@ -957,7 +957,7 @@ const CategoryForm = ({ formData, setFormData }) => {
                     name="slug"
                     value={formData.slug || ''}
                     onChange={handleChange}
-                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500 text-black"
                     required
                 />
             </div>
@@ -994,7 +994,7 @@ const CategoryForm = ({ formData, setFormData }) => {
                                 placeholder="Subcategory Name"
                                 value={sub.name || ''}
                                 onChange={(e) => handleSubcategoryChange(index, 'name', e.target.value)}
-                                className="border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500"
+                                className="border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500 text-black"
                             />
                             <div className="flex">
                                 <input
@@ -1002,7 +1002,7 @@ const CategoryForm = ({ formData, setFormData }) => {
                                     placeholder="Subcategory Slug"
                                     value={sub.slug || ''}
                                     onChange={(e) => handleSubcategoryChange(index, 'slug', e.target.value)}
-                                    className="flex-1 border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500"
+                                    className="flex-1 border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500 text-black"
                                 />
                                 <button
                                     type="button"
