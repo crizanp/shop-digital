@@ -47,6 +47,7 @@ const PackageDetailPage = ({
   };
 
   const categoryInfo = getCategoryInfo();
+  const demoUrl = packageData?.demoUrl || '';
 
   const handleMultiSelect = (categoryIndex, optionIndex) => {
     const currentSelections = [...(selectedOptions[categoryIndex] || [])];
@@ -270,6 +271,20 @@ const PackageDetailPage = ({
                   priority
                 />
               </div>
+
+              {/* Live Demo Button - Below Image */}
+              {demoUrl && (
+                <div className="p-6 bg-gradient-to-r from-blue-50 to-purple-50 border-t">
+                  <a
+                    href={demoUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-center py-4 px-6 rounded-xl transition-all duration-300 font-bold text-xl transform hover:scale-105 shadow-lg"
+                  >
+                    🌟 See Live Demo Preview
+                  </a>
+                </div>
+              )}
             </div>
 
             {/* Tabs Navigation */}
@@ -387,34 +402,23 @@ const PackageDetailPage = ({
               <div className={`${cardBgClass} rounded-lg p-5 shadow-sm`}>
                 <div className="flex items-center mb-3">
                   <h2 className={`text-xl font-bold ${primaryText}`}>Key Features</h2>
+                  
                 </div>
 
                 <ul className="space-y-3">
-                  {packageData.features?.length > 0 ? (
-                    packageData.features.map((feature, index) => (
-                      <li key={index} className="flex items-start">
-                        <div className={`${featureIconBg} p-1 rounded-full mt-0.5 mr-3 shrink-0`}>
-                          <CheckCircle className={`w-4 h-4 ${lightTheme ? 'text-violet-600' : 'text-green-400'}`} />
-                        </div>
-                        <span className={`${secondaryText} text-base`}>{feature}</span>
-                      </li>
-                    ))
-                  ) : (
-                    // Generate features from description or use defaults
-                    [
-                      "Professional design and development",
-                      "Mobile responsive layout",
-                      "SEO optimized structure",
-                      "Fast loading performance"
-                    ].map((feature, index) => (
-                      <li key={index} className="flex items-start">
-                        <div className={`${featureIconBg} p-1 rounded-full mt-0.5 mr-3 shrink-0`}>
-                          <CheckCircle className={`w-4 h-4 ${lightTheme ? 'text-violet-600' : 'text-green-400'}`} />
-                        </div>
-                        <span className={`${secondaryText} text-base`}>{feature}</span>
-                      </li>
-                    ))
-                  )}
+                  {(packageData.features?.length > 0 ? packageData.features : [
+                    "Professional design and development",
+                    "Mobile responsive layout",
+                    "SEO optimized structure",
+                    "Fast loading performance"
+                  ]).map((feature, index) => (
+                    <li key={index} className="flex items-start">
+                      <div className={`${featureIconBg} p-1 rounded-full mt-0.5 mr-3 shrink-0`}>
+                        <CheckCircle className={`w-4 h-4 ${lightTheme ? 'text-violet-600' : 'text-green-400'}`} />
+                      </div>
+                      <span className={`${secondaryText} text-base`}>{feature}</span>
+                    </li>
+                  ))}
                 </ul>
               </div>
             )}

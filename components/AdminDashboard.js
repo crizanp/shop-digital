@@ -404,6 +404,16 @@ const AdminDashboard = ({ token, onLogout }) => {
                                                         >
                                                             Edit
                                                         </button>
+                                                        {item.demoUrl && (
+                                                            <a
+                                                                href={item.demoUrl}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="ml-2 text-indigo-600 hover:text-indigo-900"
+                                                            >
+                                                                Live Demo
+                                                            </a>
+                                                        )}
                                                         <button
                                                             onClick={() => handleDelete(item._id)}
                                                             className="text-red-600 hover:text-red-900"
@@ -627,6 +637,18 @@ const PackageForm = ({ formData, setFormData, categories }) => {
                         name="subtitle"
                         value={formData.subtitle || ''}
                         onChange={handleChange}
+                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500"
+                    />
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium text-gray-700">Live Demo URL (optional)</label>
+                    <input
+                        type="text"
+                        name="demoUrl"
+                        value={formData.demoUrl || ''}
+                        onChange={handleChange}
+                        placeholder="https://example.com/demo (optional)"
                         className="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border focus:ring-blue-500 focus:border-blue-500"
                     />
                 </div>

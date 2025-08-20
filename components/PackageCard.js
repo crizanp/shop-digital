@@ -24,6 +24,7 @@ const PackageCard = ({
     deliveryTime = "3-5 days",
     rating = 4.5
   } = packageData || {};
+  const demoUrl = packageData?.demoUrl || '';
 
   // Get category information
   const getCategoryInfo = () => {
@@ -147,6 +148,20 @@ const PackageCard = ({
           </div>
         )}
       </div>
+
+      {/* Live Demo Button - Below Image */}
+      {demoUrl && (
+        <div className="px-5 pt-3">
+          <a
+            href={demoUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-center py-3 px-4 rounded-lg transition-all duration-300 font-semibold text-lg transform hover:scale-105 shadow-lg"
+          >
+            🌟 See Live Demo
+          </a>
+        </div>
+      )}
 
       {/* Card Content */}
       <div className="p-5 flex flex-col flex-grow">
