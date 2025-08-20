@@ -48,7 +48,10 @@ export default function PluginsPageRoute({ initialPlugins = [], initialCategorie
         <title>WordPress Plugins | Professional WordPress Solutions</title>
         <meta name="description" content="Discover powerful WordPress plugins to extend your website functionality, improve performance, and enhance user experience." />
       </Head>
-      <Navbar />
+      <Navbar 
+        activeCategory="wordpress-plugins"
+        activeSubcategory={selectedCategory !== 'all' ? selectedCategory : null}
+      />
       <PluginsPage 
         plugins={plugins} 
         categories={categories} 

@@ -344,7 +344,10 @@ export default function PricingPage({ initialCategories = [], initialPackages = 
         <title>Design Packages & Pricing | Professional Design Solutions</title>
         <meta name="description" content="Browse our professional design packages tailored to your specific needs with competitive pricing and fast turnaround times." />
       </Head>
-      <Navbar />
+      <Navbar 
+        activeCategory={activeCategory}
+        activeSubcategory={activeSubcategory}
+      />
 
       <div className="min-h-screen bg-white text-gray-900">
         <div className="container mx-auto sm:pt-16 sm:pb-10 px-4">
@@ -472,34 +475,6 @@ export default function PricingPage({ initialCategories = [], initialPackages = 
                 </div>
               )}
 
-              {/* WordPress Plugins Section */}
-              {plugins && plugins.length > 0 && (
-                <div className="mt-16">
-                  <div className="flex items-center justify-between mb-8">
-                    <div>
-                      <h2 className="text-2xl font-bold text-gray-900 mb-2">WordPress Plugins</h2>
-                      <p className="text-gray-600">Extend your WordPress site with powerful plugins</p>
-                    </div>
-                    <Link 
-                      href="/plugins"
-                      className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg transition-colors font-medium flex items-center space-x-2"
-                    >
-                      <span>View All Plugins</span>
-                      <ArrowRight size={16} />
-                    </Link>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {plugins.slice(0, 3).map((plugin) => (
-                      <PluginCard
-                        key={plugin._id}
-                        pluginData={plugin}
-                        lightTheme={true}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         </div>

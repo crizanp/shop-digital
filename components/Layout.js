@@ -89,7 +89,7 @@ const Layout = ({
       {!isAdminPage && <Navbar />}
       
       {/* Adjust main padding based on whether navbar is shown */}
-      <main className={isAdminPage ? '' : 'pt-16'}>
+      <main className={isAdminPage ? '' : 'pt-10 bg-white'}>
         {children}
       </main>
       
