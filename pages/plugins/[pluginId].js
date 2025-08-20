@@ -9,13 +9,13 @@ export default function PluginDetail() {
   const [pluginData, setPluginData] = useState(null);
   const [categoryData, setCategoryData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [lightTheme, setLightTheme] = useState(false);
+  const [lightTheme, setLightTheme] = useState(true); // Always use white theme for plugins
 
-  useEffect(() => {
-    // Theme detection
-    const savedTheme = localStorage.getItem('theme');
-    setLightTheme(savedTheme === 'light');
-  }, []);
+  // Removed theme detection - always use white theme
+  // useEffect(() => {
+  //   const savedTheme = localStorage.getItem('theme');
+  //   setLightTheme(savedTheme === 'light');
+  // }, []);
 
   useEffect(() => {
     if (pluginId) {

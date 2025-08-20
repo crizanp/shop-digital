@@ -1,80 +1,93 @@
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import PluginsPage from '../components/PluginsPage';
 import Layout from '../components/Layout';
+import Navbar from '../components/Navbar';
+import Head from 'next/head';
 
-export default function PluginsPageRoute() {
-  const [plugins, setPlugins] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [lightTheme, setLightTheme] = useState(true); // Changed to white theme
-  const [loading, setLoading] = useState(true);
+export default function PluginsPageRoute({ initialPlugins = [], initialCategories = [] }) {
+  const router = useRouter();
+  const { category } = router.query; // Get category from URL query
+  
+  const [plugins, setPlugins] = useState(initialPlugins);
+  const [categories, setCategories] = useState(initialCategories);
+  const [lightTheme, setLightTheme] = useState(true); // Always white theme
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState('all');
 
+  // Handle URL category parameter
   useEffect(() => {
-    // You can add theme detection logic here
-    const savedTheme = localStorage.getItem('theme');
-    setLightTheme(savedTheme !== 'dark'); // Default to light theme
-  }, []);
+    if (router.isReady && category) {
+      setSelectedCategory(category);
+    }
+  }, [router.isReady, category]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [pluginsRes, categoriesRes] = await Promise.all([
-          fetch('/api/plugins'),
-          fetch('/api/categories')
-        ]);
-
-        if (!pluginsRes.ok || !categoriesRes.ok) {
-          throw new Error('Failed to fetch data');
-        }
-
-        const pluginsData = await pluginsRes.json();
-        const categoriesData = await categoriesRes.json();
-
-        setPlugins(pluginsData.plugins || []);
-        setCategories(categoriesData.categories || []);
-      } catch (error) {
-        setError(error.message);
-        console.error('Error fetching data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  if (loading) {
-    return (
-      <Layout lightTheme={lightTheme}>
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-          </div>
-        </div>
-      </Layout>
-    );
-  }
+  // No need for useEffect data fetching since we have server-side props
 
   if (error) {
     return (
-      <Layout lightTheme={lightTheme}>
-        <div className="container mx-auto px-4 py-8">
+      <>
+        <Head>
+          <title>Error | WordPress Plugins</title>
+        </Head>
+        <Navbar />
+        <div className="min-h-screen bg-white flex items-center justify-center">
           <div className="bg-red-50 border border-red-200 rounded-lg p-6">
             <h2 className="text-lg font-semibold text-red-800 mb-2">Error Loading Plugins</h2>
             <p className="text-red-600">{error}</p>
           </div>
         </div>
-      </Layout>
+      </>
     );
   }
 
   return (
-    <Layout lightTheme={lightTheme}>
+    <>
+      <Head>
+        <title>WordPress Plugins | Professional WordPress Solutions</title>
+        <meta name="description" content="Discover powerful WordPress plugins to extend your website functionality, improve performance, and enhance user experience." />
+      </Head>
+      <Navbar />
       <PluginsPage 
         plugins={plugins} 
         categories={categories} 
-        lightTheme={lightTheme} 
+        lightTheme={lightTheme}
+        initialSelectedCategory={selectedCategory}
       />
-    </Layout>
+    </>
   );
+}
+
+// Server-side rendering to fetch plugins and categories
+export async function getServerSideProps(context) {
+  const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
+  const host = context.req.headers.host;
+  const baseUrl = `${protocol}://${host}`;
+
+  try {
+    // Fetch plugins and categories
+    const [pluginsRes, categoriesRes] = await Promise.all([
+      fetch(`${baseUrl}/api/plugins`),
+      fetch(`${baseUrl}/api/categories`)
+    ]);
+
+    const pluginsData = await pluginsRes.json();
+    const categoriesData = await categoriesRes.json();
+
+    return {
+      props: {
+        initialPlugins: pluginsData.plugins || [],
+        initialCategories: categoriesData.categories || []
+      }
+    };
+  } catch (error) {
+    console.error('Error in getServerSideProps:', error);
+    return {
+      props: {
+        initialPlugins: [],
+        initialCategories: []
+      }
+    };
+  }
 }

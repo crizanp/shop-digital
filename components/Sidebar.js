@@ -118,7 +118,7 @@ const Sidebar = ({ categories = [], activeCategory, activeSubcategory }) => {
                             <div key={cat._id} className="pt-2">
                                 <div className="flex items-center justify-between">
                                     <Link
-                                        href={`/category/${cat.slug}`}
+                                        href={cat.slug === 'wordpress-plugins' ? '/plugins' : `/category/${cat.slug}`}
                                         className={`flex-1 text-sm font-medium px-2 py-2 rounded-md transition ${
                                             activeCategory === cat.slug ? 'text-purple-600' : 'text-gray-800 hover:text-purple-600'
                                         }`}
@@ -143,7 +143,7 @@ const Sidebar = ({ categories = [], activeCategory, activeSubcategory }) => {
                                         {(cat.subcategories || []).map(sub => (
                                             <Link
                                                 key={sub._id}
-                                                href={`/subcategory/${sub.slug}`}
+                                                href={cat.slug === 'wordpress-plugins' ? `/plugins?category=${sub.slug}` : `/subcategory/${sub.slug}`}
                                                 className={`block text-sm py-2 px-2 rounded-md ${activeSubcategory === sub.slug ? 'text-purple-600 font-medium' : 'text-gray-600 hover:text-purple-600'}`}
                                                 onClick={() => isMobile && setIsOpen(false)}
                                             >

@@ -139,6 +139,12 @@ export default function PricingPage({ initialCategories = [], initialPackages = 
           const subcategory = category?.subcategories?.find(sub => sub.slug === subcategorySlug);
 
           if (subcategory) {
+            // Check if this is WordPress plugins category - redirect instead of filtering
+            if (category.slug === 'wordpress-plugins') {
+              router.push(`/plugins?category=${subcategorySlug}`);
+              return;
+            }
+            
             // Find the subcategory index to match with package data
             const subcategoryIndex = category.subcategories.findIndex(sub => sub.slug === subcategorySlug);
             
@@ -154,6 +160,11 @@ export default function PricingPage({ initialCategories = [], initialPackages = 
         const category = findCategoryBySlug(categorySlug);
 
         if (category) {
+          // Check if this is WordPress plugins category - redirect instead of filtering
+          if (category.slug === 'wordpress-plugins') {
+            router.push('/plugins');
+            return;
+          }
           // Fetch packages with category filter
           await fetchPackages(1, category._id, null, true);
         }

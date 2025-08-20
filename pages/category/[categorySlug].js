@@ -8,6 +8,17 @@ export default function CategoryPage(props) {
 export async function getServerSideProps(context) {
   const { params, req } = context;
   const categorySlug = params.categorySlug;
+  
+  // If this is WordPress plugins category, redirect to plugins page
+  if (categorySlug === 'wordpress-plugins') {
+    return {
+      redirect: {
+        destination: '/plugins',
+        permanent: false,
+      },
+    };
+  }
+  
   const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
   const host = req.headers.host;
   const baseUrl = `${protocol}://${host}`;

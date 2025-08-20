@@ -20,13 +20,25 @@ export async function getServerSideProps(context) {
   // Find parent category and subcategory index
   let categoryId = null;
   let subIndex = null;
+  let parentCategory = null;
   for (const cat of categories) {
     const idx = (cat.subcategories || []).findIndex(s => s.slug === subcategorySlug);
     if (idx !== -1) {
       categoryId = cat._id;
       subIndex = idx;
+      parentCategory = cat;
       break;
     }
+  }
+
+  // If this is a WordPress plugins subcategory, redirect to plugins page with category filter
+  if (parentCategory && parentCategory.slug === 'wordpress-plugins') {
+    return {
+      redirect: {
+        destination: `/plugins?category=${subcategorySlug}`,
+        permanent: false,
+      },
+    };
   }
 
   // Fetch packages filtered by categoryId and subcategoryIndex
