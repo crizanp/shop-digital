@@ -19,8 +19,23 @@ const PluginSidebar = ({
       setIsOpen(window.innerWidth >= 1024);
     };
     checkViewport();
-    window.addEventListener('resize', checkViewport);
-    return () => window.removeEventListener('resize', checkViewport);
+
+    const onResize = () => checkViewport();
+    const onOpen = () => setIsOpen(true);
+    const onToggle = () => setIsOpen(v => !v);
+    const onOpenPlugin = () => setIsOpen(true);
+
+    window.addEventListener('resize', onResize);
+    window.addEventListener('openSidebar', onOpen);
+    window.addEventListener('toggleSidebar', onToggle);
+    window.addEventListener('openPluginSidebar', onOpenPlugin);
+
+    return () => {
+      window.removeEventListener('resize', onResize);
+      window.removeEventListener('openSidebar', onOpen);
+      window.removeEventListener('toggleSidebar', onToggle);
+      window.removeEventListener('openPluginSidebar', onOpenPlugin);
+    };
   }, []);
 
   // Find WordPress plugins category
@@ -186,11 +201,7 @@ const PluginSidebar = ({
         </div>
 
         {/* Footer */}
-        <div className={`mt-6 pt-4 border-t ${borderClass}`}>
-          <div className={`text-xs ${lightTheme ? 'text-gray-500' : 'text-gray-400'} text-center`}>
-            Browse by category to find the perfect plugin for your WordPress site
-          </div>
-        </div>
+       
       </aside>
     </>
   );

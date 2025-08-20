@@ -41,38 +41,31 @@ const PluginCard = ({ pluginData, showCategory = true, lightTheme = true }) => {
     : 'bg-gradient-to-r from-green-500 to-emerald-500 text-white';
 
   return (
-    <div className={`${cardClasses} rounded-xl overflow-hidden transition-all duration-300 group`}>
+    <div className={`${cardClasses} rounded-xl overflow-hidden transition-all duration-300 group relative`}>
+      <div
+        className="absolute inset-0 rounded-xl pointer-events-none"
+        style={{
+          backgroundImage: "url('https://i.pinimg.com/736x/5d/05/dd/5d05ddcd463b166a3e8ac67272343d43.jpg')",
+          backgroundSize: 'cover',
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'center',
+          opacity: 0.16,
+          zIndex: 0
+        }}
+      />
+
       {/* Plugin Image */}
-      <div className="relative aspect-video overflow-hidden">
-        <Image
-          src={imageUrl}
-          alt={primaryImage?.alt || name}
-          fill
-          className="object-cover group-hover:scale-105 transition-transform duration-300"
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-        />
-        
-        {/* Featured Badge */}
-        {featured && (
-          <div className="absolute top-3 left-3">
+
+      {/* Plugin Content */}
+      <div className="p-6">
+        {/* Plugin Name & Author */}
+        <div className="mb-3">{featured && (
+          <div className="absolute top-3 left-3 z-10">
             <span className="bg-purple-600 text-white text-xs px-2 py-1 rounded-full font-medium">
               Featured
             </span>
           </div>
         )}
-
-        {/* Price Badge */}
-        <div className="absolute top-3 right-3">
-          <span className={`${priceClasses} text-xs px-2 py-1 rounded-full font-medium`}>
-            {price}
-          </span>
-        </div>
-      </div>
-
-      {/* Plugin Content */}
-      <div className="p-6">
-        {/* Plugin Name & Author */}
-        <div className="mb-3">
           <h3 className={`${textClasses} font-semibold text-lg mb-1 line-clamp-1 group-hover:text-purple-600 transition-colors`}>
             {name}
           </h3>
@@ -108,11 +101,7 @@ const PluginCard = ({ pluginData, showCategory = true, lightTheme = true }) => {
             )}
           </div>
 
-          {/* Security Badge */}
-          <div className="flex items-center space-x-1">
-            <Shield size={14} className="text-green-500" />
-            <span className={`${subtextClasses} text-xs`}>Secure</span>
-          </div>
+         
         </div>
 
         {/* Action Buttons */}

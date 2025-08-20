@@ -1,5 +1,6 @@
 "use client";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ChevronDown, Menu, X, MoreVertical } from 'lucide-react';
@@ -13,13 +14,12 @@ const Navbar = ({ activeCategory, activeSubcategory }) => {
         {
             _id: 'cat-2',
             name: 'Web Development',
-            slug: 'web-development',
+            slug: 'website-development',
             hasSubcategories: true,
             subcategories: [
-                { _id: 'sub-2-1', name: 'E-commerce Websites', slug: 'ecommerce-websites' },
-                { _id: 'sub-2-2', name: 'Business Websites', slug: 'business-websites' },
-                { _id: 'sub-2-3', name: 'Portfolio Websites', slug: 'portfolio-websites' },
-                { _id: 'sub-2-4', name: 'Landing Pages', slug: 'landing-pages' }
+                { _id: 'sub-2-1', name: 'E-commerce Websites', slug: 'ecommerce-website' },
+                { _id: 'sub-2-2', name: 'Business Websites', slug: 'business-website' },
+                { _id: 'sub-2-3', name: 'Wordpress Websites', slug: 'wordpress-development' },
             ]
         },
         {
@@ -75,10 +75,19 @@ const Navbar = ({ activeCategory, activeSubcategory }) => {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
 
                 {/* Left: Show category (mobile) */}
-                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 lg:hidden">
+                    <div className="absolute left-4 top-1/2 transform -translate-y-1/2 lg:hidden">
                     <button
                         className="flex items-center space-x-2 bg-white border border-gray-200 px-3 py-2 rounded-md text-sm font-medium shadow-sm hover:bg-gray-50 text-black"
-                        onClick={() => { if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('openSidebar')); }}
+                        onClick={() => {
+                            if (typeof window === 'undefined') return;
+                            // If on plugins page, open plugin sidebar; otherwise open main sidebar
+                            const path = typeof window !== 'undefined' ? window.location.pathname : '';
+                            if (path && path.startsWith('/plugins')) {
+                                window.dispatchEvent(new CustomEvent('openPluginSidebar'));
+                            } else {
+                                window.dispatchEvent(new CustomEvent('openSidebar'));
+                            }
+                        }}
                         aria-label="Show categories"
                     >
                         <Menu size={16} className="text-black" />
