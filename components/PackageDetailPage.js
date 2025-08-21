@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import Image from "next/image";
 import { ArrowLeft, CheckCircle, HelpCircle, Info, FileText, Star, Shield, Clock, ChevronDown } from 'lucide-react';
 import Link from 'next/link';
+import LoadingLink from './LoadingLink';
+import LoadingButton from './LoadingButton';
 
 const PackageDetailPage = ({
   packageData,
@@ -211,9 +213,9 @@ const PackageDetailPage = ({
     return (
       <div className="flex flex-col justify-center items-center h-96 text-gray-400 bg-gray-900">
         <div className="text-xl mb-4">Package not found</div>
-        <Link href="/" className="text-green-400 hover:text-green-300">
+        <LoadingLink href="/" className="text-green-400 hover:text-green-300" loadingText="Returning to packages...">
           Return to packages
-        </Link>
+        </LoadingLink>
       </div>
     );
   }
@@ -250,10 +252,10 @@ const PackageDetailPage = ({
         `}</style>
       )}
       <div className={`container mx-auto max-w-7xl px-4 pt-12 ${containerBg}`}>
-  <Link href="/" className={`inline-flex items-center ${lightTheme ? 'text-gray-700 hover:text-gray-900' : 'text-green-400 hover:text-green-300'} mb-4 transition-colors`}>
+  <LoadingLink href="/" className={`inline-flex items-center ${lightTheme ? 'text-gray-700 hover:text-gray-900' : 'text-green-400 hover:text-green-300'} mb-4 transition-colors`} loadingText="Going back to packages...">
           <ArrowLeft className="w-5 h-5 mr-1" />
           <span className="font-medium">Back to Packages</span>
-        </Link>
+        </LoadingLink>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 order-2 lg:order-1">
 
@@ -525,13 +527,14 @@ const PackageDetailPage = ({
 
                 {/* Get Quotation Button */}
                 <div className="flex justify-center">
-                  <button
+                  <LoadingButton
                     onClick={handleQuotationRequest}
-                    className={`${buttonClass} font-bold py-3 px-6 rounded-xl text-lg transition-all duration-300 transform hover:scale-105 flex items-center shadow-lg quotation-btn`}
+                    className={`${buttonClass} font-bold py-3 px-6 rounded-xl text-lg flex items-center shadow-lg quotation-btn`}
+                    loadingText="Sending quotation request..."
                   >
                     <FileText className="w-5 h-5 mr-2" />
                     GET QUOTATION
-                  </button>
+                  </LoadingButton>
                 </div>
               </div>
             </div>

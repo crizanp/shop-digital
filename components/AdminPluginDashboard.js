@@ -284,13 +284,7 @@ const AdminPluginDashboard = ({ token }) => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {loading ? (
-                <tr>
-                  <td colSpan="8" className="px-6 py-12 text-center">
-                    <div className="animate-pulse text-gray-600">Loading plugins...</div>
-                  </td>
-                </tr>
-              ) : plugins.length === 0 ? (
+              {plugins.length === 0 ? (
                 <tr>
                   <td colSpan="8" className="px-6 py-12 text-center text-gray-600">
                     No plugins found
@@ -979,13 +973,14 @@ const PluginFormModal = ({ plugin, categories, token, onClose, onSave }) => {
             >
               Cancel
             </button>
-            <button
+            <LoadingButton
               type="submit"
               disabled={loading}
               className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50"
+              loadingText="Saving..."
             >
-              {loading ? 'Saving...' : (plugin ? 'Update Plugin' : 'Create Plugin')}
-            </button>
+              {plugin ? 'Update Plugin' : 'Create Plugin'}
+            </LoadingButton>
           </div>
         </form>
       </div>

@@ -22,14 +22,18 @@ import {
   Zap
 } from 'lucide-react';
 import Link from 'next/link';
+import LoadingLink from './LoadingLink';
+import { useLoading } from '../contexts/LoadingContext';
 
 const PluginDetailPage = ({
   pluginData,
   categoryData = null,
   onDownloadRequest = null,
   loading = false,
+  error = false, // Add error prop to distinguish between loading and not found
   lightTheme = true // Changed default to true for white theme
 }) => {
+  const { isLoading } = useLoading();
   const [activeTab, setActiveTab] = useState('description');
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedPricing, setSelectedPricing] = useState({});
@@ -87,21 +91,139 @@ const PluginDetailPage = ({
     }
   };
 
-  if (loading) {
+  // Show global loading overlay when loading or when no plugin data yet (to prevent immediate "not found")
+  if (isLoading || loading || (!pluginData && !error)) {
     return (
-      <div className={`flex justify-center items-center h-96 ${lightTheme ? 'text-gray-700 bg-white' : 'text-gray-400 bg-gray-900'}`}>
-        <div className="animate-pulse text-xl">Loading plugin details...</div>
+      <div className={`min-h-screen ${lightTheme ? 'bg-white' : 'bg-black'}`}>
+        <div className={`container mx-auto max-w-7xl px-4 pt-12 ${lightTheme ? 'bg-white text-gray-900' : 'bg-black text-gray-300'}`}>
+          {/* Back button skeleton */}
+          <div className="animate-pulse mb-4">
+            <div className={`h-6 w-32 ${lightTheme ? 'bg-gray-200' : 'bg-gray-800'} rounded`}></div>
+          </div>
+
+          {/* Main grid layout skeleton */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-pulse">
+            {/* Left column - Main content */}
+            <div className="lg:col-span-2">
+              {/* Image carousel skeleton */}
+              <div className={`${lightTheme ? 'bg-gray-100' : 'bg-gray-900'} rounded-xl mb-6 border ${lightTheme ? 'border-gray-200' : 'border-gray-800'}`}>
+                <div className={`h-64 md:h-80 ${lightTheme ? 'bg-gray-200' : 'bg-gray-800'} rounded-xl`}></div>
+                {/* Carousel controls skeleton */}
+                <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+                  <div className={`w-3 h-3 ${lightTheme ? 'bg-gray-300' : 'bg-gray-700'} rounded-full`}></div>
+                  <div className={`w-3 h-3 ${lightTheme ? 'bg-gray-300' : 'bg-gray-700'} rounded-full`}></div>
+                  <div className={`w-3 h-3 ${lightTheme ? 'bg-gray-300' : 'bg-gray-700'} rounded-full`}></div>
+                </div>
+              </div>
+
+              {/* Plugin title and info skeleton */}
+              <div className={`${lightTheme ? 'bg-gray-100' : 'bg-gray-900'} p-6 rounded-xl mb-6 border ${lightTheme ? 'border-gray-200' : 'border-gray-800'}`}>
+                {/* Category badge */}
+                <div className={`h-6 w-24 ${lightTheme ? 'bg-gray-200' : 'bg-gray-800'} rounded-full mb-3`}></div>
+                {/* Title */}
+                <div className={`h-8 w-3/4 ${lightTheme ? 'bg-gray-200' : 'bg-gray-800'} rounded mb-2`}></div>
+                {/* Description */}
+                <div className={`h-4 w-full ${lightTheme ? 'bg-gray-200' : 'bg-gray-800'} rounded mb-2`}></div>
+                <div className={`h-4 w-2/3 ${lightTheme ? 'bg-gray-200' : 'bg-gray-800'} rounded mb-4`}></div>
+                {/* Price */}
+                <div className={`h-10 w-20 ${lightTheme ? 'bg-gray-200' : 'bg-gray-800'} rounded-full`}></div>
+              </div>
+
+              {/* Tabs navigation skeleton */}
+              <div className={`${lightTheme ? 'bg-gray-100' : 'bg-gray-900'} rounded-t-lg border ${lightTheme ? 'border-gray-200' : 'border-gray-800'}`}>
+                <div className="flex">
+                  <div className={`h-12 w-32 ${lightTheme ? 'bg-gray-200' : 'bg-gray-800'} rounded-t-lg mr-2`}></div>
+                  <div className={`h-12 w-36 ${lightTheme ? 'bg-gray-200' : 'bg-gray-800'} rounded-t-lg mr-2`}></div>
+                  <div className={`h-12 w-32 ${lightTheme ? 'bg-gray-200' : 'bg-gray-800'} rounded-t-lg`}></div>
+                </div>
+              </div>
+
+              {/* Tab content skeleton */}
+              <div className={`${lightTheme ? 'bg-gray-100' : 'bg-gray-900'} p-6 rounded-b-lg border ${lightTheme ? 'border-gray-200 border-t-0' : 'border-gray-800 border-t-0'}`}>
+                <div className={`h-4 w-full ${lightTheme ? 'bg-gray-200' : 'bg-gray-800'} rounded mb-3`}></div>
+                <div className={`h-4 w-5/6 ${lightTheme ? 'bg-gray-200' : 'bg-gray-800'} rounded mb-3`}></div>
+                <div className={`h-4 w-4/5 ${lightTheme ? 'bg-gray-200' : 'bg-gray-800'} rounded mb-3`}></div>
+                <div className={`h-4 w-3/4 ${lightTheme ? 'bg-gray-200' : 'bg-gray-800'} rounded`}></div>
+              </div>
+            </div>
+
+            {/* Right column - Sidebar */}
+            <div className="lg:col-span-1">
+              {/* Download section skeleton */}
+              <div className={`${lightTheme ? 'bg-gray-100' : 'bg-gray-900'} p-6 rounded-xl mb-6 border ${lightTheme ? 'border-gray-200' : 'border-gray-800'}`}>
+                {/* Download button */}
+                <div className={`h-12 w-full ${lightTheme ? 'bg-gray-200' : 'bg-gray-800'} rounded-lg mb-4`}></div>
+                {/* Demo button */}
+                <div className={`h-10 w-full ${lightTheme ? 'bg-gray-200' : 'bg-gray-800'} rounded-lg mb-4`}></div>
+                {/* Features list */}
+                <div className="space-y-3">
+                  <div className="flex items-center">
+                    <div className={`w-5 h-5 ${lightTheme ? 'bg-gray-200' : 'bg-gray-800'} rounded mr-2`}></div>
+                    <div className={`h-4 w-24 ${lightTheme ? 'bg-gray-200' : 'bg-gray-800'} rounded`}></div>
+                  </div>
+                  <div className="flex items-center">
+                    <div className={`w-5 h-5 ${lightTheme ? 'bg-gray-200' : 'bg-gray-800'} rounded mr-2`}></div>
+                    <div className={`h-4 w-32 ${lightTheme ? 'bg-gray-200' : 'bg-gray-800'} rounded`}></div>
+                  </div>
+                  <div className="flex items-center">
+                    <div className={`w-5 h-5 ${lightTheme ? 'bg-gray-200' : 'bg-gray-800'} rounded mr-2`}></div>
+                    <div className={`h-4 w-28 ${lightTheme ? 'bg-gray-200' : 'bg-gray-800'} rounded`}></div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Technical requirements skeleton */}
+              <div className={`${lightTheme ? 'bg-gray-100' : 'bg-gray-900'} p-6 rounded-xl mb-6 border ${lightTheme ? 'border-gray-200' : 'border-gray-800'}`}>
+                <div className={`h-6 w-40 ${lightTheme ? 'bg-gray-200' : 'bg-gray-800'} rounded mb-4`}></div>
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <div className={`h-4 w-24 ${lightTheme ? 'bg-gray-200' : 'bg-gray-800'} rounded`}></div>
+                    <div className={`h-4 w-16 ${lightTheme ? 'bg-gray-200' : 'bg-gray-800'} rounded`}></div>
+                  </div>
+                  <div className="flex justify-between">
+                    <div className={`h-4 w-20 ${lightTheme ? 'bg-gray-200' : 'bg-gray-800'} rounded`}></div>
+                    <div className={`h-4 w-12 ${lightTheme ? 'bg-gray-200' : 'bg-gray-800'} rounded`}></div>
+                  </div>
+                  <div className="flex justify-between">
+                    <div className={`h-4 w-28 ${lightTheme ? 'bg-gray-200' : 'bg-gray-800'} rounded`}></div>
+                    <div className={`h-4 w-14 ${lightTheme ? 'bg-gray-200' : 'bg-gray-800'} rounded`}></div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Plugin info skeleton */}
+              <div className={`${lightTheme ? 'bg-gray-100' : 'bg-gray-900'} p-6 rounded-xl border ${lightTheme ? 'border-gray-200' : 'border-gray-800'}`}>
+                <div className={`h-6 w-32 ${lightTheme ? 'bg-gray-200' : 'bg-gray-800'} rounded mb-4`}></div>
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <div className={`h-4 w-16 ${lightTheme ? 'bg-gray-200' : 'bg-gray-800'} rounded`}></div>
+                    <div className={`h-4 w-12 ${lightTheme ? 'bg-gray-200' : 'bg-gray-800'} rounded`}></div>
+                  </div>
+                  <div className="flex justify-between">
+                    <div className={`h-4 w-20 ${lightTheme ? 'bg-gray-200' : 'bg-gray-800'} rounded`}></div>
+                    <div className={`h-4 w-24 ${lightTheme ? 'bg-gray-200' : 'bg-gray-800'} rounded`}></div>
+                  </div>
+                  <div className="flex justify-between">
+                    <div className={`h-4 w-24 ${lightTheme ? 'bg-gray-200' : 'bg-gray-800'} rounded`}></div>
+                    <div className={`h-4 w-16 ${lightTheme ? 'bg-gray-200' : 'bg-gray-800'} rounded`}></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
 
-  if (!pluginData) {
+  // Show "not found" only when we have an error or when data fetching is complete but no plugin found
+  if (!pluginData && (error || (!loading && !isLoading))) {
     return (
       <div className={`flex flex-col justify-center items-center h-96 ${lightTheme ? 'text-gray-700 bg-white' : 'text-gray-400 bg-gray-900'}`}>
         <div className="text-xl mb-4">Plugin not found</div>
-        <Link href="/plugins" className="text-green-400 hover:text-green-300">
+        <LoadingLink href="/plugins" className="text-green-400 hover:text-green-300" loadingText="Returning to plugins...">
           Return to plugins
-        </Link>
+        </LoadingLink>
       </div>
     );
   }
@@ -142,10 +264,10 @@ const PluginDetailPage = ({
       )}
       
       <div className={`container mx-auto max-w-7xl px-4 pt-12 ${containerBg}`}>
-        <Link href="/plugins" className={`inline-flex items-center ${lightTheme ? 'text-gray-700 hover:text-gray-900' : 'text-green-400 hover:text-green-300'} mb-4 transition-colors`}>
+        <LoadingLink href="/plugins" className={`inline-flex items-center ${lightTheme ? 'text-gray-700 hover:text-gray-900' : 'text-green-400 hover:text-green-300'} mb-4 transition-colors`} loadingText="Going back to plugins...">
           <ArrowLeft className="w-5 h-5 mr-1" />
           <span className="font-medium">Back to Plugins</span>
-        </Link>
+        </LoadingLink>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 order-1 lg:order-1">
@@ -170,13 +292,13 @@ const PluginDetailPage = ({
                       <>
                         <button
                           onClick={prevImage}
-                          className={`absolute left-4 top-1/2 transform -translate-y-1/2 p-2 rounded-full transition-colors ${lightTheme ? 'bg-white shadow-md hover:bg-white/95 text-gray-900' : 'bg-black/50 hover:bg-black/70 text-white'}`}
+                          className={`absolute left-4 top-1/2 transform -translate-y-1/2 p-2 rounded-full transition-colors cursor-pointer ${lightTheme ? 'bg-white shadow-md hover:bg-white/95 text-gray-900' : 'bg-black/50 hover:bg-black/70 text-white'}`}
                         >
                           <ChevronLeft className="w-5 h-5" />
                         </button>
                         <button
                           onClick={nextImage}
-                          className={`absolute right-4 top-1/2 transform -translate-y-1/2 p-2 rounded-full transition-colors ${lightTheme ? 'bg-white shadow-md hover:bg-white/95 text-gray-900' : 'bg-black/50 hover:bg-black/70 text-white'}`}
+                          className={`absolute right-4 top-1/2 transform -translate-y-1/2 p-2 rounded-full transition-colors cursor-pointer ${lightTheme ? 'bg-white shadow-md hover:bg-white/95 text-gray-900' : 'bg-black/50 hover:bg-black/70 text-white'}`}
                         >
                           <ChevronRight className="w-5 h-5" />
                         </button>
@@ -187,7 +309,7 @@ const PluginDetailPage = ({
                             <button
                               key={index}
                               onClick={() => setCurrentImageIndex(index)}
-                              className={`w-3 h-3 rounded-full transition-colors ${
+                              className={`w-3 h-3 rounded-full transition-colors cursor-pointer ${
                                 index === currentImageIndex 
                                   ? 'bg-white' 
                                   : 'bg-white/50 hover:bg-white/70'

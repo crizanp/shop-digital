@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ChevronDown, ChevronUp, Menu, X, Search, Package } from 'lucide-react';
+import LoadingLink from './LoadingLink';
 
 const Sidebar = ({ categories = [], activeCategory, activeSubcategory }) => {
     const [isOpen, setIsOpen] = useState(true);
@@ -118,27 +119,29 @@ const Sidebar = ({ categories = [], activeCategory, activeSubcategory }) => {
                 </div>
 
                 <nav className={`space-y-1 pr-2 ${isMobile ? 'max-h-[56vh] overflow-auto' : ''}`}>
-                    <Link
+                    <LoadingLink
                         href="/"
                         className={`block rounded-md px-3 py-2 text-sm font-medium transition-colors ${!activeCategory && !activeSubcategory ? 'bg-purple-600 text-white' : 'text-gray-700 hover:bg-gray-50 hover:text-purple-600'
                             }`}
                         onClick={() => isMobile && setIsOpen(false)}
+                        loadingText="Loading all packages..."
                     >
                         All Packages
-                    </Link>
+                    </LoadingLink>
 
                     {filtered.length ? (
                         filtered.map((cat) => (
                             <div key={cat._id} className="pt-2">
                                 <div className="flex items-center justify-between">
-                                    <Link
+                                    <LoadingLink
                                         href={cat.slug === 'wordpress-plugins' ? '/plugins' : `/category/${cat.slug}`}
                                         className={`flex-1 text-sm font-medium px-2 py-2 rounded-md transition ${activeCategory === cat.slug ? 'text-purple-600' : 'text-gray-800 hover:text-purple-600'
                                             }`}
                                         onClick={() => isMobile && setIsOpen(false)}
+                                        loadingText={`Loading ${cat.name}...`}
                                     >
                                         {cat.name}
-                                    </Link>
+                                    </LoadingLink>
 
                                     {(cat.hasSubcategories && (cat.subcategories || []).length > 0) && (
                                         <button
@@ -154,14 +157,15 @@ const Sidebar = ({ categories = [], activeCategory, activeSubcategory }) => {
                                 {cat.hasSubcategories && (cat.subcategories || []).length > 0 && (
                                     <div className={`mt-1 pl-4 transition-all ${expandedCategories[cat.slug] ? 'max-h-96' : 'max-h-0 overflow-hidden'}`}>
                                         {(cat.subcategories || []).map(sub => (
-                                            <Link
+                                            <LoadingLink
                                                 key={sub._id}
                                                 href={cat.slug === 'wordpress-plugins' ? `/plugins?category=${sub.slug}` : `/subcategory/${sub.slug}`}
                                                 className={`block text-sm py-2 px-2 rounded-md ${activeSubcategory === sub.slug ? 'text-purple-600 font-medium' : 'text-gray-600 hover:text-purple-600'}`}
                                                 onClick={() => isMobile && setIsOpen(false)}
+                                                loadingText={`Loading ${sub.name}...`}
                                             >
                                                 {sub.name}
-                                            </Link>
+                                            </LoadingLink>
                                         ))}
                                     </div>
                                 )}

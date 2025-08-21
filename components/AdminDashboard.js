@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import ImageUpload from './ImageUpload';
 import AdminPluginDashboard from './AdminPluginDashboard';
+import LoadingButton from './LoadingButton';
 
 const AdminDashboard = ({ token, onLogout }) => {
     const [activeTab, setActiveTab] = useState('packages');
@@ -339,14 +340,7 @@ const AdminDashboard = ({ token, onLogout }) => {
                             </button>
                         </div>
 
-                        {loading && (
-                            <div className="text-center py-8">
-                                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                            </div>
-                        )}
-
-                        {!loading && (
-                            <div className="bg-white rounded-lg shadow overflow-hidden">
+                        <div className="bg-white rounded-lg shadow overflow-hidden">
                                 <div className="overflow-x-auto">
                                     <table className="min-w-full divide-y divide-gray-200">
                                         <thead className="bg-gray-50">
@@ -434,7 +428,6 @@ const AdminDashboard = ({ token, onLogout }) => {
                                     </table>
                                 </div>
                             </div>
-                        )}
 
                         {showForm && (
                             <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
@@ -465,13 +458,14 @@ const AdminDashboard = ({ token, onLogout }) => {
                                             >
                                                 Cancel
                                             </button>
-                                            <button
+                                            <LoadingButton
                                                 type="submit"
                                                 disabled={loading}
                                                 className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50"
+                                                loadingText="Saving..."
                                             >
-                                                {loading ? 'Saving...' : 'Save'}
-                                            </button>
+                                                Save
+                                            </LoadingButton>
                                         </div>
                                     </form>
                                 </div>

@@ -4,10 +4,13 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ChevronDown, Menu, X, MoreVertical } from 'lucide-react';
+import LoadingLink from './LoadingLink';
+import { useLoading } from '../contexts/LoadingContext';
 
 const Navbar = ({ activeCategory, activeSubcategory }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [activeDropdown, setActiveDropdown] = useState(null);
+    const { showLoading } = useLoading();
 
     const categories = [
         { _id: 'cat-1', name: 'Video Editing', slug: 'video-editing', hasSubcategories: false, subcategories: [] },
@@ -68,6 +71,11 @@ const Navbar = ({ activeCategory, activeSubcategory }) => {
         }
         setIsOpen(false);
         setActiveDropdown(null);
+        
+        // Show loading for navigation
+        if (href && !href.startsWith('#')) {
+            showLoading('Loading page...');
+        }
     };
 
     return (
@@ -98,20 +106,20 @@ const Navbar = ({ activeCategory, activeSubcategory }) => {
                 <div className="flex justify-between items-center h-16">
                     {/* Desktop logo (left) */}
                     <div className="flex-shrink-0 hidden lg:block ">
-                        <Link href="/" onClick={() => handleLinkClick('/')}> 
+                        <LoadingLink href="/" loadingText="Going to home..." onClick={() => handleLinkClick('/')}> 
                             <div className="relative w-32 h-10 sm:w-36 sm:h-12 md:w-40 md:h-14">
                                 <Image src="/images/logo_black.png" alt="Foxbeep" fill className="object-contain" priority />
                             </div>
-                        </Link>
+                        </LoadingLink>
                     </div>
 
                     {/* Mobile centered logo */}
                     <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 lg:hidden ml-6">
-                        <Link href="/" onClick={() => handleLinkClick('/')}> 
+                        <LoadingLink href="/" loadingText="Going to home..." onClick={() => handleLinkClick('/')}> 
                             <div className="relative w-36 h-12 sm:w-40 sm:h-14">
                                 <Image src="/images/logo_black.png" alt="Foxbeep" fill className="object-contain" priority />
                             </div>
-                        </Link>
+                        </LoadingLink>
                     </div>
 
                     {/* Desktop nav */}
@@ -121,29 +129,31 @@ const Navbar = ({ activeCategory, activeSubcategory }) => {
                             const hasSub = category.hasSubcategories && category.subcategories?.length > 0;
                             return (
                                 <div key={category._id} className="relative" onMouseEnter={() => hasSub && setActiveDropdown(index)} onMouseLeave={() => setActiveDropdown(null)}>
-                                    <Link
+                                    <LoadingLink
                                         href={categorySlug === 'wordpress-plugins' ? '/plugins' : `/category/${categorySlug}`}
                                         className={`flex items-center px-4 py-2 text-sm font-semibold rounded-md transition-all duration-200 ${activeCategory === categorySlug ? 'bg-purple-600 text-white' : 'text-gray-700 hover:text-purple-600 hover:bg-purple-50'}`}
                                         onClick={() => handleLinkClick(categorySlug === 'wordpress-plugins' ? '/plugins' : `/category/${categorySlug}`)}
+                                        loadingText={`Loading ${category.name}...`}
                                         style={{ fontSize: 'clamp(12px, 1.2vw, 14px)' }}
                                     >
                                         {category.name}
                                         {hasSub && <ChevronDown size={16} className={`ml-1 transition-transform duration-200 ${activeDropdown === index ? 'rotate-180' : ''}`} />}
-                                    </Link>
+                                    </LoadingLink>
 
                                     {hasSub && activeDropdown === index && (
                                         <div className="absolute top-full left-0 pt-2 w-64 z-50" onMouseEnter={() => setActiveDropdown(index)} onMouseLeave={() => setActiveDropdown(null)}>
                                             <div className="bg-white rounded-lg shadow-xl border border-gray-200 py-2">
                                                 {category.subcategories.map((sub) => (
-                                                    <Link
+                                                    <LoadingLink
                                                         key={sub._id}
                                                         href={categorySlug === 'wordpress-plugins' ? `/plugins?category=${sub.slug}` : `/subcategory/${sub.slug}`}
                                                         className={`block px-4 py-2 text-xs sm:text-sm transition-colors duration-200 ${activeSubcategory === sub.slug ? 'bg-purple-600 text-white' : 'text-gray-700 hover:bg-purple-50 hover:text-purple-600'}`}
                                                         onClick={() => handleLinkClick(categorySlug === 'wordpress-plugins' ? `/plugins?category=${sub.slug}` : `/subcategory/${sub.slug}`)}
+                                                        loadingText={`Loading ${sub.name}...`}
                                                         style={{ fontSize: 'clamp(11px, 1.0vw, 13px)' }}
                                                     >
                                                         {sub.name}
-                                                    </Link>
+                                                    </LoadingLink>
                                                 ))}
                                             </div>
                                         </div>
@@ -175,14 +185,15 @@ const Navbar = ({ activeCategory, activeSubcategory }) => {
                                 return (
                                     <div key={category._id}>
                                         <div className="flex items-center">
-                                            <Link
+                                            <LoadingLink
                                                 href={category.slug === 'wordpress-plugins' ? '/plugins' : `/category/${category.slug}`}
                                                 className={`flex-1 px-4 py-2 text-xs sm:text-sm rounded-md transition-colors ${activeCategory === category.slug ? 'bg-purple-600 text-white' : 'text-gray-700 hover:bg-gray-100'}`}
                                                 onClick={() => handleLinkClick(category.slug === 'wordpress-plugins' ? '/plugins' : `/category/${category.slug}`)}
+                                                loadingText={`Loading ${category.name}...`}
                                                 style={{ fontSize: 'clamp(10px, 1.0vw, 13px)' }}
                                             >
                                                 {category.name}
-                                            </Link>
+                                            </LoadingLink>
                                             {hasSub && (
                                                 <button className="p-2 text-gray-500 hover:text-purple-600" onClick={() => setActiveDropdown(activeDropdown === index ? null : index)} aria-label={activeDropdown === index ? 'Collapse' : 'Expand'}>
                                                     <ChevronDown size={16} className={`${activeDropdown === index ? 'rotate-180' : ''} transition-transform`} />
@@ -193,15 +204,16 @@ const Navbar = ({ activeCategory, activeSubcategory }) => {
                                         {hasSub && activeDropdown === index && (
                                             <div className="ml-4 mt-1 space-y-1 border-l-2 border-purple-200 pl-3">
                                                 {category.subcategories.map((sub) => (
-                                                    <Link
+                                                    <LoadingLink
                                                         key={sub._id}
                                                         href={category.slug === 'wordpress-plugins' ? `/plugins?category=${sub.slug}` : `/subcategory/${sub.slug}`}
                                                         className={`block px-3 py-2 rounded-md transition-colors text-xs sm:text-sm ${activeSubcategory === sub.slug ? 'bg-purple-100 text-purple-700 font-medium' : 'text-gray-600 hover:bg-gray-50 hover:text-purple-600'}`}
                                                         onClick={() => handleLinkClick(category.slug === 'wordpress-plugins' ? `/plugins?category=${sub.slug}` : `/subcategory/${sub.slug}`)}
+                                                        loadingText={`Loading ${sub.name}...`}
                                                         style={{ fontSize: 'clamp(10px, 0.9vw, 12px)' }}
                                                     >
                                                         {sub.name}
-                                                    </Link>
+                                                    </LoadingLink>
                                                 ))}
                                             </div>
                                         )}

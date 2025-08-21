@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Clock, Star, Check, ArrowRight, Badge, Loader2 } from 'lucide-react';
+import LoadingLink from './LoadingLink';
 
 const PackageCard = ({
   packageData,
@@ -202,10 +203,14 @@ const PackageCard = ({
         </div>
 
         <div className="flex space-x-2">
-          <Link href={getPackageLink()} className="flex-1 bg-purple-600 hover:bg-purple-500 text-white text-center py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center font-medium group-hover:shadow-lg transform group-hover:scale-[1.02]">
+          <LoadingLink 
+            href={getPackageLink()} 
+            className="flex-1 bg-purple-600 hover:bg-purple-500 text-white text-center py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center font-medium group-hover:shadow-lg transform group-hover:scale-[1.02]"
+            loadingText={`Loading ${title}...`}
+          >
             <span>View Details</span>
             <ArrowRight size={16} className="ml-2 group-hover:translate-x-1 transition-transform" />
-          </Link>
+          </LoadingLink>
         </div>
       </div>
     </div>

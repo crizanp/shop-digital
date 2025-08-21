@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import PluginCard from './PluginCard';
 import PluginSidebar from './PluginSidebar';
 import { Filter, Package, ArrowRight, Search, ChevronRight } from 'lucide-react';
+import LoadingButton from './LoadingButton';
 
 const PluginsPage = ({ 
   plugins = [], 
@@ -257,12 +258,7 @@ const PluginsPage = ({
             )}
 
             {/* Plugin Grid */}
-            {loading ? (
-              <div className="text-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
-                <p className={lightTheme ? 'text-gray-700' : 'text-gray-300'}>Loading plugins...</p>
-              </div>
-            ) : displayedPlugins.length > 0 ? (
+            {displayedPlugins.length > 0 ? (
               <>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6 mb-8">
                   {displayedPlugins.map((plugin) => (
@@ -277,23 +273,15 @@ const PluginsPage = ({
                 {/* Load More Button */}
                 {hasMore && (
                   <div className="text-center">
-                    <button
+                    <LoadingButton
                       onClick={loadMore}
                       disabled={loading}
-                      className="bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white px-8 py-3 rounded-lg font-medium transition-colors flex items-center space-x-2 mx-auto"
+                      className="bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white px-8 py-3 rounded-lg font-medium flex items-center space-x-2 mx-auto"
+                      loadingText="Loading more plugins..."
                     >
-                      {loading ? (
-                        <>
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                          <span>Loading...</span>
-                        </>
-                      ) : (
-                        <>
-                          <span>Load More Plugins</span>
-                          <ArrowRight size={16} />
-                        </>
-                      )}
-                    </button>
+                      <span>Load More Plugins</span>
+                      <ArrowRight size={16} />
+                    </LoadingButton>
                   </div>
                 )}
 

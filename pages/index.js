@@ -8,12 +8,14 @@ import { useRouter } from 'next/router';
 import { Package, ChevronRight, ArrowRight } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Link from 'next/link';
+import LoadingButton from '../components/LoadingButton';
+import LoadingLink from '../components/LoadingLink';
+import { useLoading } from '../contexts/LoadingContext';
 
 export default function PricingPage({ initialCategories = [], initialPackages = [], initialPagination = {}, initialPlugins = [] }) {
   const router = useRouter();
   const { categorySlug, subcategorySlug } = router.query;
 
-  // State management
   const [categories, setCategories] = useState(initialCategories);
   const [packages, setPackages] = useState(initialPackages);
   const [plugins, setPlugins] = useState(initialPlugins);
@@ -26,7 +28,6 @@ export default function PricingPage({ initialCategories = [], initialPackages = 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
-  // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
@@ -35,17 +36,14 @@ export default function PricingPage({ initialCategories = [], initialPackages = 
   const [packagesPerPage] = useState(6);
   const [loadingMore, setLoadingMore] = useState(false);
 
-  // categories are provided by server-side props; keep fetchCategories for future use
   const fetchCategories = async () => {};
 
-  // Fetch packages from API with pagination
   const fetchPackages = async (page = 1, categoryId = null, subcategoryIndex = null, reset = false) => {
     try {
       if (reset) {
         setLoadingMore(true);
       }
       
-      // Build query parameters
       const params = new URLSearchParams({
         page: page.toString(),
         limit: packagesPerPage.toString()
@@ -71,7 +69,6 @@ export default function PricingPage({ initialCategories = [], initialPackages = 
         setPackages(prev => [...prev, ...(data.packages || [])]);
       }
       
-      // Update pagination state
       setCurrentPage(data.pagination.currentPage);
       setTotalPages(data.pagination.totalPages);
       setTotalItems(data.pagination.totalItems);
@@ -86,7 +83,6 @@ export default function PricingPage({ initialCategories = [], initialPackages = 
     }
   };
 
-  // Initialize pagination state from server props
   useEffect(() => {
     if (initialPagination) {
       setCurrentPage(initialPagination.currentPage || 1);
@@ -98,19 +94,16 @@ export default function PricingPage({ initialCategories = [], initialPackages = 
     setLoading(false);
   }, []);
 
-  // Helper function to find category by slug
   const findCategoryBySlug = (slug) => {
     return categories.find(cat => cat.slug === slug);
   };
 
-  // Helper function to find subcategory by slug within a category
   const findSubcategoryBySlug = (categorySlug, subcategorySlug) => {
     const category = findCategoryBySlug(categorySlug);
     if (!category || !category.subcategories) return null;
     return category.subcategories.find(sub => sub.slug === subcategorySlug);
   };
 
-  // Filter packages based on URL parameters
   useEffect(() => {
     if (!router.isReady) return;
 
@@ -118,13 +111,10 @@ export default function PricingPage({ initialCategories = [], initialPackages = 
       setLoading(true);
       
       if (subcategorySlug) {
-        // Filter by subcategory slug
         setActiveSubcategory(subcategorySlug);
 
-        // Find the parent category slug first
         let parentCategorySlug = categorySlug;
         if (!parentCategorySlug) {
-          // Try to find parent category from subcategory
           for (const category of categories) {
             if (category.subcategories && category.subcategories.some(sub => sub.slug === subcategorySlug)) {
               parentCategorySlug = category.slug;
@@ -139,37 +129,30 @@ export default function PricingPage({ initialCategories = [], initialPackages = 
           const subcategory = category?.subcategories?.find(sub => sub.slug === subcategorySlug);
 
           if (subcategory) {
-            // Check if this is WordPress plugins category - redirect instead of filtering
             if (category.slug === 'wordpress-plugins') {
               router.push(`/plugins?category=${subcategorySlug}`);
               return;
             }
             
-            // Find the subcategory index to match with package data
             const subcategoryIndex = category.subcategories.findIndex(sub => sub.slug === subcategorySlug);
             
-            // Fetch packages with category and subcategory filters
             await fetchPackages(1, category._id, subcategoryIndex, true);
           }
         }
       } else if (categorySlug) {
-        // Filter by category slug
         setActiveCategory(categorySlug);
         setActiveSubcategory(null);
 
         const category = findCategoryBySlug(categorySlug);
 
         if (category) {
-          // Check if this is WordPress plugins category - redirect instead of filtering
           if (category.slug === 'wordpress-plugins') {
             router.push('/plugins');
             return;
           }
-          // Fetch packages with category filter
           await fetchPackages(1, category._id, null, true);
         }
       } else {
-        // No filter, show all packages
         setActiveCategory(null);
         setActiveSubcategory(null);
         await fetchPackages(1, null, null, true);
@@ -183,9 +166,7 @@ export default function PricingPage({ initialCategories = [], initialPackages = 
     }
   }, [router.isReady, categorySlug, subcategorySlug, categories]);
 
-  // Apply sorting whenever packages or sortBy changes
   useEffect(() => {
-    // Filter by search term (title, description, category/subcategory names) then sort
     const term = searchTerm?.trim().toLowerCase();
 
     const packageMatchesSearch = (pkg) => {
@@ -198,7 +179,6 @@ export default function PricingPage({ initialCategories = [], initialPackages = 
       if (pkg.shortDescription) fields.push(pkg.shortDescription);
       if (pkg.tags && Array.isArray(pkg.tags)) fields.push(pkg.tags.join(' '));
 
-      // Try to find category/subcategory names from categories list
       try {
         const cat = categories.find(c => c._id === pkg.categoryId || c.slug === pkg.categorySlug || c.name === pkg.categoryName);
         if (cat) {
@@ -209,7 +189,6 @@ export default function PricingPage({ initialCategories = [], initialPackages = 
           }
         }
       } catch (e) {
-        // ignore
       }
 
       const haystack = fields.filter(Boolean).join(' ').toLowerCase();
@@ -218,7 +197,6 @@ export default function PricingPage({ initialCategories = [], initialPackages = 
 
     let filtered = packages.filter(packageMatchesSearch);
 
-    // Sorting
     switch (sortBy) {
       case 'price-low-high':
         filtered = filtered.sort((a, b) => {
@@ -241,13 +219,11 @@ export default function PricingPage({ initialCategories = [], initialPackages = 
         filtered = filtered.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
         break;
       case 'featured':
-        // Place featured packages at the top, then sort by newest createdAt within each group
         filtered = filtered.sort((a, b) => {
           const fa = a.featured ? 1 : 0;
           const fb = b.featured ? 1 : 0;
           const byFeatured = fb - fa; // negative => a before b when a.featured
           if (byFeatured !== 0) return byFeatured;
-          // if both have same featured flag, sort by newest first
           return new Date(b.createdAt) - new Date(a.createdAt);
         });
         break;
@@ -255,7 +231,6 @@ export default function PricingPage({ initialCategories = [], initialPackages = 
         filtered = filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     }
 
-    // Always put featured packages at the top while preserving relative order
     const featuredFirst = (() => {
       const featured = [];
       const others = [];
@@ -269,7 +244,6 @@ export default function PricingPage({ initialCategories = [], initialPackages = 
     setDisplayedPackages(featuredFirst);
   }, [packages, sortBy, searchTerm, categories]);
 
-  // Find active category/subcategory names
   const getActiveCategoryName = () => {
     if (activeCategory) {
       const category = findCategoryBySlug(activeCategory);
@@ -311,7 +285,6 @@ export default function PricingPage({ initialCategories = [], initialPackages = 
     }
   };
 
-  // Load more packages function
   const loadMorePackages = async () => {
     if (!hasNextPage || loadingMore) return;
     
@@ -319,7 +292,6 @@ export default function PricingPage({ initialCategories = [], initialPackages = 
     let categoryId = null;
     let subcategoryIndex = null;
     
-    // Get current filter parameters
     if (activeCategory) {
       const category = findCategoryBySlug(activeCategory);
       if (category) {
@@ -347,23 +319,6 @@ export default function PricingPage({ initialCategories = [], initialPackages = 
       </div>
     );
   };
-
-  if (loading) {
-    return (
-      <>
-        <Head>
-          <title>Loading... | Professional Design Solutions</title>
-        </Head>
-        <Navbar />
-        <div className="min-h-screen bg-white text-gray-900 flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-purple-500 mx-auto mb-4"></div>
-            <p className="text-xl text-gray-900">Loading packages...</p>
-          </div>
-        </div>
-      </>
-    );
-  }
 
   if (error) {
     return (
@@ -416,12 +371,12 @@ export default function PricingPage({ initialCategories = [], initialPackages = 
               {!(router.pathname === '/' || router.asPath === '/') && (
                 <div className="mb-3 text-sm text-gray-500">
                   <nav className="flex items-center space-x-2">
-                    <Link href="/" className="hover:text-purple-500">Home</Link>
+                    <LoadingLink href="/" className="hover:text-purple-500" loadingText="Going to home...">Home</LoadingLink>
                     {(activeCategory || activeSubcategory) && (
                       <>
                         <ChevronRight size={14} className="text-gray-400" />
                         {activeCategory && (
-                          <Link href={`/category/${activeCategory}`} className="hover:text-purple-500">{getActiveCategoryName()}</Link>
+                          <LoadingLink href={`/category/${activeCategory}`} className="hover:text-purple-500" loadingText={`Loading ${getActiveCategoryName()}...`}>{getActiveCategoryName()}</LoadingLink>
                         )}
                         {activeSubcategory && (
                           <>
@@ -465,12 +420,7 @@ export default function PricingPage({ initialCategories = [], initialPackages = 
 
               {/* Pagination stats hidden on main page */}
 
-              {loading ? (
-                <div className="text-center py-8">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
-                  <p className="text-gray-700">Loading packages...</p>
-                </div>
-              ) : displayedPackages.length > 0 ? (
+              {displayedPackages.length > 0 ? (
                 <>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
                     {displayedPackages.map((pkg) => (
@@ -488,23 +438,15 @@ export default function PricingPage({ initialCategories = [], initialPackages = 
                   {/* Load More Button */}
                   {hasNextPage && (
                     <div className="flex justify-center mt-8">
-                      <button
+                      <LoadingButton
                         onClick={loadMorePackages}
                         disabled={loadingMore}
-                        className="bg-purple-600 hover:bg-purple-700 disabled:bg-gray-200 text-white px-6 py-3 rounded-lg transition-colors font-medium flex items-center space-x-2"
+                        className="bg-purple-600 hover:bg-purple-700 disabled:bg-gray-200 text-white px-6 py-3 rounded-lg font-medium flex items-center space-x-2"
+                        loadingText="Loading more packages..."
                       >
-                        {loadingMore ? (
-                          <>
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                            <span>Loading...</span>
-                          </>
-                        ) : (
-                          <>
-                            <span>Load More</span>
-                            <ArrowRight size={16} />
-                          </>
-                        )}
-                      </button>
+                        <span>Load More</span>
+                        <ArrowRight size={16} />
+                      </LoadingButton>
                     </div>
                   )}
 

@@ -3,6 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { Download, Star, Shield, ExternalLink } from 'lucide-react';
+import LoadingLink from './LoadingLink';
 
 const PluginCard = ({ pluginData, showCategory = true, lightTheme = true }) => {
   const router = useRouter();
@@ -109,13 +110,14 @@ const PluginCard = ({ pluginData, showCategory = true, lightTheme = true }) => {
 
         {/* Action Buttons */}
         <div className="flex items-center justify-between">
-          <button
-            onClick={() => router.push(`/plugins/${slug}`)}
+          <LoadingLink
+            href={`/plugins/${slug}`}
             className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center space-x-2"
+            loadingText={`Loading ${name}...`}
           >
             <span>View Details</span>
             <ExternalLink size={14} />
-          </button>
+          </LoadingLink>
 
           <div className="text-right">
             <p className={`${textClasses} font-semibold text-sm`}>
