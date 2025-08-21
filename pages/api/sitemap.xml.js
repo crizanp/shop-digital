@@ -1,5 +1,6 @@
 // Generate sitemap for better SEO
-import { connectToDatabase } from '../lib/mongodb';
+import connectDB from '../../lib/mongodb';
+import { Category, Package, Plugin } from '../../lib/models';
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -7,16 +8,16 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { db } = await connectToDatabase();
+    await connectDB();
     
     // Get all categories and subcategories
-    const categories = await db.collection('categories').find({ isActive: true }).toArray();
+    const categories = await Category.find({ isActive: true }).lean();
     
     // Get all packages for individual package pages
-    const packages = await db.collection('packages').find({ isActive: true }).toArray();
+    const packages = await Package.find({ isActive: true }).lean();
     
     // Get all plugins
-    const plugins = await db.collection('plugins').find({ isActive: true }).toArray();
+    const plugins = await Plugin.find({ isActive: true }).lean();
 
     const baseUrl = 'https://foxbeep.com';
     const currentDate = new Date().toISOString();
