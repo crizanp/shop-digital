@@ -406,8 +406,8 @@ export default function PricingPage({ initialCategories = [], initialPackages = 
                 </div>
               )}
 
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 bg-purple-50 px-4 py-2 rounded-lg">
-                <div className="w-full sm:w-1/2 mb-3 sm:mb-0">
+              <div className="flex flex-col mb-8 sm:flex-row justify-between items-start sm:items-center mb-2 bg-purple-50 px-4 py-2 rounded-lg">
+                <div className="w-full sm:w-1/2  sm:mb-0 ">
                   <input
                     type="search"
                     value={searchTerm}
