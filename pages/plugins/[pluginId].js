@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import PluginDetailPage from '../../components/PluginDetailPage';
+import Navbar from '../../components/Navbar';
 import Layout from '../../components/Layout';
+import Head from 'next/head';
 
 export default function PluginDetail() {
   const router = useRouter();
@@ -72,6 +74,15 @@ export default function PluginDetail() {
   };
 
   return (
+    <>
+      <Head>
+        <title>{pluginData?.name || 'Plugin'} | WordPress Plugins</title>
+        <meta name="description" content={pluginData?.shortDescription || 'WordPress plugin details'} />
+      </Head>
+      <Navbar 
+        activeCategory="wordpress-plugins"
+        activeSubcategory={null}
+      />
       <PluginDetailPage
         pluginData={pluginData}
         categoryData={categoryData}
@@ -79,5 +90,6 @@ export default function PluginDetail() {
         loading={loading}
         lightTheme={lightTheme}
       />
+    </>
   );
 }

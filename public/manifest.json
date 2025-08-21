@@ -1,0 +1,28 @@
+{
+  "name": "Foxbeep Digital Solutions",
+  "short_name": "Foxbeep",
+  "description": "Professional digital solutions including web design, graphic design, WordPress plugins, digital marketing, and more.",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#6d28d9",
+  "background_color": "#ffffff",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/images/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "productivity", "design"],
+  "lang": "en",
+  "dir": "ltr",
+  "scope": "/"
+}

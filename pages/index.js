@@ -277,11 +277,11 @@ export default function PricingPage({ initialCategories = [], initialPackages = 
     const subcategoryName = getActiveSubcategoryName();
 
     if (activeSubcategory) {
-      return `Choose a ${categoryName} - ${subcategoryName} package and place the order online. Your ${categoryName} will be ready within the time frame you choose!`;
+      return `Professional ${subcategoryName} solutions with fast delivery and competitive pricing. Quality work guaranteed.`;
     } else if (activeCategory) {
-      return `Choose a ${categoryName} package and place the order online. Your ${categoryName} will be ready within the time frame you choose!`;
+      return `High-quality ${categoryName} services delivered by experienced professionals. Quick turnaround times.`;
     } else {
-      return 'Choose a design package and place the order online. Your design will be ready within the time frame you choose! We will email you the final design.';
+      return 'Get high-quality design packages and digital services with fast delivery and competitive pricing.';
     }
   };
 
@@ -356,7 +356,23 @@ export default function PricingPage({ initialCategories = [], initialPackages = 
       />
 
       <div className="min-h-screen bg-white text-gray-900">
-        <div className="container mx-auto sm:pt-16 sm:pb-10 px-4">
+        {/* Hero Section for all pages */}
+
+        {/* Hero Section for all pages */}
+        <section className="bg-purple-50 py-12 my-4">
+          <div className="container mx-auto px-4 text-center">
+            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+              {activeSubcategory ? getActiveSubcategoryName() : 
+               activeCategory ? getActiveCategoryName() : 
+               'Professional Digital Solutions'}
+            </h1>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              {getHeaderDescription()}
+            </p>
+          </div>
+        </section>
+
+        <div className="container mx-auto sm:pt-10 sm:pb-10 px-4" id="services">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             {/* Sidebar - takes 1/4 of screen on large screens */}
             <div className="lg:col-span-1">
@@ -416,7 +432,6 @@ export default function PricingPage({ initialCategories = [], initialPackages = 
                   </select>
                 </div>
               </div>
-                <p className="text-gray-700 p-6">{getHeaderDescription()}</p>
 
               {/* Pagination stats hidden on main page */}
 

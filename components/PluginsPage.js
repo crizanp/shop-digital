@@ -125,6 +125,24 @@ const PluginsPage = ({
 
   return (
     <div className={`min-h-screen ${bgClass} ${textClass}`}>
+      {/* Hero Section */}
+      <section className="bg-purple-50 py-12 my-4">
+        <div className="container mx-auto px-4 text-center">
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+            {selectedCategory !== 'all' && pluginCategory ? 
+              pluginCategory.subcategories?.find(sub => sub.slug === selectedCategory)?.name || 'WordPress Plugins' :
+              'WordPress Plugins'
+            }
+          </h1>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            {selectedCategory !== 'all' && pluginCategory ? 
+              `Discover powerful ${pluginCategory.subcategories?.find(sub => sub.slug === selectedCategory)?.name} plugins to enhance your WordPress website.` :
+              'Discover powerful WordPress plugins to extend your website functionality, improve performance, and enhance user experience.'
+            }
+          </p>
+        </div>
+      </section>
+
       <div className="container mx-auto sm:pt-16 sm:pb-10 px-4">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Sidebar - takes 1/4 of screen on large screens */}

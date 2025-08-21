@@ -246,11 +246,13 @@ const PackageDetailPage = ({
           /* Keep specific controls white even when the global color is forced */
           .package-detail .starting-price, .package-detail .quotation-btn { color: #ffffff !important; }
           .package-detail .quotation-btn svg { color: #ffffff !important; }
-          .package-detail a { color: #7c3aed !important; }
+          .package-detail a:not(.demo-btn) { color: #7c3aed !important; }
+          .package-detail .demo-btn { color: #ffffff !important; }
           .package-detail svg { color: inherit !important; }
           .package-detail .bg-gradient-to-r { background-image: none !important; }
         `}</style>
       )}
+      
       <div className={`container mx-auto max-w-7xl px-4 pt-12 ${containerBg}`}>
   <LoadingLink href="/" className={`inline-flex items-center ${lightTheme ? 'text-gray-700 hover:text-gray-900' : 'text-green-400 hover:text-green-300'} mb-4 transition-colors`} loadingText="Going back to packages...">
           <ArrowLeft className="w-5 h-5 mr-1" />
@@ -276,14 +278,15 @@ const PackageDetailPage = ({
 
               {/* Live Demo Button - Below Image */}
               {demoUrl && (
-                <div className="p-6 bg-gradient-to-r from-blue-50 to-purple-50 border-t">
+                <div className="p-6">
                   <a
                     href={demoUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="block w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-center py-4 px-6 rounded-xl transition-all duration-300 font-bold text-xl transform hover:scale-105 shadow-lg"
+                    className="demo-btn block w-full bg-black hover:bg-gray-800 text-white text-center py-4 px-6 rounded-xl transition-all duration-300 font-bold text-xl transform hover:scale-105 shadow-lg"
+                    style={{ backgroundColor: '#000000', color: '#ffffff' }}
                   >
-                    🌟 See Live Demo Preview
+                    See Live Demo Preview
                   </a>
                 </div>
               )}
