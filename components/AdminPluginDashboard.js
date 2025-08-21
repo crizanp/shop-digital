@@ -38,11 +38,6 @@ const AdminPluginDashboard = ({ token }) => {
   const [totalPages, setTotalPages] = useState(1);
   const [totalPlugins, setTotalPlugins] = useState(0);
 
-  useEffect(() => {
-    fetchPlugins();
-    fetchCategories();
-  }, [fetchPlugins, fetchCategories]);
-
   // Authentication helper
   const getHeaders = () => {
     const headers = {
@@ -98,6 +93,14 @@ const AdminPluginDashboard = ({ token }) => {
       console.error('Error fetching categories:', error);
     }
   }, []);
+
+  useEffect(() => {
+    fetchPlugins();
+  }, [fetchPlugins]);
+
+  useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
 
   const handleDelete = async (id) => {
     if (confirm('Are you sure you want to delete this plugin?')) {

@@ -33,6 +33,10 @@ body {
   width: 13.5rem !important;
 }
 
+.border-3 {
+  border-width: 3px;
+}
+
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -41,49 +45,34 @@ body {
   scrollbar-width: none; /* Firefox */
 }
 
-/* Instant loading feedback styles */
+/* Optimized instant loading feedback styles */
 .loading-click {
   transform: scale(0.98);
-  opacity: 0.8;
-  transition: all 0.1s ease-in-out;
+  opacity: 0.9;
+  transition: transform 0.08s ease-out, opacity 0.08s ease-out;
 }
 
-/* Enhanced hover and active states for better feedback */
+/* Optimized hover and active states for better feedback */
 button, a {
-  transition: all 0.15s ease-in-out;
+  transition: transform 0.1s ease-out;
 }
 
 button:active, a:active {
   transform: scale(0.98);
 }
 
-/* Loading spinner animations */
-@keyframes bounce-small {
-  0%, 80%, 100% {
-    transform: scale(0);
-  }
-  40% {
-    transform: scale(1);
-  }
-}
-
-.animate-bounce-small {
-  animation: bounce-small 1.4s infinite ease-in-out both;
-}
-
-/* Custom loading overlay animations */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
+/* Optimized loading spinner */
+@keyframes fast-spin {
   to {
-    opacity: 1;
+    transform: rotate(360deg);
   }
 }
 
-.loading-overlay {
-  animation: fadeIn 0.2s ease-in-out;
+.animate-fast-spin {
+  animation: fast-spin 0.8s linear infinite;
 }
+
+/* Remove heavy backdrop blur and fade animations for better performance */
 
 /* Enhanced form input focus states */
 input:focus, textarea:focus, select:focus {

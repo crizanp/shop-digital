@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useLoading } from '../contexts/LoadingContext';
 
 const LoadingButton = ({ 
@@ -13,7 +13,7 @@ const LoadingButton = ({
   const { showLoading, hideLoading } = useLoading();
   const [isLocalLoading, setIsLocalLoading] = useState(false);
 
-  const handleClick = async (e) => {
+  const handleClick = useCallback(async (e) => {
     if (disabled || isLocalLoading) return;
 
     try {
@@ -29,9 +29,9 @@ const LoadingButton = ({
       setIsLocalLoading(false);
       hideLoading();
     }
-  };
+  }, [disabled, isLocalLoading, onClick, loadingText, showLoading, hideLoading]);
 
-  const baseClassName = `relative transition-all duration-200 ${disabled || isLocalLoading ? 'opacity-60 cursor-not-allowed' : 'hover:scale-105'}`;
+  const baseClassName = `relative transition-transform duration-100 ${disabled || isLocalLoading ? 'opacity-60 cursor-not-allowed' : 'active:scale-95'}`;
 
   return (
     <button
