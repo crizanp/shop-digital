@@ -85,7 +85,7 @@ const Navbar = ({ activeCategory, activeSubcategory }) => {
                 {/* Left: Show category (mobile) */}
                     <div className="absolute left-4 top-1/2 transform -translate-y-1/2 lg:hidden">
                     <button
-                        className="flex items-center space-x-2 bg-white border border-gray-200 px-3 py-2 rounded-md text-sm font-medium shadow-sm hover:bg-gray-50 text-black"
+                        className="flex items-center space-x-2 bg-white border border-gray-200 px-1 py-1 rounded-md text-base font-medium shadow-sm hover:bg-gray-50 text-black"
                         onClick={() => {
                             if (typeof window === 'undefined') return;
                             // If on plugins page, open plugin sidebar; otherwise open main sidebar
@@ -98,7 +98,7 @@ const Navbar = ({ activeCategory, activeSubcategory }) => {
                         }}
                         aria-label="Show categories"
                     >
-                        <Menu size={16} className="text-black" />
+                        <Menu size={18} className="text-black" />
                         <span>Show category</span>
                     </button>
                 </div>
@@ -131,10 +131,10 @@ const Navbar = ({ activeCategory, activeSubcategory }) => {
                                 <div key={category._id} className="relative" onMouseEnter={() => hasSub && setActiveDropdown(index)} onMouseLeave={() => setActiveDropdown(null)}>
                                     <LoadingLink
                                         href={categorySlug === 'wordpress-plugins' ? '/plugins' : `/category/${categorySlug}`}
-                                        className={`flex items-center px-4 py-2 text-sm font-semibold rounded-md transition-all duration-200 ${activeCategory === categorySlug ? 'bg-purple-600 text-white' : 'text-gray-700 hover:text-purple-600 hover:bg-purple-50'}`}
+                                        className={`flex items-center px-4 py-2 text-base font-semibold rounded-md transition-all duration-200 ${activeCategory === categorySlug ? 'bg-purple-600 text-white' : 'text-gray-700 hover:text-purple-600 hover:bg-purple-50'}`}
                                         onClick={() => handleLinkClick(categorySlug === 'wordpress-plugins' ? '/plugins' : `/category/${categorySlug}`)}
                                         loadingText={`Loading ${category.name}...`}
-                                        style={{ fontSize: 'clamp(12px, 1.2vw, 14px)' }}
+                                        style={{ fontSize: 'clamp(14px, 1.4vw, 16px)' }}
                                     >
                                         {category.name}
                                         {hasSub && <ChevronDown size={16} className={`ml-1 transition-transform duration-200 ${activeDropdown === index ? 'rotate-180' : ''}`} />}
@@ -147,10 +147,10 @@ const Navbar = ({ activeCategory, activeSubcategory }) => {
                                                     <LoadingLink
                                                         key={sub._id}
                                                         href={categorySlug === 'wordpress-plugins' ? `/plugins?category=${sub.slug}` : `/subcategory/${sub.slug}`}
-                                                        className={`block px-4 py-2 text-xs sm:text-sm transition-colors duration-200 ${activeSubcategory === sub.slug ? 'bg-purple-600 text-white' : 'text-gray-700 hover:bg-purple-50 hover:text-purple-600'}`}
+                                                        className={`block px-4 py-2 text-sm sm:text-base transition-colors duration-200 ${activeSubcategory === sub.slug ? 'bg-purple-600 text-white' : 'text-gray-700 hover:bg-purple-50 hover:text-purple-600'}`}
                                                         onClick={() => handleLinkClick(categorySlug === 'wordpress-plugins' ? `/plugins?category=${sub.slug}` : `/subcategory/${sub.slug}`)}
                                                         loadingText={`Loading ${sub.name}...`}
-                                                        style={{ fontSize: 'clamp(11px, 1.0vw, 13px)' }}
+                                                        style={{ fontSize: 'clamp(14px, 1.2vw, 16px)' }}
                                                     >
                                                         {sub.name}
                                                     </LoadingLink>
@@ -171,7 +171,7 @@ const Navbar = ({ activeCategory, activeSubcategory }) => {
                             aria-expanded={isOpen}
                             aria-label={isOpen ? 'Close menu' : 'Open menu'}
                         >
-                            {isOpen ? <X size={22} /> : <MoreVertical size={20} />}
+                            {isOpen ? <X size={24} /> : <MoreVertical size={22} />}
                         </button>
                     </div>
                 </div>
@@ -187,10 +187,10 @@ const Navbar = ({ activeCategory, activeSubcategory }) => {
                                         <div className="flex items-center">
                                             <LoadingLink
                                                 href={category.slug === 'wordpress-plugins' ? '/plugins' : `/category/${category.slug}`}
-                                                className={`flex-1 px-4 py-2 text-xs sm:text-sm rounded-md transition-colors ${activeCategory === category.slug ? 'bg-purple-600 text-white' : 'text-gray-700 hover:bg-gray-100'}`}
+                                                className={`flex-1 px-4 py-2 text-base sm:text-lg rounded-md transition-colors ${activeCategory === category.slug ? 'bg-purple-600 text-white' : 'text-gray-700 hover:bg-gray-100'}`}
                                                 onClick={() => handleLinkClick(category.slug === 'wordpress-plugins' ? '/plugins' : `/category/${category.slug}`)}
                                                 loadingText={`Loading ${category.name}...`}
-                                                style={{ fontSize: 'clamp(10px, 1.0vw, 13px)' }}
+                                                style={{ fontSize: 'clamp(16px, 2vw, 18px)' }}
                                             >
                                                 {category.name}
                                             </LoadingLink>
@@ -207,10 +207,10 @@ const Navbar = ({ activeCategory, activeSubcategory }) => {
                                                     <LoadingLink
                                                         key={sub._id}
                                                         href={category.slug === 'wordpress-plugins' ? `/plugins?category=${sub.slug}` : `/subcategory/${sub.slug}`}
-                                                        className={`block px-3 py-2 rounded-md transition-colors text-xs sm:text-sm ${activeSubcategory === sub.slug ? 'bg-purple-100 text-purple-700 font-medium' : 'text-gray-600 hover:bg-gray-50 hover:text-purple-600'}`}
+                                                        className={`block px-3 py-2 rounded-md transition-colors text-sm sm:text-base ${activeSubcategory === sub.slug ? 'bg-purple-100 text-purple-700 font-medium' : 'text-gray-600 hover:bg-gray-50 hover:text-purple-600'}`}
                                                         onClick={() => handleLinkClick(category.slug === 'wordpress-plugins' ? `/plugins?category=${sub.slug}` : `/subcategory/${sub.slug}`)}
                                                         loadingText={`Loading ${sub.name}...`}
-                                                        style={{ fontSize: 'clamp(10px, 0.9vw, 12px)' }}
+                                                        style={{ fontSize: 'clamp(14px, 1.5vw, 16px)' }}
                                                     >
                                                         {sub.name}
                                                     </LoadingLink>
