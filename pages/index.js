@@ -5,7 +5,7 @@ import PackageCard from '../components/PackageCard';
 import PluginCard from '../components/PluginCard';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { Package, ChevronRight, ArrowRight } from 'lucide-react';
+import { Package, ChevronRight, ChevronLeft, ArrowRight } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Link from 'next/link';
 import LoadingButton from '../components/LoadingButton';
@@ -66,7 +66,8 @@ export default function PricingPage({ initialCategories = [], initialPackages = 
       if (reset || page === 1) {
         setPackages(data.packages || []);
       } else {
-        setPackages(prev => [...prev, ...(data.packages || [])]);
+        // For pagination, always replace packages instead of appending
+        setPackages(data.packages || []);
       }
       
       setCurrentPage(data.pagination.currentPage);
@@ -285,10 +286,11 @@ export default function PricingPage({ initialCategories = [], initialPackages = 
     }
   };
 
-  const loadMorePackages = async () => {
+  const nextPage = async () => {
     if (!hasNextPage || loadingMore) return;
     
-    const nextPage = currentPage + 1;
+    setLoadingMore(true);
+    const newPage = currentPage + 1;
     let categoryId = null;
     let subcategoryIndex = null;
     
@@ -306,7 +308,40 @@ export default function PricingPage({ initialCategories = [], initialPackages = 
       }
     }
     
-    await fetchPackages(nextPage, categoryId, subcategoryIndex, false);
+    await fetchPackages(newPage, categoryId, subcategoryIndex, false);
+    setLoadingMore(false);
+    
+    // Scroll to top after loading new page
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const prevPage = async () => {
+    if (!hasPrevPage || loadingMore) return;
+    
+    setLoadingMore(true);
+    const newPage = currentPage - 1;
+    let categoryId = null;
+    let subcategoryIndex = null;
+    
+    if (activeCategory) {
+      const category = findCategoryBySlug(activeCategory);
+      if (category) {
+        categoryId = category._id;
+        
+        if (activeSubcategory) {
+          const subcategory = category.subcategories?.find(sub => sub.slug === activeSubcategory);
+          if (subcategory) {
+            subcategoryIndex = category.subcategories.findIndex(sub => sub.slug === activeSubcategory);
+          }
+        }
+      }
+    }
+    
+    await fetchPackages(newPage, categoryId, subcategoryIndex, false);
+    setLoadingMore(false);
+    
+    // Scroll to top after loading new page
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const renderPaginationStats = () => {
@@ -450,26 +485,53 @@ export default function PricingPage({ initialCategories = [], initialPackages = 
                     ))}
                   </div>
 
-                  {/* Load More Button */}
-                  {hasNextPage && (
-                    <div className="flex justify-center mt-8">
+                  {/* Pagination Navigation */}
+                  {(hasNextPage || hasPrevPage) && (
+                    <div className="flex justify-center items-center gap-4 mt-8">
+                      {/* Previous Button */}
                       <LoadingButton
-                        onClick={loadMorePackages}
-                        disabled={loadingMore}
-                        className="bg-purple-600 hover:bg-purple-700 disabled:bg-gray-200 text-white px-6 py-3 rounded-lg font-medium flex items-center space-x-2"
-                        loadingText="Loading more packages..."
+                        onClick={prevPage}
+                        disabled={!hasPrevPage || loadingMore}
+                        className={`${
+                          !hasPrevPage || loadingMore 
+                            ? 'bg-gray-300 cursor-not-allowed text-gray-500' 
+                            : 'bg-purple-600 hover:bg-purple-700 text-white'
+                        } px-6 py-3 rounded-lg font-medium flex items-center space-x-2 transition-colors`}
+                        loadingText="Loading previous..."
                       >
-                        <span>Load More</span>
-                        <ArrowRight size={16} />
+                        <ChevronLeft size={16} />
+                        <span>Previous</span>
+                      </LoadingButton>
+
+                      {/* Page Info */}
+                      <div className="flex items-center space-x-4 px-4">
+                        <span className="text-gray-600 font-medium">
+                          Page {currentPage} of {totalPages}
+                        </span>
+                      </div>
+
+                      {/* Next Button */}
+                      <LoadingButton
+                        onClick={nextPage}
+                        disabled={!hasNextPage || loadingMore}
+                        className={`${
+                          !hasNextPage || loadingMore 
+                            ? 'bg-gray-300 cursor-not-allowed text-gray-500' 
+                            : 'bg-purple-600 hover:bg-purple-700 text-white'
+                        } px-6 py-3 rounded-lg font-medium flex items-center space-x-2 transition-colors`}
+                        loadingText="Loading next..."
+                      >
+                        <span>Next</span>
+                        <ChevronRight size={16} />
                       </LoadingButton>
                     </div>
                   )}
 
-                  {/* Pagination Info */}
-                  {!hasNextPage && totalItems > packagesPerPage && (
+                  {/* End of Results Message */}
+                  {totalItems > 0 && !hasNextPage && !hasPrevPage && totalPages === 1 && (
                     <div className="text-center mt-8 p-4 bg-gray-50 rounded-lg border border-gray-200">
                       <p className="text-gray-700">
-                        You&apos;ve reached the end! Showing all {totalItems} packages.
+                        Showing all {totalItems} packages
                       </p>
                     </div>
                   )}

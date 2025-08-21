@@ -205,7 +205,7 @@ const PackageCard = ({
         <div className="flex space-x-2">
           <LoadingLink 
             href={getPackageLink()} 
-            className="flex-1 bg-purple-600 hover:bg-purple-500 text-white text-center py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center font-medium group-hover:shadow-lg transform group-hover:scale-[1.02]"
+            className="flex-1 text-base bg-purple-200 hover:bg-purple-300 text-black text-center py-2 px-3 rounded-lg transition-all duration-300 flex items-center justify-center font-medium group-hover:shadow-lg transform group-hover:scale-[1.02]"
             loadingText={`Loading ${title}...`}
           >
             <span>View Details</span>
