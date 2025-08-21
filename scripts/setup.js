@@ -90,17 +90,17 @@ async function setupDatabase() {
     console.log('Connected to MongoDB');
 
     // Create admin user
-    const adminExists = await Admin.findOne({ email: 'admin@example.com' });
+    const adminExists = await Admin.findOne({ email: 'admin@foxbeep.com' });
     if (!adminExists) {
-      const hashedPassword = await bcrypt.hash('admin123', 12);
+      const hashedPassword = await bcrypt.hash('Foxbeep025#', 12);
       const admin = new Admin({
-        username: 'admin',
-        email: 'admin@example.com',
+        username: 'foxbeep',
+        email: 'admin@foxbeep.com',
         password: hashedPassword,
         role: 'admin'
       });
       await admin.save();
-      console.log('Admin user created: admin@example.com / admin123');
+      console.log('Admin user created: admin@foxbeep.com / Foxbeep025#');
     } else {
       console.log('Admin user already exists');
     }
@@ -386,8 +386,8 @@ async function setupDatabase() {
 
     console.log('Database setup completed!');
     console.log('\nAdmin Login Details:');
-    console.log('Email: admin@example.com');
-    console.log('Password: admin123');
+    console.log('Email: admin@foxbeep.com');
+    console.log('Password: Foxbeep025#');
     console.log('\nAccess admin panel at: http://localhost:3000/admin');
 
   } catch (error) {
