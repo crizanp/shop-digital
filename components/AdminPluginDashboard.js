@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import Image from 'next/image';
+import LoadingButton from './LoadingButton';
 import { 
   Plus, 
   Search, 
@@ -39,7 +41,7 @@ const AdminPluginDashboard = ({ token }) => {
   useEffect(() => {
     fetchPlugins();
     fetchCategories();
-  }, [currentPage, filters]);
+  }, [fetchPlugins, fetchCategories]);
 
   // Authentication helper
   const getHeaders = () => {
@@ -54,7 +56,7 @@ const AdminPluginDashboard = ({ token }) => {
     return headers;
   };
 
-  const fetchPlugins = async () => {
+  const fetchPlugins = useCallback(async () => {
     try {
       setLoading(true);
       const params = new URLSearchParams({
@@ -81,9 +83,9 @@ const AdminPluginDashboard = ({ token }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, filters]);
 
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     try {
       const response = await fetch('/api/admin/categories');
       const data = await response.json();
@@ -95,7 +97,7 @@ const AdminPluginDashboard = ({ token }) => {
     } catch (error) {
       console.error('Error fetching categories:', error);
     }
-  };
+  }, []);
 
   const handleDelete = async (id) => {
     if (confirm('Are you sure you want to delete this plugin?')) {
@@ -297,11 +299,15 @@ const AdminPluginDashboard = ({ token }) => {
                       <div className="flex items-center">
                         <div className="w-12 h-12 bg-gray-100 rounded-lg mr-4 flex items-center justify-center">
                           {plugin.images?.[0]?.url ? (
-                            <img
-                              src={plugin.images[0].url}
-                              alt={plugin.name}
-                              className="w-12 h-12 rounded-lg object-cover"
-                            />
+                            <div className="relative w-12 h-12 rounded-lg overflow-hidden">
+                              <Image
+                                src={plugin.images[0].url}
+                                alt={plugin.name}
+                                fill
+                                className="object-cover"
+                                sizes="48px"
+                              />
+                            </div>
                           ) : (
                             <Package className="w-6 h-6 text-gray-400" />
                           )}
