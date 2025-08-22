@@ -96,7 +96,7 @@ const Layout = ({
       )}
      
       {/* Main content with proper spacing */}
-      <main className={`min-h-screen ${!isAdminPage ? 'pt-16 sm:pt-20 lg:pt-16' : ''}`}>
+      <main className={`min-h-screen ${!isAdminPage ? 'pt-16 sm:pt-16 lg:pt-16' : ''}`}>
         {children}
       </main>
      
