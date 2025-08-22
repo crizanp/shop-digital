@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import LoadingLink from './LoadingLink';
+import PriceDisplay from './PriceDisplay';
 import { useLoading } from '../contexts/LoadingContext';
 
 const PluginDetailPage = ({
@@ -357,7 +358,10 @@ const PluginDetailPage = ({
                   )}
                   <div className="flex items-center mt-3">
                     <span className="inline-flex bg-black text-white px-4 py-1.5 rounded-full text-lg font-bold preserve-color">
-                      {pluginData.price}
+                      {pluginData.price === 'Free' || pluginData.price === '0' || pluginData.price === 0 ? 
+                        'Free' : 
+                        <PriceDisplay price={pluginData.price} className="inline" />
+                      }
                     </span>
                   </div>
                 </div>
@@ -529,7 +533,10 @@ const PluginDetailPage = ({
 
                   <div className="flex items-center mt-3">
                     <span className="inline-flex bg-black text-white px-4 py-1.5 rounded-full text-lg font-bold preserve-color">
-                      {pluginData.price}
+                      {pluginData.price === 'Free' || pluginData.price === '0' || pluginData.price === 0 ? 
+                        'Free' : 
+                        <PriceDisplay price={pluginData.price} className="inline" />
+                      }
                     </span>
                   </div>
                 </div>

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { Download, Star, Shield, ExternalLink } from 'lucide-react';
 import LoadingLink from './LoadingLink';
+import PriceDisplay from './PriceDisplay';
 
 const PluginCard = ({ pluginData, showCategory = true, lightTheme = true }) => {
   const router = useRouter();
@@ -121,7 +122,10 @@ const PluginCard = ({ pluginData, showCategory = true, lightTheme = true }) => {
 
           <div className="text-right">
             <p className={`${textClasses} font-semibold text-sm`}>
-              {price}
+              {price === 'Free' || price === '0' || price === 0 ? 
+                'Free' : 
+                <PriceDisplay price={price} className="inline" />
+              }
             </p>
             {isPremium && (
               <p className={`${subtextClasses} text-xs`}>Premium</p>

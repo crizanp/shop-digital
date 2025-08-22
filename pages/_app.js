@@ -2,13 +2,16 @@
 import '../styles/globals.css';
 import Layout from '../components/Layout';
 import { LoadingProvider } from '../contexts/LoadingContext';
+import { CurrencyProvider } from '../contexts/CurrencyContext';
 
 function MyApp({ Component, pageProps }) {
   return (
     <LoadingProvider>
-      <Layout>
-        <Component {...pageProps} />
-      </Layout>
+      <CurrencyProvider>
+        <Layout>
+          <Component {...pageProps} />
+        </Layout>
+      </CurrencyProvider>
     </LoadingProvider>
   );
 }

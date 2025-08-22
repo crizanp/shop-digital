@@ -76,7 +76,7 @@ export default function PluginDetail() {
   return (
     <>
       <Head>
-        <title>{pluginData?.name || 'Plugin'} | WordPress Plugins</title>
+        <title>{`${pluginData?.name || 'Plugin'} | WordPress Plugins`}</title>
         <meta name="description" content={pluginData?.shortDescription || 'WordPress plugin details'} />
       </Head>
       <Navbar 

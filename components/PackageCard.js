@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Clock, Star, Check, ArrowRight, Badge, Loader2 } from 'lucide-react';
 import LoadingLink from './LoadingLink';
+import PriceDisplay from './PriceDisplay';
 
 const PackageCard = ({
   packageData,
@@ -81,26 +82,6 @@ const PackageCard = ({
     const slug = packageData?.slug || slugify(title);
     return `/details/${slug}`;
   };
-
-  // Format price display
-  const formatPrice = (priceString) => {
-    if (!priceString) return "$199";
-
-    // If price already includes currency symbol, return as is
-    if (priceString.includes('$') || priceString.includes('USD')) {
-      return priceString;
-    }
-
-    // Extract numeric value and add $ symbol
-    const numericValue = priceString.toString().match(/\d+/);
-    if (numericValue) {
-      return `$${numericValue[0]}`;
-    }
-
-    return `$${priceString}`;
-  };
-
-  const formattedPrice = formatPrice(price);
 
   return (
     <div className="bg-white text-gray-900 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden border border-gray-200 flex flex-col h-full group hover:border-purple-400 relative">
@@ -198,7 +179,10 @@ const PackageCard = ({
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-baseline gap-3 py-3">
             <span className="text-lg text-gray-600">Starting at:</span>
-            <span className="text-xl font-bold text-purple-600">{formattedPrice}</span>
+            <PriceDisplay 
+              price={price}
+              className="text-xl font-bold text-purple-600"
+            />
           </div>
         </div>
 

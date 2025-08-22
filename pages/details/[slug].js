@@ -32,7 +32,7 @@ export default function PackageDetailWrapper({ packageData, categories }) {
   return (
     <>
       <Head>
-        <title>{packageData.title} | Professional Design Solutions</title>
+        <title>{`${packageData.title} | Professional Design Solutions`}</title>
         <meta name="description" content={packageData.description || ''} />
       </Head>
       <Navbar />

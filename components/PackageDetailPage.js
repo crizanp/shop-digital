@@ -4,6 +4,8 @@ import { ArrowLeft, CheckCircle, HelpCircle, Info, FileText, Star, Shield, Clock
 import Link from 'next/link';
 import LoadingLink from './LoadingLink';
 import LoadingButton from './LoadingButton';
+import PriceDisplay from './PriceDisplay';
+import TotalPriceDisplay from './TotalPriceDisplay';
 
 const PackageDetailPage = ({
   packageData,
@@ -76,22 +78,20 @@ const PackageDetailPage = ({
     setQuantity(Math.max(1, value)); // Ensure minimum of 1
   };
 
-  // Helper function to extract price value from price string
+  // Helper function to extract numeric price value
   const extractPriceValue = (priceString) => {
     if (!priceString) return 0;
 
-    // Handle percentage discounts
-    if (priceString.includes('-') && priceString.includes('%')) {
+    // Handle percentage discounts (return 0 for now)
+    if (priceString.includes('%')) {
       return 0; // Simplified handling of percentage discounts
     }
 
     // Extract numeric value, handling both "+100 USD" and "399 USD" formats
     const numericMatch = priceString.match(/-?\+?(\d+(?:\.\d+)?)/);
     return numericMatch && numericMatch[1] ? parseFloat(numericMatch[1]) : 0;
-  };
-
-  // Helper function to format price display
-  const formatPriceDisplay = (priceString) => {
+  };  // Helper function to format price display with currency conversion
+  const formatPriceDisplay = async (priceString) => {
     if (!priceString) return 'Free';
 
     const numericValue = extractPriceValue(priceString);
@@ -101,25 +101,29 @@ const PackageDetailPage = ({
       return 'Free';
     }
 
+    // Convert the price to user's currency
+    const convertedPrice = await convertPrice(numericValue, currency, exchangeRate);
+    const currencySymbol = currency === 'USD' ? '$' : currency === 'EUR' ? '€' : currency === 'GBP' ? '£' : currency;
+
     // For positive values with +, show as additional cost
     if (priceString.includes('+')) {
-      return `+$${numericValue}`;
+      return `+${currencySymbol}${convertedPrice}`;
     }
 
     // For negative values with -, show as discount
     if (priceString.includes('-') && !priceString.includes('%')) {
-      return `-$${numericValue}`;
+      return `-${currencySymbol}${convertedPrice}`;
     }
 
     // For regular prices
-    return `$${numericValue}`;
+    return `${currencySymbol}${convertedPrice}`;
   };
 
-  const calculateTotal = () => {
+  const calculateTotalUSD = () => {
     if (!packageData?.pricing) {
       // If no pricing options, use base price
       const basePrice = packageData?.price ? extractPriceValue(packageData.price) : 199;
-      return `${(basePrice * quantity).toFixed(2)} USD`;
+      return basePrice * quantity;
     }
 
     let total = 0;
@@ -143,8 +147,13 @@ const PackageDetailPage = ({
     // Multiply by quantity
     total *= quantity;
 
-    // Format the total with currency
-    return `${total.toFixed(2)} USD`;
+    return total;
+  };
+
+  // Legacy function for backwards compatibility with quotation system
+  const calculateTotal = () => {
+    const totalUSD = calculateTotalUSD();
+    return `${totalUSD.toFixed(2)} USD`;
   };
 
   const handleQuotationRequest = () => {
@@ -397,7 +406,7 @@ const PackageDetailPage = ({
                 )}
                 <div className="flex items-center mt-3">
                   <span className={`inline-flex ${priceBadge} text-white px-4 py-1.5 rounded-full text-lg font-bold starting-price`} style={{ color: "white" }}>
-                    Starting at ${packageData.price}
+                    Starting at <PriceDisplay price={packageData.price} className="inline" />
                   </span>
                 </div>
               </div>
@@ -472,7 +481,7 @@ const PackageDetailPage = ({
                                         ? (lightTheme ? 'text-blue-600' : 'text-blue-400')
                                         : (lightTheme ? 'text-violet-600' : 'text-green-400')
                                     }`}>
-                                  {formatPriceDisplay(option.price)}
+                                  <PriceDisplay price={option.price} className="inline" showPlusSign={option.price?.includes('+')} showMinusSign={option.price?.includes('-')} />
                                 </span>
                               </div>
                             );
@@ -524,7 +533,10 @@ const PackageDetailPage = ({
                 <div className="flex justify-center items-center mb-6">
                   <div className="text-center">
                     <div className={`${mutedText} font-medium text-lg mb-1`}>TOTAL PRICE</div>
-                    <div className={`text-3xl font-bold ${lightTheme ? 'text-violet-600' : 'text-green-400'}`}>{calculateTotal()}</div>
+                    <TotalPriceDisplay 
+                      totalUSD={calculateTotalUSD()}
+                      className={`text-3xl font-bold ${lightTheme ? 'text-violet-600' : 'text-green-400'}`}
+                    />
                   </div>
                 </div>
 

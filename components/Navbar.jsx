@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ChevronDown, Menu, X, MoreVertical } from 'lucide-react';
 import LoadingLink from './LoadingLink';
+import CountrySelector from './CountrySelector';
 import { useLoading } from '../contexts/LoadingContext';
 
 const Navbar = ({ activeCategory, activeSubcategory }) => {
@@ -122,8 +123,8 @@ const Navbar = ({ activeCategory, activeSubcategory }) => {
                         </LoadingLink>
                     </div>
 
-                    {/* Desktop nav */}
-                    <div className="hidden lg:flex items-center space-x-1">
+                    {/* Desktop nav - Center */}
+                    <div className="hidden lg:flex items-center space-x-1 flex-1 justify-center">
                         {categories.map((category, index) => {
                             const categorySlug = category.slug || category.name?.toLowerCase().replace(/\s+/g, '-');
                             const hasSub = category.hasSubcategories && category.subcategories?.length > 0;
@@ -161,6 +162,11 @@ const Navbar = ({ activeCategory, activeSubcategory }) => {
                                 </div>
                             );
                         })}
+                    </div>
+
+                    {/* Desktop Country Selector (right) */}
+                    <div className="hidden lg:flex items-center flex-shrink-0">
+                        <CountrySelector />
                     </div>
 
                     {/* Right: mobile toggle for navbar menu */}
@@ -220,6 +226,14 @@ const Navbar = ({ activeCategory, activeSubcategory }) => {
                                     </div>
                                 );
                             })}
+                            
+                            {/* Mobile Country Selector */}
+                            <div className="px-4 py-2 border-t border-gray-200 mt-2">
+                                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                                    Currency
+                                </div>
+                                <CountrySelector />
+                            </div>
                         </div>
                     </div>
                 )}
