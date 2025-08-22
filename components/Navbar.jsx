@@ -190,8 +190,8 @@ const Navbar = ({ activeCategory, activeSubcategory }) => {
                                         className={`
                                             flex items-center px-4 py-2.5 text-sm font-semibold rounded-xl transition-all duration-200 
                                             ${isActive 
-                                                ? 'bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-lg shadow-purple-200' 
-                                                : 'text-gray-700 hover:text-purple-600 hover:bg-purple-50/80 hover:shadow-md'
+                                                ? 'bg-gradient-to-r from-purple-600 to-purple-700 text-white ' 
+                                                : 'text-gray-700 hover:text-purple-600 hover:bg-purple-50/80 '
                                             }
                                         `}
                                         onClick={handleLinkClick}

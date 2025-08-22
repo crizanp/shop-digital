@@ -166,3 +166,10 @@ input:focus, textarea:focus, select:focus {
     background-position: -200% 0;
   }
 }
+
+/* Ensure package starting price is always white (overrides any global color forcing) */
+.package-detail .starting-price,
+.package-detail .starting-price * {
+  color: #ffffff !important;
+  padding-left: 10px;
+}

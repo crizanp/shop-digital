@@ -406,7 +406,7 @@ const PackageDetailPage = ({
                 )}
                 <div className="flex items-center mt-3">
                   <span className={`inline-flex ${priceBadge} text-white px-4 py-1.5 rounded-full text-lg font-bold starting-price`} style={{ color: "white" }}>
-                    Starting at <PriceDisplay price={packageData.price} className="inline" />
+                    Starting at <PriceDisplay price={packageData.price} className="text-white" />
                   </span>
                 </div>
               </div>
