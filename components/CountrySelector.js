@@ -35,12 +35,15 @@ const CountrySelector = ({ className = '' }) => {
     <div className={`relative ${className}`} ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center space-x-2 px-3 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors duration-200"
+        className="flex items-center space-x-2 px-3 py-2 rounded-lg bg-white/90 hover:bg-white border border-purple-200/50 hover:border-purple-300 transition-all duration-200 shadow-sm hover:shadow-md backdrop-blur-sm"
         aria-label="Select country for currency"
       >
-        <Globe size={16} className="text-gray-600 dark:text-gray-400" />
-        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+        <Globe size={16} className="text-gray-600" />
+        <span className="text-sm font-medium text-gray-700 hidden sm:inline">
           {currencyInfo.symbol} {currencyInfo.currency}
+        </span>
+        <span className="text-xs font-medium text-gray-700 sm:hidden">
+          {currencyInfo.symbol}
         </span>
         <ChevronDown 
           size={14} 
@@ -49,11 +52,11 @@ const CountrySelector = ({ className = '' }) => {
       </button>
 
       {isOpen && (
-        <div className="absolute top-full right-0 mt-2 w-64 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50 max-h-96 overflow-y-auto">
+        <div className="absolute top-full right-0 mt-2 w-72 sm:w-80 bg-white rounded-xl shadow-xl border border-gray-200 z-50 max-h-80 overflow-y-auto backdrop-blur-sm">
           {/* Popular Countries */}
-          <div className="p-3 border-b border-gray-200 dark:border-gray-700">
-            <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
-              Popular
+          <div className="p-4 border-b border-gray-100">
+            <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">
+              Popular Currencies
             </h3>
             <div className="space-y-1">
               {popularCountries.map((countryCode) => {
@@ -62,14 +65,14 @@ const CountrySelector = ({ className = '' }) => {
                   <button
                     key={countryCode}
                     onClick={() => handleCountrySelect(countryCode)}
-                    className={`w-full flex items-center justify-between px-3 py-2 text-sm rounded-md transition-colors duration-150 ${
+                    className={`w-full flex items-center justify-between px-3 py-2.5 text-sm rounded-lg transition-all duration-150 ${
                       selectedCountry === countryCode
-                        ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
-                        : 'hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300'
+                        ? 'bg-purple-50 text-purple-700 border border-purple-200'
+                        : 'hover:bg-gray-50 text-gray-700 border border-transparent'
                     }`}
                   >
-                    <span>{country.name}</span>
-                    <span className="font-mono text-xs text-gray-500">
+                    <span className="font-medium">{country.name}</span>
+                    <span className="font-mono text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
                       {country.symbol} {country.currency}
                     </span>
                   </button>
@@ -79,8 +82,8 @@ const CountrySelector = ({ className = '' }) => {
           </div>
 
           {/* Other Countries */}
-          <div className="p-3">
-            <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+          <div className="p-4">
+            <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">
               Other Countries
             </h3>
             <div className="space-y-1">
@@ -90,14 +93,14 @@ const CountrySelector = ({ className = '' }) => {
                   <button
                     key={countryCode}
                     onClick={() => handleCountrySelect(countryCode)}
-                    className={`w-full flex items-center justify-between px-3 py-2 text-sm rounded-md transition-colors duration-150 ${
+                    className={`w-full flex items-center justify-between px-3 py-2.5 text-sm rounded-lg transition-all duration-150 ${
                       selectedCountry === countryCode
-                        ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
-                        : 'hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300'
+                        ? 'bg-purple-50 text-purple-700 border border-purple-200'
+                        : 'hover:bg-gray-50 text-gray-700 border border-transparent'
                     }`}
                   >
-                    <span>{country.name}</span>
-                    <span className="font-mono text-xs text-gray-500">
+                    <span className="font-medium">{country.name}</span>
+                    <span className="font-mono text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">{country.symbol} {country.currency}
                       {country.symbol} {country.currency}
                     </span>
                   </button>
