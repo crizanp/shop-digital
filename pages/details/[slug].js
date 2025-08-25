@@ -2,6 +2,8 @@
 import Head from 'next/head';
 import PackageDetailPage from '@/components/PackageDetailPage';
 import Navbar from '@/components/Navbar';
+import AdSense from '@/components/AdSense';
+import { useState } from 'react';
 import connectDB from '@/lib/mongodb';
 import { Package, Category } from '@/lib/models';
 
@@ -13,6 +15,8 @@ const slugify = (s = '') =>
     .replace(/(^-|-$)/g, '');
 
 export default function PackageDetailWrapper({ packageData, categories }) {
+  const [topAdVisible, setTopAdVisible] = useState(null);
+  const [footerAdVisible, setFooterAdVisible] = useState(null);
   if (!packageData) {
     return (
       <>
@@ -38,7 +42,34 @@ export default function PackageDetailWrapper({ packageData, categories }) {
       <Navbar />
       <div className="bg-white text-gray-900">
         <div className="container mx-auto max-w-7xl px-4">
+          {/* Top of detail page ad (in-article style) */}
+          {topAdVisible !== false && (
+            <div className="mb-6">
+              <AdSense
+                client="ca-pub-8377837851676312"
+                slot="1056997921"
+                style={{ display: 'block', textAlign: 'center' }}
+                layout="in-article"
+                format="fluid"
+                onAdRender={(visible) => setTopAdVisible(visible)}
+              />
+            </div>
+          )}
+
           <PackageDetailPage packageData={packageData} categoryData={categories} lightTheme />
+
+          {/* Footer/slot ad on detail page */}
+          {footerAdVisible !== false && (
+            <div className="mt-8">
+              <AdSense
+                client="ca-pub-8377837851676312"
+                slot="8173070616"
+                style={{ display: 'block' }}
+                format="autorelaxed"
+                onAdRender={(visible) => setFooterAdVisible(visible)}
+              />
+            </div>
+          )}
         </div>
       </div>
     </>
