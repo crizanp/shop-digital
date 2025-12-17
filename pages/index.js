@@ -406,16 +406,7 @@ export default function PricingPage({ initialCategories = [], initialPackages = 
               {getHeaderDescription()}
             </p>
 
-            {/* Small horizontal ad below hero */}
-            <div className="mt-6 max-w-3xl mx-auto">
-              <AdSense
-                client="ca-pub-8377837851676312"
-                slot="3608706319"
-                style={{ display: 'block' }}
-                format="auto"
-                fullWidthResponsive="true"
-              />
-            </div>
+          
           </div>
         </section>
 
@@ -497,16 +488,7 @@ export default function PricingPage({ initialCategories = [], initialPackages = 
                     ))}
                   </div>
 
-                  {/* In-article ad after first row of packages */}
-                  <div className="mt-8 mb-6">
-                    <AdSense
-                      client="ca-pub-8377837851676312"
-                      slot="1056997921"
-                      style={{ display: 'block', textAlign: 'center' }}
-                      layout="in-article"
-                      format="fluid"
-                    />
-                  </div>
+                
 
                   {/* Pagination Navigation */}
                   {(hasNextPage || hasPrevPage) && (
