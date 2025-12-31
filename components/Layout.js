@@ -87,21 +87,14 @@ const Layout = ({
         />
       </Head>
       
-      {/* Conditionally render Navbar */}
-      {!isAdminPage && (
-        <Navbar 
-          activeCategory={activeCategory} 
-          activeSubcategory={activeSubcategory} 
-        />
-      )}
+      
      
       {/* Main content with proper spacing */}
-      <main className={`min-h-screen ${!isAdminPage ? 'pt-16 sm:pt-16 lg:pt-16' : ''}`}>
+      <main className={`min-h-screen ${!isAdminPage ? '' : ''}`}>
         {children}
       </main>
      
-      {/* Footer */}
-      {!isAdminPage && <Footer />}
+    
     </>
   );
 };

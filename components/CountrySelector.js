@@ -1,6 +1,6 @@
-// components/CountrySelector.js - Country selector dropdown for currency
+// components/CountrySelector.js - Currency selector dropdown (NPR, USD, GBP only)
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown, Globe } from 'lucide-react';
+import { ChevronDown, DollarSign } from 'lucide-react';
 import { useCurrency } from '../contexts/CurrencyContext';
 
 const CountrySelector = ({ className = '' }) => {
@@ -27,86 +27,52 @@ const CountrySelector = ({ className = '' }) => {
     setIsOpen(false);
   };
 
-  // Get popular countries for easier access
-  const popularCountries = ['US', 'GB', 'EU', 'IN', 'NP', 'AU', 'CA', 'JP', 'CN'];
-  const otherCountries = Object.keys(countries).filter(code => !popularCountries.includes(code));
+  // Only show NPR, USD, GBP
+  const availableCurrencies = ['NP', 'US', 'GB'];
 
   return (
     <div className={`relative ${className}`} ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center space-x-2 px-3 py-2 rounded-lg bg-white/90 hover:bg-white border border-purple-200/50 hover:border-purple-300 transition-all duration-200 shadow-sm hover:shadow-md backdrop-blur-sm"
-        aria-label="Select country for currency"
+        className="flex items-center space-x-2 px-3 py-2 rounded-lg bg-purple-50 hover:bg-purple-100 border border-purple-200 hover:border-purple-400 transition-all duration-200 shadow-sm hover:shadow-md"
+        aria-label="Select currency"
+        title={`Current: ${currencyInfo.name} (${currencyInfo.currency})`}
       >
-        <Globe size={16} className="text-gray-600" />
-        <span className="text-sm font-medium text-gray-700 hidden sm:inline">
-          {currencyInfo.symbol} {currencyInfo.currency}
+        <DollarSign size={16} className="text-purple-600" />
+        <span className="text-sm font-semibold text-purple-700 hidden sm:inline">
+          {currencyInfo.currency}
         </span>
-        <span className="text-xs font-medium text-gray-700 sm:hidden">
+        <span className="text-xs font-semibold text-purple-700 sm:hidden">
           {currencyInfo.symbol}
         </span>
         <ChevronDown 
           size={14} 
-          className={`text-gray-500 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} 
+          className={`text-purple-600 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} 
         />
       </button>
 
       {isOpen && (
-        <div className="absolute top-full right-0 mt-2 w-72 sm:w-80 bg-white rounded-xl shadow-xl border border-gray-200 z-50 max-h-80 overflow-y-auto backdrop-blur-sm">
-          {/* Popular Countries */}
-          <div className="p-4 border-b border-gray-100">
-            <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">
-              Popular Currencies
-            </h3>
-            <div className="space-y-1">
-              {popularCountries.map((countryCode) => {
-                const country = countries[countryCode];
-                return (
-                  <button
-                    key={countryCode}
-                    onClick={() => handleCountrySelect(countryCode)}
-                    className={`w-full flex items-center justify-between px-3 py-2.5 text-sm rounded-lg transition-all duration-150 ${
-                      selectedCountry === countryCode
-                        ? 'bg-purple-50 text-purple-700 border border-purple-200'
-                        : 'hover:bg-gray-50 text-gray-700 border border-transparent'
-                    }`}
-                  >
-                    <span className="font-medium">{country.name}</span>
-                    <span className="font-mono text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                      {country.symbol} {country.currency}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Other Countries */}
-          <div className="p-4">
-            <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">
-              Other Countries
-            </h3>
-            <div className="space-y-1">
-              {otherCountries.map((countryCode) => {
-                const country = countries[countryCode];
-                return (
-                  <button
-                    key={countryCode}
-                    onClick={() => handleCountrySelect(countryCode)}
-                    className={`w-full flex items-center justify-between px-3 py-2.5 text-sm rounded-lg transition-all duration-150 ${
-                      selectedCountry === countryCode
-                        ? 'bg-purple-50 text-purple-700 border border-purple-200'
-                        : 'hover:bg-gray-50 text-gray-700 border border-transparent'
-                    }`}
-                  >
-                    <span className="font-medium">{country.name}</span>
-                    <span className="font-mono text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">{country.symbol} {country.currency}
-                      {country.symbol} {country.currency}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
+        <div className="absolute top-full right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-200 z-50 overflow-hidden">
+          <div className="p-3 space-y-2">
+            {availableCurrencies.map((countryCode) => {
+              const country = countries[countryCode];
+              return (
+                <button
+                  key={countryCode}
+                  onClick={() => handleCountrySelect(countryCode)}
+                  className={`w-full flex items-center justify-between px-3 py-2.5 text-sm rounded-lg transition-all duration-150 font-medium ${
+                    selectedCountry === countryCode
+                      ? 'bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-md'
+                      : 'hover:bg-gray-100 text-gray-700 border border-transparent'
+                  }`}
+                >
+                  <span>{country.name}</span>
+                  <span className={`text-xs font-mono font-semibold ${selectedCountry === countryCode ? 'text-white' : 'text-purple-600'}`}>
+                    {country.symbol} {country.currency}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
       )}

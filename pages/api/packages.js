@@ -15,7 +15,7 @@ export default async function handler(req, res) {
       subcategoryIndex, // Add subcategoryIndex support
       featured, 
       page = 1, 
-      limit = 6, 
+      limit = 9, 
       search 
     } = req.query;
     
@@ -49,7 +49,7 @@ export default async function handler(req, res) {
     }
 
   // Enforce server-side pagination limit: default 6, max 6
-  const enforcedLimit = Math.min(6, parseInt(limit) || 6);
+  const enforcedLimit = Math.min(9, parseInt(limit) || 9);
   const skip = (parseInt(page) - 1) * enforcedLimit;
     
     // Only select essential fields for performance
