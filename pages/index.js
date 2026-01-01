@@ -4,14 +4,17 @@ import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import { useCurrency } from '../contexts/CurrencyContext';
 
-const ModernMarketplace = () => {
+const ModernMarketplace = ({ initialFeaturedPackages = [] }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [featuredPackages, setFeaturedPackages] = useState(initialFeaturedPackages);
   const { currencyInfo, exchangeRates } = useCurrency();
-  const convertPrice = (priceString) => {
-    // Extract numeric value from price string (e.g., "$149.00" -> 149)
-    const numericPrice = parseFloat(priceString.replace(/[^0-9.]/g, ''));
+  const convertPrice = (price) => {
+    // Handle both numeric and string prices
+    const numericPrice = typeof price === 'string' 
+      ? parseFloat(price.replace(/[^0-9.]/g, ''))
+      : parseFloat(price);
 
     // Assume prices are stored in USD, convert to selected currency
     const convertedPrice = numericPrice * exchangeRates[currencyInfo.currency];
@@ -125,53 +128,6 @@ const ModernMarketplace = () => {
     }
   ];
 
-  const featuredPackages = [
-    {
-      id: 1,
-      title: 'Premium Logo Design Package',
-      author: 'Creative Studios',
-      price: '$149.00',
-      image: 'https://images.unsplash.com/photo-1626785774573-4b799315345d?w=400&h=300&fit=crop',
-      rating: 4.9,
-      reviews: 234,
-      category: 'Graphic Design',
-      featured: true
-    },
-    {
-      id: 2,
-      title: 'E-commerce Website Development',
-      author: 'WebPro Developers',
-      price: '$599.00',
-      image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=300&fit=crop',
-      rating: 5.0,
-      reviews: 189,
-      category: 'Web Development',
-      featured: true
-    },
-    {
-      id: 3,
-      title: 'Professional Video Editing',
-      author: 'VideoMasters',
-      price: '$299.00',
-      image: 'https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=400&h=300&fit=crop',
-      rating: 4.8,
-      reviews: 456,
-      category: 'Video Editing',
-      featured: false
-    },
-    {
-      id: 4,
-      title: 'SEO Optimization Package',
-      author: 'Digital Growth',
-      price: '$399.00',
-      image: 'https://images.unsplash.com/photo-1432888622747-4eb9a8f2c293?w=400&h=300&fit=crop',
-      rating: 4.7,
-      reviews: 312,
-      category: 'Digital Marketing',
-      featured: false
-    }
-  ];
-
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Modern Navbar */}
@@ -186,40 +142,41 @@ const ModernMarketplace = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {featuredPackages.map((pkg) => (
-            <div
-              key={pkg.id}
-              href={`/package/${pkg.id}`}
-              className="cursor-pointer group bg-white rounded-2xl overflow-hidden shadow-sm  transition-all duration-300 border border-gray-100"
-            >
-              <div className="relative overflow-hidden aspect-[4/3] cursor-pointer group-hover:scale-105 transition-transform duration-500">
-                <img
-                  src={pkg.image}
-                  alt={pkg.title}
-                  className="w-full h-full object-cover transition-transform duration-500"
-                />
+            <Link key={pkg._id || pkg.id} href={`/package/${pkg.slug}`}>
+              <div
+                className="cursor-pointer group bg-white rounded-2xl overflow-hidden shadow-sm  transition-all duration-300 border border-gray-100"
+              >
+                <div className="relative overflow-hidden aspect-[4/3] cursor-pointer group-hover:scale-105 transition-transform duration-500">
+                  <img
+                    src={pkg.image}
+                    alt={pkg.title}
+                    className="w-full h-full object-cover transition-transform duration-500"
+                  />
 
-              </div>
-              <div className="p-6 ">
-                <div className="text-xs  text-center font-semibold text-black mb-2 uppercase tracking-wider">
-                  {pkg.category}
                 </div>
-                <h3 className="text-lg text-center text-gray-900 mb-2 group-hover:underline transition-colors">
-                  {pkg.title}
-                </h3>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center">
-                      <Star size={16} className="text-yellow-400 fill-yellow-400" />
-                      <span className="text-sm font-semibold text-gray-900 ml-1">{pkg.rating}</span>
+                <div className="p-6 ">
+                  <h3 className="text-lg text-center text-gray-900 mb-2 group-hover:underline transition-colors">
+                    {pkg.title}
+                  </h3>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      {pkg.reviews ? (
+                        <>
+                          <div className="flex items-center">
+                            <Star size={16} className="text-yellow-400 fill-yellow-400" />
+                            <span className="text-sm font-semibold text-gray-900 ml-1">{pkg.rating || 5}</span>
+                          </div>
+                          <span className="text-xs text-gray-500">({pkg.reviews})</span>
+                        </>
+                      ) : null}
                     </div>
-                    <span className="text-xs text-gray-500">({pkg.reviews})</span>
-                  </div>
-                  <div className="text-xl font-bold text-gray-900">
-                    {convertPrice(pkg.price)}
+                    <div className="text-xl font-bold text-gray-900">
+                      {convertPrice(pkg.price)}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </section>
@@ -304,3 +261,30 @@ const ModernMarketplace = () => {
 };
 
 export default ModernMarketplace;
+
+export async function getServerSideProps() {
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+    const response = await fetch(`${baseUrl}/api/packages?featured=true&limit=4`);
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch featured packages');
+    }
+
+    const data = await response.json();
+    const featuredPackages = data.packages || [];
+
+    return {
+      props: {
+        initialFeaturedPackages: featuredPackages
+      }
+    };
+  } catch (error) {
+    console.error('Error fetching featured packages:', error);
+    return {
+      props: {
+        initialFeaturedPackages: []
+      }
+    };
+  }
+}
