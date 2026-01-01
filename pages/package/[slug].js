@@ -6,6 +6,7 @@ import Navbar from '@/components/Navbar';
 import connectDB from '@/lib/mongodb';
 import { Package, Category } from '@/lib/models';
 import { useCurrency } from '@/contexts/CurrencyContext';
+import Link from 'next/link';
 
 const slugify = (s = '') =>
   s
@@ -126,9 +127,9 @@ export default function PackageDetail({ packageData, categories, relatedPackages
         <div className="min-h-screen bg-white flex items-center justify-center">
           <div className="text-center">
             <h2 className="text-2xl font-semibold text-gray-900">Package not found</h2>
-            <a href="/" className="text-blue-600 hover:text-blue-700 mt-4 inline-block">
+            <Link href="/" className="text-blue-600 hover:text-blue-700 mt-4 inline-block" >
               Return to home
-            </a>
+            </Link>
           </div>
         </div>
       </>
@@ -151,13 +152,13 @@ export default function PackageDetail({ packageData, categories, relatedPackages
         <div className="border-b border-gray-200 bg-white">
           <div className="max-w-7xl mx-auto px-6 py-4">
             <div className="flex items-center gap-2 text-sm text-gray-600">
-              <a href="/" className="hover:text-gray-900">Home</a>
+              <Link href="/" className="hover:text-gray-900">Home</Link>
               <ChevronRight size={14} />
               {category && (
                 <>
-                  <a href={`/category/${category.slug}`} className="hover:text-gray-900">
+                  <Link href={`/category/${category.slug}`} className="hover:text-gray-900">
                     {category.name}
-                  </a>
+                  </Link>
                   <ChevronRight size={14} />
                 </>
               )}

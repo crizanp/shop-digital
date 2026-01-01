@@ -4,6 +4,7 @@ import Head from 'next/head';
 import Navbar from '@/components/Navbar';
 import { Star, ChevronRight } from 'lucide-react';
 import { useCurrency } from '@/contexts/CurrencyContext';
+import Link from 'next/link';
 
 export default function CategoryPage({ initialPackages, category, categories, initialPagination }) {
   const router = useRouter();
@@ -113,13 +114,14 @@ export default function CategoryPage({ initialPackages, category, categories, in
               <div className="mb-8">
                 <h3 className="text-base font-semibold text-gray-900 mb-4">Categories</h3>
 
-                <a
+                <Link
                   href="/"
                   className="flex items-center gap-2 text-sm text-gray-700 mb-3 hover:text-gray-900"
+                  
                 >
                   <ChevronRight size={16} className="rotate-180" />
                   <span>All</span>
-                </a>
+                </Link>
 
                 <div className="space-y-0">
                   <div className="text-sm font-medium text-gray-900 py-2">

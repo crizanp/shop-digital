@@ -4,6 +4,7 @@ import Head from 'next/head';
 import Navbar from '@/components/Navbar';
 import { Star, ChevronRight } from 'lucide-react';
 import { useCurrency } from '@/contexts/CurrencyContext';
+import Link from 'next/link';
 
 export default function SubcategoryPage({ initialPackages, category, subcategory, categories, initialPagination }) {
   const router = useRouter();
@@ -102,9 +103,9 @@ const convertPrice = (priceString) => {
           <div className="max-w-7xl mx-auto px-6 py-8">
             {/* Breadcrumb */}
             <div className="flex items-center gap-2 text-sm text-gray-600 mb-4">
-              <a href="/" className="hover:text-gray-900">Home</a>
+              <Link href="/" className="hover:text-gray-900">Home</Link>
               <ChevronRight size={16} />
-              <a href={`/category/${category?.slug}`} className="hover:text-gray-900">{category?.name}</a>
+              <Link href={`/category/${category?.slug}`} className="hover:text-gray-900">{category?.name}</Link>
               <ChevronRight size={16} />
               <span className="text-gray-900">{subcategory?.name}</span>
             </div>
@@ -121,22 +122,22 @@ const convertPrice = (priceString) => {
               <div className="mb-8">
                 <h3 className="text-base font-semibold text-gray-900 mb-4">Categories</h3>
                 
-                <a
+                <Link
                   href="/"
                   className="flex items-center gap-2 text-sm text-gray-700 mb-3 hover:text-gray-900"
                 >
                   <ChevronRight size={16} className="rotate-180" />
                   <span>All</span>
-                </a>
+                </Link>
 
                 <div className="space-y-0">
-                  <a
+                  <Link
                     href={`/category/${category?.slug}`}
                     className="flex items-center gap-2 text-sm text-gray-700 py-2 hover:text-gray-900"
                   >
                     <ChevronRight size={16} className="rotate-180" />
                     <span>{category?.name}</span>
-                  </a>
+                  </Link>
                   
                   {category?.subcategories?.length > 0 && (
                     <div className="ml-6 space-y-0">
