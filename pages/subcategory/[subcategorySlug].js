@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Navbar from '@/components/Navbar';
 import { Star, ChevronRight } from 'lucide-react';
+import { useCurrency } from '@/contexts/CurrencyContext';
 
 export default function SubcategoryPage({ initialPackages, category, subcategory, categories, initialPagination }) {
   const router = useRouter();
@@ -14,7 +15,12 @@ export default function SubcategoryPage({ initialPackages, category, subcategory
   const [pagination, setPagination] = useState(initialPagination);
   const [loading, setLoading] = useState(false);
   const [selectedTags, setSelectedTags] = useState(['all']);
-
+const { currencyInfo, exchangeRates } = useCurrency();
+const convertPrice = (priceString) => {
+  const numericPrice = parseFloat(priceString.replace(/[^0-9.]/g, ''));
+  const convertedPrice = numericPrice * exchangeRates[currencyInfo.currency];
+  return `${currencyInfo.symbol}${convertedPrice.toFixed(2)}`;
+};
   useEffect(() => {
     if (sortBy !== 'default') {
       sortPackages(sortBy);
@@ -237,7 +243,8 @@ export default function SubcategoryPage({ initialPackages, category, subcategory
                               </span>
                             </div>
                             <span className="text-sm font-medium text-gray-900">
-                              {pkg.price}
+                                {convertPrice(pkg.price)}
+
                             </span>
                           </div>
                         </div>

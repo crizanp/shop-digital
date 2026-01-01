@@ -3,18 +3,24 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Navbar from '@/components/Navbar';
 import { Star, ChevronRight } from 'lucide-react';
+import { useCurrency } from '@/contexts/CurrencyContext';
 
 export default function CategoryPage({ initialPackages, category, categories, initialPagination }) {
   const router = useRouter();
   const { categorySlug } = router.query;
-  
+
   const [packages, setPackages] = useState(initialPackages);
   const [sortBy, setSortBy] = useState('default');
   const [currentPage, setCurrentPage] = useState(1);
   const [pagination, setPagination] = useState(initialPagination);
   const [loading, setLoading] = useState(false);
   const [selectedTags, setSelectedTags] = useState(['all']);
-
+  const { currencyInfo, exchangeRates } = useCurrency();
+  const convertPrice = (priceString) => {
+    const numericPrice = parseFloat(priceString.replace(/[^0-9.]/g, ''));
+    const convertedPrice = numericPrice * exchangeRates[currencyInfo.currency];
+    return `${currencyInfo.symbol}${convertedPrice.toFixed(2)}`;
+  };
   useEffect(() => {
     if (sortBy !== 'default') {
       sortPackages(sortBy);
@@ -106,7 +112,7 @@ export default function CategoryPage({ initialPackages, category, categories, in
               {/* Categories */}
               <div className="mb-8">
                 <h3 className="text-base font-semibold text-gray-900 mb-4">Categories</h3>
-                
+
                 <a
                   href="/"
                   className="flex items-center gap-2 text-sm text-gray-700 mb-3 hover:text-gray-900"
@@ -119,7 +125,7 @@ export default function CategoryPage({ initialPackages, category, categories, in
                   <div className="text-sm font-medium text-gray-900 py-2">
                     {category?.name}
                   </div>
-                  
+
                   {category?.subcategories?.length > 0 && (
                     <div className="ml-6 space-y-0">
                       {category.subcategories.map((sub, idx) => (
@@ -140,7 +146,7 @@ export default function CategoryPage({ initialPackages, category, categories, in
               {/* Sort by */}
               <div className="mb-8">
                 <h3 className="text-base font-semibold text-gray-900 mb-4">Sort by</h3>
-                <select 
+                <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
                   className="w-full px-3 py-2 text-sm border border-gray-300 rounded text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-gray-400"
@@ -198,8 +204,8 @@ export default function CategoryPage({ initialPackages, category, categories, in
                       >
                         {/* Image */}
                         <div className="relative aspect-[4/3] bg-gray-100 rounded-lg overflow-hidden mb-3">
-                          <img 
-                            src={pkg.image || pkg.images?.[0] || 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400'} 
+                          <img
+                            src={pkg.image || pkg.images?.[0] || 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400'}
                             alt={pkg.name || pkg.title}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                           />
@@ -226,7 +232,7 @@ export default function CategoryPage({ initialPackages, category, categories, in
                               </span>
                             </div>
                             <span className="text-sm font-medium text-gray-900">
-                              {pkg.price}
+                              {convertPrice(pkg.price)}
                             </span>
                           </div>
                         </div>
@@ -240,11 +246,10 @@ export default function CategoryPage({ initialPackages, category, categories, in
                       <button
                         onClick={() => loadPage(currentPage - 1)}
                         disabled={!pagination.hasPrevPage}
-                        className={`px-6 py-2 rounded text-sm font-medium ${
-                          pagination.hasPrevPage
+                        className={`px-6 py-2 rounded text-sm font-medium ${pagination.hasPrevPage
                             ? 'bg-gray-900 text-white hover:bg-gray-800'
                             : 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                        }`}
+                          }`}
                       >
                         Previous
                       </button>
@@ -254,11 +259,10 @@ export default function CategoryPage({ initialPackages, category, categories, in
                       <button
                         onClick={() => loadPage(currentPage + 1)}
                         disabled={!pagination.hasNextPage}
-                        className={`px-6 py-2 rounded text-sm font-medium ${
-                          pagination.hasNextPage
+                        className={`px-6 py-2 rounded text-sm font-medium ${pagination.hasNextPage
                             ? 'bg-gray-900 text-white hover:bg-gray-800'
                             : 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                        }`}
+                          }`}
                       >
                         Next
                       </button>
@@ -294,7 +298,7 @@ export async function getServerSideProps(context) {
 
     // Find category by slug
     const category = categories.find(cat => cat.slug === categorySlug);
-    
+
     if (!category) {
       return { notFound: true };
     }

@@ -2,12 +2,23 @@ import React, { useState } from 'react';
 import { Search, Menu, X, ChevronDown, ChevronRight, Star, Clock, TrendingUp, Package } from 'lucide-react';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
+import { useCurrency } from '../contexts/CurrencyContext';
 
 const ModernMarketplace = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const { currencyInfo, exchangeRates } = useCurrency();
+  const convertPrice = (priceString) => {
+    // Extract numeric value from price string (e.g., "$149.00" -> 149)
+    const numericPrice = parseFloat(priceString.replace(/[^0-9.]/g, ''));
 
+    // Assume prices are stored in USD, convert to selected currency
+    const convertedPrice = numericPrice * exchangeRates[currencyInfo.currency];
+
+    // Format with currency symbol
+    return `${currencyInfo.symbol}${convertedPrice.toFixed(2)}`;
+  };
   const categories = [
     {
       id: 1,
@@ -164,7 +175,7 @@ const ModernMarketplace = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Modern Navbar */}
-            <Navbar  />
+      <Navbar />
 
       {/* Featured Products */}
       <section className="max-w-7xl mx-auto px-4 py-12">
@@ -203,7 +214,9 @@ const ModernMarketplace = () => {
                     </div>
                     <span className="text-xs text-gray-500">({pkg.reviews})</span>
                   </div>
-                  <div className="text-xl font-bold text-gray-900">{pkg.price}</div>
+                  <div className="text-xl font-bold text-gray-900">
+                    {convertPrice(pkg.price)}
+                  </div>
                 </div>
               </div>
             </div>

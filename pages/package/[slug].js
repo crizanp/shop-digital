@@ -5,6 +5,7 @@ import { Star, ChevronRight } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import connectDB from '@/lib/mongodb';
 import { Package, Category } from '@/lib/models';
+import { useCurrency } from '@/contexts/CurrencyContext';
 
 const slugify = (s = '') =>
   s
@@ -17,7 +18,12 @@ export default function PackageDetail({ packageData, categories, relatedPackages
   const [activeTab, setActiveTab] = useState('description');
   const [quantity, setQuantity] = useState(1);
   const [selectedOptions, setSelectedOptions] = useState({});
-
+  const { currencyInfo, exchangeRates } = useCurrency();
+  const convertPrice = (priceString) => {
+    const numericPrice = parseFloat(priceString.replace(/[^0-9.]/g, ''));
+    const convertedPrice = numericPrice * exchangeRates[currencyInfo.currency];
+    return `${currencyInfo.symbol}${convertedPrice.toFixed(2)}`;
+  };
   // Helper function to extract numeric price value
   const extractPriceValue = (priceString) => {
     if (!priceString) return 0;
@@ -167,8 +173,8 @@ export default function PackageDetail({ packageData, categories, relatedPackages
             <div className="lg:col-span-2">
               {/* Product Image */}
               <div className="bg-gray-100 rounded-lg overflow-hidden mb-6">
-                <img 
-                  src={packageData.image || '/api/placeholder/800/500'} 
+                <img
+                  src={packageData.image || '/api/placeholder/800/500'}
                   alt={packageData.title}
                   className="w-full h-auto"
                 />
@@ -191,22 +197,20 @@ export default function PackageDetail({ packageData, categories, relatedPackages
                 <div className="flex gap-8">
                   <button
                     onClick={() => setActiveTab('description')}
-                    className={`pb-4 px-1 font-medium transition-colors ${
-                      activeTab === 'description'
+                    className={`pb-4 px-1 cursor-pointer font-medium transition-colors ${activeTab === 'description'
                         ? 'text-gray-900 border-b-2 border-gray-900'
                         : 'text-gray-600 hover:text-gray-900'
-                    }`}
+                      }`}
                   >
                     Description
                   </button>
                   {packageData.faqs?.length > 0 && (
                     <button
                       onClick={() => setActiveTab('faq')}
-                      className={`pb-4 px-1 font-medium transition-colors ${
-                        activeTab === 'faq'
+                      className={`pb-4 px-1 cursor-pointer font-medium transition-colors ${activeTab === 'faq'
                           ? 'text-gray-900 border-b-2 border-gray-900'
                           : 'text-gray-600 hover:text-gray-900'
-                      }`}
+                        }`}
                     >
                       FAQ
                     </button>
@@ -217,13 +221,15 @@ export default function PackageDetail({ packageData, categories, relatedPackages
               {/* Tab Content */}
               <div>
                 {activeTab === 'description' && (
-                  <div className="prose prose-gray max-w-none text-gray-900">
-                    <div dangerouslySetInnerHTML={{
-                      __html: packageData.longDescription || packageData.description || '<p>No description available.</p>'
-                    }} />
+                  <div className="prose prose-gray max-w-none">
+                    <div
+                      className="text-gray-900 space-y-4"
+                      dangerouslySetInnerHTML={{
+                        __html: packageData.longDescription || packageData.description || '<p>No description available.</p>'
+                      }}
+                    />
                   </div>
                 )}
-
                 {activeTab === 'faq' && (
                   <div className="space-y-6">
                     {packageData.faqs?.map((faq, index) => (
@@ -248,7 +254,7 @@ export default function PackageDetail({ packageData, categories, relatedPackages
                 <h1 className="text-2xl font-semibold text-gray-900 mb-2">
                   {packageData.title}
                 </h1>
-                
+
                 {packageData.subtitle && (
                   <p className="text-gray-600 mb-4">{packageData.subtitle}</p>
                 )}
@@ -269,7 +275,7 @@ export default function PackageDetail({ packageData, categories, relatedPackages
                 {/* Price */}
                 <div className="mb-6">
                   <div className="text-3xl font-bold text-gray-900">
-                    {packageData.price}
+                    {convertPrice(packageData.price)}
                   </div>
                 </div>
 
@@ -290,11 +296,10 @@ export default function PackageDetail({ packageData, categories, relatedPackages
                             return (
                               <label
                                 key={optionIndex}
-                                className={`flex items-center justify-between p-3 border rounded-lg cursor-pointer transition-colors ${
-                                  isSelected
+                                className={`flex items-center justify-between p-3 border rounded-lg cursor-pointer transition-colors ${isSelected
                                     ? 'border-gray-900 bg-gray-50'
                                     : 'border-gray-200 hover:border-gray-300'
-                                }`}
+                                  }`}
                               >
                                 <div className="flex items-center gap-3">
                                   <input
@@ -306,7 +311,7 @@ export default function PackageDetail({ packageData, categories, relatedPackages
                                   <span className="text-sm text-gray-900">{option.name}</span>
                                 </div>
                                 <span className="text-sm font-medium text-gray-900">
-                                  {option.price}
+                                  {convertPrice(option.price)}
                                 </span>
                               </label>
                             );
@@ -349,13 +354,13 @@ export default function PackageDetail({ packageData, categories, relatedPackages
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-gray-900">Total Price</span>
                     <span className="text-2xl font-bold text-gray-900">
-                      {calculateTotal()}
+                      {convertPrice(calculateTotal())}
                     </span>
                   </div>
                 </div>
 
                 {/* CTA Button */}
-                <button 
+                <button
                   onClick={handleQuotationRequest}
                   className="w-full bg-gray-900 hover:bg-gray-800 text-white py-3 px-6 rounded-lg font-medium transition-colors mb-4"
                 >
@@ -396,8 +401,8 @@ export default function PackageDetail({ packageData, categories, relatedPackages
                     className="group"
                   >
                     <div className="relative aspect-[4/3] bg-gray-100 rounded-lg overflow-hidden mb-3">
-                      <img 
-                        src={pkg.image || '/api/placeholder/400/300'} 
+                      <img
+                        src={pkg.image || '/api/placeholder/400/300'}
                         alt={pkg.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
@@ -452,8 +457,8 @@ export async function getServerSideProps(context) {
 
     // Get related packages from same category
     const relatedPackages = pkgs
-      .filter(p => 
-        p._id !== found._id && 
+      .filter(p =>
+        p._id !== found._id &&
         p.categoryId === found.categoryId
       )
       .slice(0, 4);
