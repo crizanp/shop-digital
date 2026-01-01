@@ -34,48 +34,48 @@ const Navbar = ({ activeCategory, activeSubcategory }) => {
             name: 'Web Development',
             slug: 'website-development',
             hasSubcategories: true,
-            subcategories: [
-                { _id: 'sub-2-1', name: 'E-commerce Websites', slug: 'ecommerce-website' },
-                { _id: 'sub-2-2', name: 'Business Websites', slug: 'business-website' },
-                { _id: 'sub-2-3', name: 'WordPress Websites', slug: 'wordpress-development' },
-            ]
+            // subcategories: [
+            //     { _id: 'sub-2-1', name: 'E-commerce Websites', slug: 'ecommerce-website' },
+            //     { _id: 'sub-2-2', name: 'Business Websites', slug: 'business-website' },
+            //     { _id: 'sub-2-3', name: 'WordPress Websites', slug: 'wordpress-development' },
+            // ]
         },
         {
             _id: 'cat-3',
             name: 'Graphic Design',
             slug: 'graphic-design',
             hasSubcategories: true,
-            subcategories: [
-                { _id: 'sub-3-1', name: 'Logo Design', slug: 'logo-design' },
-                { _id: 'sub-3-2', name: 'Social Media Graphics', slug: 'social-media-graphics' },
-                { _id: 'sub-3-3', name: 'Print Design', slug: 'print-design' },
-                { _id: 'sub-3-4', name: 'Brand Identity', slug: 'brand-identity' }
-            ]
+            // subcategories: [
+            //     { _id: 'sub-3-1', name: 'Logo Design', slug: 'logo-design' },
+            //     { _id: 'sub-3-2', name: 'Social Media Graphics', slug: 'social-media-graphics' },
+            //     { _id: 'sub-3-3', name: 'Print Design', slug: 'print-design' },
+            //     { _id: 'sub-3-4', name: 'Brand Identity', slug: 'brand-identity' }
+            // ]
         },
         {
             _id: 'cat-4',
             name: 'WordPress Plugins',
             slug: 'wordpress-plugins',
             hasSubcategories: true,
-            subcategories: [
-                { _id: 'sub-4-1', name: 'Payment Gateway', slug: 'payment-gateway' },
-                { _id: 'sub-4-2', name: 'E-commerce', slug: 'ecommerce' },
-                { _id: 'sub-4-3', name: 'SEO Tools', slug: 'seo-tools' },
-                { _id: 'sub-4-4', name: 'Security', slug: 'security' },
-                { _id: 'sub-4-5', name: 'Performance', slug: 'performance' }
-            ]
+            // subcategories: [
+            //     { _id: 'sub-4-1', name: 'Payment Gateway', slug: 'payment-gateway' },
+            //     { _id: 'sub-4-2', name: 'E-commerce', slug: 'ecommerce' },
+            //     { _id: 'sub-4-3', name: 'SEO Tools', slug: 'seo-tools' },
+            //     { _id: 'sub-4-4', name: 'Security', slug: 'security' },
+            //     { _id: 'sub-4-5', name: 'Performance', slug: 'performance' }
+            // ]
         },
         {
             _id: 'cat-5',
             name: 'Digital Marketing',
             slug: 'digital-marketing',
             hasSubcategories: true,
-            subcategories: [
-                { _id: 'sub-5-1', name: 'SEO Services', slug: 'seo-services' },
-                { _id: 'sub-5-2', name: 'Social Media Management', slug: 'social-media-management' },
-                { _id: 'sub-5-3', name: 'PPC Advertising', slug: 'ppc-advertising' },
-                { _id: 'sub-5-4', name: 'Content Marketing', slug: 'content-marketing' }
-            ]
+            // subcategories: [
+            //     { _id: 'sub-5-1', name: 'SEO Services', slug: 'seo-services' },
+            //     { _id: 'sub-5-2', name: 'Social Media Management', slug: 'social-media-management' },
+            //     { _id: 'sub-5-3', name: 'PPC Advertising', slug: 'ppc-advertising' },
+            //     { _id: 'sub-5-4', name: 'Content Marketing', slug: 'content-marketing' }
+            // ]
         },
         {
             _id: 'cat-6',
@@ -83,11 +83,11 @@ const Navbar = ({ activeCategory, activeSubcategory }) => {
             slug: 'more',
             hasSubcategories: true,
             isCustomLinks: true, // Flag to indicate custom links
-            subcategories: [
-                { _id: 'sub-6-1', name: 'Photography', slug: '/photography', isCustom: true },
-                { _id: 'sub-6-2', name: 'Animation', slug: '/animation', isCustom: true },
-                { _id: 'sub-6-3', name: 'Music & Audio', slug: '/music-audio', isCustom: true }
-            ]
+            // subcategories: [
+            //     { _id: 'sub-6-1', name: 'Photography', slug: '/photography', isCustom: true },
+            //     { _id: 'sub-6-2', name: 'Animation', slug: '/animation', isCustom: true },
+            //     { _id: 'sub-6-3', name: 'Music & Audio', slug: '/music-audio', isCustom: true }
+            // ]
         }
     ];
 
