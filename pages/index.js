@@ -10,9 +10,23 @@ const ModernMarketplace = ({ initialFeaturedPackages = [] }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [featuredPackages, setFeaturedPackages] = useState(initialFeaturedPackages);
   const { currencyInfo, exchangeRates } = useCurrency();
+
+  const getPackageLink = (pkg) => {
+    // Check multiple possible category field variations
+    const category = pkg.category || pkg.categorySlug || pkg.categoryName || '';
+    const categoryLower = category.toLowerCase();
+    
+    // Check if it's a WordPress plugin
+    if (categoryLower.includes('wordpress') && categoryLower.includes('plugin')) {
+      return `/plugins/${pkg.slug}`;
+    }
+    
+    return `/package/${pkg.slug}`;
+  };
+
   const convertPrice = (price) => {
     // Handle both numeric and string prices
-    const numericPrice = typeof price === 'string' 
+    const numericPrice = typeof price === 'string'
       ? parseFloat(price.replace(/[^0-9.]/g, ''))
       : parseFloat(price);
 
@@ -22,6 +36,7 @@ const ModernMarketplace = ({ initialFeaturedPackages = [] }) => {
     // Format with currency symbol
     return `${currencyInfo.symbol}${convertedPrice.toFixed(2)}`;
   };
+
   const categories = [
     {
       id: 1,
@@ -137,39 +152,54 @@ const ModernMarketplace = ({ initialFeaturedPackages = [] }) => {
       <section className="max-w-7xl mx-auto px-4 py-12">
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-2xl text-black">Featured Products</h2>
-
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {featuredPackages.map((pkg) => (
-            <Link key={pkg._id || pkg.id} href={`/package/${pkg.slug}`}>
+            <Link 
+              key={pkg._id || pkg.id} 
+              href={getPackageLink(pkg)} 
+              className="h-full"
+            >
               <div
-                className="cursor-pointer group bg-white rounded-2xl overflow-hidden shadow-sm  transition-all duration-300 border border-gray-100"
+                className="h-full cursor-pointer group bg-white overflow-hidden shadow-sm 
+                   transition-all duration-300 border p-2 border-gray-500
+                   flex flex-col"
               >
-                <div className="relative overflow-hidden aspect-[4/3] cursor-pointer group-hover:scale-105 transition-transform duration-500">
+                {/* Image Section */}
+                <div className="relative overflow-hidden h-48 w-full">
                   <img
                     src={pkg.image}
                     alt={pkg.title}
-                    className="w-full h-full object-cover transition-transform duration-500"
+                    className="w-full h-full object-cover 
+                       transition-transform duration-500 
+                       group-hover:scale-105"
                   />
-
                 </div>
-                <div className="p-6 ">
-                  <h3 className="text-lg text-center text-gray-900 mb-2 group-hover:underline transition-colors">
+
+                {/* Content Section */}
+                <div className="p-6 flex flex-col flex-1 justify-between">
+                  <h3 className="text-lg text-center text-gray-900 mb-4 group-hover:underline">
                     {pkg.title}
                   </h3>
-                  <div className="flex items-center justify-between">
+
+                  <div className="flex items-center justify-between mt-auto">
                     <div className="flex items-center gap-2">
                       {pkg.reviews ? (
                         <>
                           <div className="flex items-center">
                             <Star size={16} className="text-yellow-400 fill-yellow-400" />
-                            <span className="text-sm font-semibold text-gray-900 ml-1">{pkg.rating || 5}</span>
+                            <span className="text-sm font-semibold text-gray-900 ml-1">
+                              {pkg.rating || 5}
+                            </span>
                           </div>
-                          <span className="text-xs text-gray-500">({pkg.reviews})</span>
+                          <span className="text-xs text-gray-500">
+                            ({pkg.reviews})
+                          </span>
                         </>
                       ) : null}
                     </div>
+
                     <div className="text-xl font-bold text-gray-900">
                       {convertPrice(pkg.price)}
                     </div>
@@ -182,23 +212,24 @@ const ModernMarketplace = ({ initialFeaturedPackages = [] }) => {
       </section>
 
       {/* Explore Categories */}
-      <section className="max-w-7xl mx-auto  px-4 py-12">
+      <section className="max-w-7xl mx-auto px-4 py-12">
         <h2 className="text-2xl px-2 text-gray-900 mb-8">Explore categories</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {categories.map((category) => (
-            <Link href={`/category/${category.slug}`} key={category.id}>
+            <Link 
+              href={category.slug === 'wordpress-plugins' ? `/plugins` : `/category/${category.slug}`} 
+              key={category.id}
+            >
               <div
-                key={category.id}
-                href={`/category/${category.slug}`}
-                className={`${category.bgColor}  rounded-2xl p-8 transition-all duration-300 cursor-pointer group border border-gray-100`}
+                className={`${category.bgColor} rounded-2xl p-8 transition-all duration-300 cursor-pointer group border border-gray-100`}
               >
-                <div className="flex items-center justify-center gap-2 mb-4 group-hover:text-gray-700 ">
+                <div className="flex items-center justify-center gap-2 mb-4 group-hover:text-gray-700">
                   <div className="text-xl text-black group-hover:underline">
                     {category.name}
                   </div>
                   <ChevronRight
-                    className="text-gray-400 "
+                    className="text-gray-400"
                     size={24}
                   />
                 </div>
@@ -211,8 +242,6 @@ const ModernMarketplace = ({ initialFeaturedPackages = [] }) => {
           ))}
         </div>
       </section>
-
-
 
       {/* Footer */}
       <footer className="bg-black text-gray-300 py-12 px-4">
@@ -266,7 +295,7 @@ export async function getServerSideProps() {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
     const response = await fetch(`${baseUrl}/api/packages?featured=true&limit=4`);
-    
+
     if (!response.ok) {
       throw new Error('Failed to fetch featured packages');
     }
