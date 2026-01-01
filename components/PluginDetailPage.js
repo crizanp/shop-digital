@@ -238,13 +238,13 @@ const PluginDetailPage = ({
   const secondaryText = lightTheme ? 'text-gray-700' : 'text-gray-400';
   const mutedText = lightTheme ? 'text-gray-600' : 'text-gray-400';
   const cardBgClass = lightTheme ? 'bg-white border border-gray-200 shadow-sm' : 'bg-gray-900 border border-gray-800';
-  const badgeBgClass = lightTheme ? 'bg-violet-100 text-violet-700' : 'bg-black/70 text-white';
-  const priceBadge = lightTheme ? 'bg-violet-600 text-white' : 'bg-green-900/80 text-white';
-  const featureIconBg = lightTheme ? 'bg-violet-50 text-violet-600' : 'bg-green-900/40';
-  const buttonClass = lightTheme ? 'bg-violet-600 hover:bg-violet-500 text-white' : 'bg-green-700 hover:bg-green-600 text-white';
-  const downloadButtonClass = lightTheme ? 'bg-purple-600 hover:bg-purple-500 text-white' : 'bg-green-700 hover:bg-green-600 text-white';
-  const tabActive = lightTheme ? 'text-violet-600 border-b-2 border-violet-600 bg-violet-50' : 'text-green-400 border-b-2 border-green-400 bg-green-900/20';
-  const tabInactive = lightTheme ? 'text-gray-600 hover:text-violet-500 hover:bg-gray-50' : 'text-gray-400 hover:text-green-300 hover:bg-gray-800';
+  const badgeBgClass = lightTheme ? 'bg-gray-100 text-gray-700' : 'bg-black/70 text-white';
+  const priceBadge = lightTheme ? 'bg-gray-600 text-white' : 'bg-green-900/80 text-white';
+  const featureIconBg = lightTheme ? 'bg-gray-50 text-gray-600' : 'bg-green-900/40';
+  const buttonClass = lightTheme ? 'bg-gray-600 hover:bg-gray-500 text-white' : 'bg-green-700 hover:bg-green-600 text-white';
+  const downloadButtonClass = lightTheme ? 'bg-gray-600 hover:bg-gray-500 text-white' : 'bg-green-700 hover:bg-green-600 text-white';
+  const tabActive = lightTheme ? 'text-gray-600 border-b-2 border-gray-600 bg-gray-50' : 'text-green-400 border-b-2 border-green-400 bg-green-900/20';
+  const tabInactive = lightTheme ? 'text-gray-600 hover:text-gray-500 hover:bg-gray-50' : 'text-gray-400 hover:text-green-300 hover:bg-gray-800';
 
   return (
     <div className={`plugin-detail ${outerBg} min-h-screen`}>
@@ -335,7 +335,7 @@ const PluginDetailPage = ({
                 <div className="max-w-3xl">
                   <div className="flex items-center gap-2 mb-3">
                     {pluginData.featured && (
-                      <span className="inline-flex bg-gradient-to-r from-violet-500 to-pink-500 text-white px-3 py-1 rounded-full text-sm font-medium items-center">
+                      <span className="inline-flex bg-gradient-to-r from-gray-500 to-pink-500 text-white px-3 py-1 rounded-full text-sm font-medium items-center">
                         <Star size={14} className="mr-1 fill-current" />
                         Featured
                       </span>
@@ -346,7 +346,7 @@ const PluginDetailPage = ({
                       </span>
                     )}
                     {pluginData.isPremium && (
-                      <span className="inline-flex bg-gradient-to-r from-purple-500 to-violet-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                      <span className="inline-flex bg-gradient-to-r from-gray-500 to-gray-500 text-white px-3 py-1 rounded-full text-sm font-medium">
                         Premium
                       </span>
                     )}
@@ -504,7 +504,7 @@ const PluginDetailPage = ({
               <div className="max-w-3xl">
                 <div className="flex items-center gap-2 mb-3">
                   {pluginData.featured && (
-                    <span className="inline-flex bg-gradient-to-r from-violet-500 to-pink-500 text-white px-3 py-1 rounded-full text-sm font-medium items-center">
+                    <span className="inline-flex bg-gradient-to-r from-gray-500 to-pink-500 text-white px-3 py-1 rounded-full text-sm font-medium items-center">
                       <Star size={14} className="mr-1 fill-current" />
                       Featured
                     </span>
@@ -515,7 +515,7 @@ const PluginDetailPage = ({
                     </span>
                   )}
                   {pluginData.isPremium && (
-                    <span className="inline-flex bg-gradient-to-r from-purple-500 to-violet-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                    <span className="inline-flex bg-gradient-to-r from-gray-500 to-gray-500 text-white px-3 py-1 rounded-full text-sm font-medium">
                       Premium
                     </span>
                   )}
@@ -551,7 +551,7 @@ const PluginDetailPage = ({
                   {pluginData.features.map((feature, index) => (
                     <li key={index} className="flex items-start">
                       <div className={`${featureIconBg} p-1 rounded-full mt-0.5 mr-3 shrink-0`}>
-                        <CheckCircle className={`w-4 h-4 ${lightTheme ? 'text-violet-600' : 'text-green-400'}`} />
+                        <CheckCircle className={`w-4 h-4 ${lightTheme ? 'text-gray-600' : 'text-green-400'}`} />
                       </div>
                       <span className={`${secondaryText} text-base`}>{feature}</span>
                     </li>
@@ -616,7 +616,7 @@ const PluginDetailPage = ({
                       href={pluginData.authorUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={`inline-flex items-center ${lightTheme ? 'text-violet-600 hover:text-violet-500' : 'text-green-400 hover:text-green-300'} transition-colors`}
+                      className={`inline-flex items-center ${lightTheme ? 'text-gray-600 hover:text-gray-500' : 'text-green-400 hover:text-green-300'} transition-colors`}
                     >
                       <Globe className="w-4 h-4 mr-1" />
                       Author Website
