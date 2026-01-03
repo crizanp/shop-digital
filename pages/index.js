@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { Search, Menu, X, ChevronDown, ChevronRight, Star, Clock, TrendingUp, Package } from 'lucide-react';
 import Link from 'next/link';
+import Head from 'next/head';
 import Navbar from '@/components/Navbar';
+import SEOHead from '@/components/SEOHead';
 import { useCurrency } from '../contexts/CurrencyContext';
 
 const ModernMarketplace = ({ initialFeaturedPackages = [] }) => {
@@ -143,15 +145,136 @@ const ModernMarketplace = ({ initialFeaturedPackages = [] }) => {
     }
   ];
 
+  // Structured data for homepage
+  const homePageSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Foxbeep Digital Services Marketplace",
+    "url": "https://shop.foxbeep.com",
+    "description": "Buy and sell digital services - website development, graphic design, WordPress plugins, digital marketing, and more",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": "https://shop.foxbeep.com/search?q={search_term_string}"
+      },
+      "query-input": "required name=search_term_string"
+    },
+    "image": "https://shop.foxbeep.com/images/logo_black.png",
+    "author": {
+      "@type": "Organization",
+      "name": "Foxbeep Digital Solutions",
+      "logo": "https://shop.foxbeep.com/images/logo_black.png",
+      "url": "https://shop.foxbeep.com",
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "Customer Service",
+        "email": "admin@foxbeep.com",
+        "availableLanguage": ["en", "ne"]
+      },
+      "sameAs": [
+        "https://facebook.com/foxbeeptech",
+        "https://twitter.com/foxbeeptech",
+        "https://linkedin.com/company/foxbeeptech",
+        "https://instagram.com/foxbeeptech"
+      ]
+    },
+    "aggregateOffer": {
+      "@type": "AggregateOffer",
+      "priceCurrency": "USD",
+      "availability": "https://schema.org/InStock",
+      "offerCount": 1000
+    }
+  };
+
+  // BreadcrumbList schema
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://shop.foxbeep.com"
+      }
+    ]
+  };
+
+  // FAQSchema for common questions
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What services does Foxbeep offer?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Foxbeep offers a wide range of digital services including web development, graphic design, WordPress plugins, digital marketing, video editing, content writing, mobile app development, and AI automation solutions."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I purchase services from Foxbeep?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Browse our marketplace, select the service you need, add it to your cart, and proceed to checkout. You can pay using various payment methods."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What payment methods do you accept?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "We accept credit cards, debit cards, bank transfers, and various digital payment methods."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Do you offer refunds?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes, we offer refunds within 30 days of purchase if you are not satisfied with the service. Please contact our customer support for more details."
+        }
+      }
+    ]
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Modern Navbar */}
-      <Navbar />
+    <>
+      <SEOHead
+        title="Digital Services Marketplace | Website Development, Digital Marketing, Media and commercial - Foxbeep"
+        description="Foxbeep is a leading digital marketplace offering web development, graphic design, WordPress plugins, digital marketing, video editing, and custom app development services. Browse 1000+ quality services from professional providers."
+        keywords="web design, graphic design, WordPress plugins, digital marketing, web development, video editing, content writing, mobile app development, digital services, freelance services, SEO services, social media management, AI automation, branding services, e-commerce solutions"
+        canonical="https://shop.foxbeep.com"
+        ogTitle="Foxbeep Digital Services Marketplace - Professional Solutions"
+        ogDescription="Discover and purchase premium digital services including web design, graphic design, WordPress plugins, and digital marketing solutions on Foxbeep marketplace."
+        ogImage="https://shop.foxbeep.com/images/logo_black.png"
+        ogType="website"
+        structuredData={[homePageSchema, breadcrumbSchema, faqSchema]}
+        additionalMeta={[
+          { name: 'viewport', content: 'width=device-width, initial-scale=1.0' },
+          { name: 'theme-color', content: '#000000' },
+          { name: 'apple-mobile-web-app-capable', content: 'yes' },
+          { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
+          { name: 'format-detection', content: 'telephone=no' },
+          { property: 'og:locale', content: 'en_US' },
+          { property: 'og:locale:alternate', content: 'ne_NP' },
+          { name: 'geo.placename', content: 'Nepal' },
+          { name: 'geo.region', content: 'NP' },
+          { name: 'ICBM', content: '27.7172,85.3240' }
+        ]}
+      />
+      
+      <div className="min-h-screen bg-gray-50">
+        {/* Modern Navbar */}
+        <Navbar />
 
       {/* Featured Products */}
-      <section className="max-w-7xl mx-auto px-4 py-12">
+      <section className="max-w-7xl mx-auto px-4 py-12" aria-label="Featured Products">
         <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl text-black">Featured Products</h2>
+          <h1 className="text-4xl text-black">Featured Digital Services</h1>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -212,8 +335,9 @@ const ModernMarketplace = ({ initialFeaturedPackages = [] }) => {
       </section>
 
       {/* Explore Categories */}
-      <section className="max-w-7xl mx-auto px-4 py-12">
-        <h2 className="text-2xl px-2 text-gray-900 mb-8">Explore categories</h2>
+      <section className="max-w-7xl mx-auto px-4 py-12" aria-label="Service Categories">
+        <h2 className="text-4xl px-2 text-gray-900 mb-4">Explore Our Digital Services</h2>
+        <p className="text-gray-600 px-2 mb-8">Choose from a wide range of professional services tailored to your needs</p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {categories.map((category) => (
@@ -244,50 +368,75 @@ const ModernMarketplace = ({ initialFeaturedPackages = [] }) => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-black text-gray-300 py-12 px-4">
+      <footer className="bg-black text-gray-300 py-12 px-4" role="contentinfo">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
-            <div>
-              <h4 className="text-white font-semibold mb-4">Categories</h4>
+            <nav>
+              <h4 className="text-white font-semibold mb-4">Popular Categories</h4>
               <ul className="space-y-2 text-sm">
-                <li><a href="#" className="hover:text-white transition-colors">Video Editing</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Web Development</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Graphic Design</a></li>
+                <li><a href="/category/video-editing" className="hover:text-white transition-colors">Video Editing</a></li>
+                <li><a href="/category/website-development" className="hover:text-white transition-colors">Web Development</a></li>
+                <li><a href="/category/graphic-design" className="hover:text-white transition-colors">Graphic Design</a></li>
+                <li><a href="/plugins" className="hover:text-white transition-colors">WordPress Plugins</a></li>
               </ul>
-            </div>
-            <div>
+            </nav>
+            <nav>
               <h4 className="text-white font-semibold mb-4">Support</h4>
               <ul className="space-y-2 text-sm">
-                <li><a href="#" className="hover:text-white transition-colors">Help Center</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Contact Us</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">FAQs</a></li>
+                <li><a href="/help" className="hover:text-white transition-colors">Help Center</a></li>
+                <li><a href="/contact" className="hover:text-white transition-colors">Contact Us</a></li>
+                <li><a href="/faq" className="hover:text-white transition-colors">FAQs</a></li>
+                <li><a href="/shipping" className="hover:text-white transition-colors">Shipping Info</a></li>
               </ul>
-            </div>
-            <div>
+            </nav>
+            <nav>
               <h4 className="text-white font-semibold mb-4">Company</h4>
               <ul className="space-y-2 text-sm">
-                <li><a href="#" className="hover:text-white transition-colors">About Us</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Careers</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Blog</a></li>
+                <li><a href="/about" className="hover:text-white transition-colors">About Us</a></li>
+                <li><a href="/careers" className="hover:text-white transition-colors">Careers</a></li>
+                <li><a href="/blog" className="hover:text-white transition-colors">Blog</a></li>
+                <li><a href="/partnership" className="hover:text-white transition-colors">Partnership</a></li>
               </ul>
-            </div>
-            <div>
+            </nav>
+            <nav>
               <h4 className="text-white font-semibold mb-4">Legal</h4>
               <ul className="space-y-2 text-sm">
-                <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Terms of Service</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Cookie Policy</a></li>
+                <li><a href="/privacy" className="hover:text-white transition-colors">Privacy Policy</a></li>
+                <li><a href="/terms" className="hover:text-white transition-colors">Terms of Service</a></li>
+                <li><a href="/cookies" className="hover:text-white transition-colors">Cookie Policy</a></li>
+                <li><a href="/disclaimer" className="hover:text-white transition-colors">Disclaimer</a></li>
               </ul>
-            </div>
+            </nav>
           </div>
-          <div className="border-t border-gray-800 pt-8 text-center text-sm">
-            <p>&copy; 2025 Foxbeep Marketplace. All rights reserved.</p>
+          <div className="border-t border-gray-800 pt-8">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
+              <div>
+                <h3 className="text-white font-semibold mb-2">Contact Information</h3>
+                <p className="text-sm">Email: <a href="mailto:admin@foxbeep.com" className="hover:text-white">admin@foxbeep.com</a></p>
+                <p className="text-sm">Website: <a href="https://foxbeep.com.np" target="_blank" rel="noopener noreferrer" className="hover:text-white">foxbeep.com.np</a></p>
+              </div>
+              <div>
+                <h3 className="text-white font-semibold mb-2">Follow Us</h3>
+                <div className="flex gap-4">
+                  <a href="https://facebook.com/foxbeep" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Facebook</a>
+                  <a href="https://twitter.com/foxbeep" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Twitter</a>
+                  <a href="https://linkedin.com/company/foxbeep" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">LinkedIn</a>
+                  <a href="https://instagram.com/foxbeep" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Instagram</a>
+                </div>
+              </div>
+            </div>
+            <div className="text-center text-sm border-t border-gray-800 pt-6">
+              <p>&copy; 2025 Foxbeep Digital Solutions. All rights reserved.</p>
+              <p className="text-xs text-gray-400 mt-2">Headquarters: Kathmandu, Nepal | Global Service Provider</p>
+            </div>
           </div>
         </div>
       </footer>
-    </div>
+      </div>
+    </>
   );
-};
+}
+
 
 export default ModernMarketplace;
 

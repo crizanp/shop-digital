@@ -13,10 +13,34 @@ Allow: /
 Allow: /plugins
 Allow: /category/
 Allow: /subcategory/
-Allow: /details/
+Allow: /package/
 
 # Sitemap location
-Sitemap: https://foxbeep.com/sitemap.xml
+Sitemap: https://shop.foxbeep.com/sitemap.xml
+Sitemap: https://shop.foxbeep.com/api/sitemap.xml
 
-# Crawl delay
+# Crawl delay (in seconds)
 Crawl-delay: 1
+
+# Request rate (requests per second)
+Request-rate: 1/10
+
+# Google specific rules
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+# Bing specific rules
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+# Block bad bots
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
