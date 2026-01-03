@@ -1,16 +1,21 @@
 "use client";
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import { ChevronDown, Menu, X, Search } from 'lucide-react';
 import LoadingLink from './LoadingLink';
 import CountrySelector from './CountrySelector';
 import { useLoading } from '../contexts/LoadingContext';
 
 const Navbar = ({ activeCategory, activeSubcategory }) => {
+    const router = useRouter();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [activeDropdown, setActiveDropdown] = useState(null);
     const [scrolled, setScrolled] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+    const [liveResults, setLiveResults] = useState([]);
+    const [showLiveResults, setShowLiveResults] = useState(false);
+    const [searchLoading, setSearchLoading] = useState(false);
 
     // Handle scroll effect
     useEffect(() => {
@@ -20,6 +25,41 @@ const Navbar = ({ activeCategory, activeSubcategory }) => {
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
+
+    // Live search
+    useEffect(() => {
+        const delayTimer = setTimeout(() => {
+            if (searchQuery.trim().length > 2) {
+                fetchLiveResults(searchQuery);
+            } else {
+                setLiveResults([]);
+                setShowLiveResults(false);
+            }
+        }, 300); // Debounce search by 300ms
+
+        return () => clearTimeout(delayTimer);
+    }, [searchQuery]);
+
+    const fetchLiveResults = async (query) => {
+        setSearchLoading(true);
+        try {
+            const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+            const data = await response.json();
+            // Show top 6 results (2 from each category)
+            const topResults = [
+                ...(data.packages || []).slice(0, 2),
+                ...(data.plugins || []).slice(0, 2),
+                ...(data.categories || []).slice(0, 2)
+            ];
+            setLiveResults(topResults);
+            setShowLiveResults(true);
+        } catch (error) {
+            console.error('Live search error:', error);
+            setLiveResults([]);
+        } finally {
+            setSearchLoading(false);
+        }
+    };
 
     const categories = [
         {
@@ -103,14 +143,35 @@ const Navbar = ({ activeCategory, activeSubcategory }) => {
 
     const handleSearch = () => {
         if (searchQuery.trim()) {
-            console.log('Searching for:', searchQuery);
+            router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
             setSearchQuery('');
+            setShowLiveResults(false);
+            setMobileSearchOpen(false);
         }
     };
 
     const handleSearchKeyPress = (e) => {
         if (e.key === 'Enter') {
             handleSearch();
+        }
+    };
+
+    const handleResultClick = (result) => {
+        let href = '';
+        if (result.type === 'package') {
+            const categoryLower = (result.category || '').toLowerCase();
+            href = categoryLower.includes('wordpress') && categoryLower.includes('plugin')
+                ? `/plugins/${result.slug}`
+                : `/package/${result.slug}`;
+        } else if (result.type === 'plugin') {
+            href = `/plugins/${result._id}`;
+        } else if (result.type === 'category') {
+            href = `/category/${result.slug}`;
+        }
+        if (href) {
+            router.push(href);
+            setSearchQuery('');
+            setShowLiveResults(false);
         }
     };
 
@@ -136,7 +197,7 @@ const Navbar = ({ activeCategory, activeSubcategory }) => {
                     </div>
 
                     {/* Search Bar - Desktop */}
-                    <div className="hidden md:flex flex-1 max-w-2xl mx-8">
+                    <div className="hidden md:flex flex-1 max-w-2xl mx-8 relative">
                         <div className="relative w-full">
                             <input
                                 type="text"
@@ -144,6 +205,7 @@ const Navbar = ({ activeCategory, activeSubcategory }) => {
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 onKeyPress={handleSearchKeyPress}
+                                onFocus={() => searchQuery.trim().length > 2 && setShowLiveResults(true)}
                                 className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-500 text-black rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:bg-white transition-all"
                             />
                             <Search
@@ -151,6 +213,56 @@ const Navbar = ({ activeCategory, activeSubcategory }) => {
                                 size={20}
                                 onClick={handleSearch}
                             />
+
+                            {/* Live Results Dropdown */}
+                            {showLiveResults && (searchLoading || liveResults.length > 0) && (
+                                <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-300 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
+                                    {searchLoading && (
+                                        <div className="p-4 text-center text-gray-500">
+                                            <div className="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900"></div>
+                                            <p className="mt-2 text-sm">Searching...</p>
+                                        </div>
+                                    )}
+                                    {!searchLoading && liveResults.length > 0 && (
+                                        <>
+                                            {liveResults.map((result, index) => (
+                                                <div
+                                                    key={`${result.type}-${result._id || result.id}`}
+                                                    onClick={() => handleResultClick(result)}
+                                                    className="px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                                                >
+                                                    <div className="flex items-start gap-3">
+                                                        <span className="text-xs font-semibold bg-gray-900 text-white px-2 py-1 rounded mt-1">
+                                                            {result.type === 'package' ? 'PACKAGE' : result.type === 'plugin' ? 'PLUGIN' : 'CATEGORY'}
+                                                        </span>
+                                                        <div className="flex-1 min-w-0">
+                                                            <p className="font-medium text-gray-900 truncate text-sm">
+                                                                {result.title || result.name}
+                                                            </p>
+                                                            <p className="text-xs text-gray-500 truncate">
+                                                                {result.description && result.description.substring(0, 60)}
+                                                            </p>
+                                                        </div>
+                                                        {result.price && (
+                                                            <span className="text-sm font-semibold text-gray-900 whitespace-nowrap">
+                                                                ${result.price}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                            <div className="px-4 py-3 bg-gray-50 border-t border-gray-200 text-center">
+                                                <button
+                                                    onClick={handleSearch}
+                                                    className="text-sm text-gray-900 font-semibold hover:text-gray-600"
+                                                >
+                                                    View all results for "{searchQuery}" →
+                                                </button>
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     </div>
 
@@ -183,7 +295,7 @@ const Navbar = ({ activeCategory, activeSubcategory }) => {
 
                 {/* Mobile Search Bar */}
                 {mobileSearchOpen && (
-                    <div className="md:hidden pb-4">
+                    <div className="md:hidden pb-4 relative">
                         <div className="relative">
                             <input
                                 type="text"
@@ -191,6 +303,7 @@ const Navbar = ({ activeCategory, activeSubcategory }) => {
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 onKeyPress={handleSearchKeyPress}
+                                onFocus={() => searchQuery.trim().length > 2 && setShowLiveResults(true)}
                                 className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:bg-white transition-all"
                                 autoFocus
                             />
@@ -199,6 +312,48 @@ const Navbar = ({ activeCategory, activeSubcategory }) => {
                                 size={18}
                                 onClick={handleSearch}
                             />
+
+                            {/* Live Results Dropdown - Mobile */}
+                            {showLiveResults && (searchLoading || liveResults.length > 0) && (
+                                <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-300 rounded-lg shadow-lg z-50 max-h-64 overflow-y-auto">
+                                    {searchLoading && (
+                                        <div className="p-4 text-center text-gray-500">
+                                            <div className="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900"></div>
+                                            <p className="mt-2 text-sm">Searching...</p>
+                                        </div>
+                                    )}
+                                    {!searchLoading && liveResults.length > 0 && (
+                                        <>
+                                            {liveResults.map((result) => (
+                                                <div
+                                                    key={`${result.type}-${result._id || result.id}`}
+                                                    onClick={() => handleResultClick(result)}
+                                                    className="px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                                                >
+                                                    <div className="flex items-start gap-2">
+                                                        <span className="text-xs font-semibold bg-gray-900 text-white px-2 py-1 rounded whitespace-nowrap">
+                                                            {result.type === 'package' ? 'PKG' : result.type === 'plugin' ? 'PLG' : 'CAT'}
+                                                        </span>
+                                                        <div className="flex-1 min-w-0">
+                                                            <p className="font-medium text-gray-900 truncate text-sm">
+                                                                {result.title || result.name}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                            <div className="px-4 py-3 bg-gray-50 border-t border-gray-200 text-center">
+                                                <button
+                                                    onClick={handleSearch}
+                                                    className="text-xs text-gray-900 font-semibold hover:text-gray-600"
+                                                >
+                                                    View all →
+                                                </button>
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     </div>
                 )}
