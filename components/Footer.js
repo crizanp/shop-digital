@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import React from 'react';
 
 const Footer = () => {
@@ -90,10 +91,10 @@ const Footer = () => {
               <div>
                 <h3 className="text-white font-semibold mb-2">Follow Us</h3>
                 <div className="flex gap-4 text-sm">
-                  <a href="https://facebook.com/foxbeeptech" target="_blank" rel="noopener noreferrer" className="hover:text-white">Facebook</a>
-                  <a href="https://twitter.com/foxbeeptech" target="_blank" rel="noopener noreferrer" className="hover:text-white">Twitter</a>
-                  <a href="https://linkedin.com/company/foxbeeptech" target="_blank" rel="noopener noreferrer" className="hover:text-white">LinkedIn</a>
-                  <a href="https://instagram.com/foxbeeptech" target="_blank" rel="noopener noreferrer" className="hover:text-white">Instagram</a>
+                  <Link href="https://facebook.com/foxbeeptech" target="_blank" rel="noopener noreferrer" className="hover:text-white">Facebook</Link>
+                  <Link href="https://twitter.com/foxbeeptech" target="_blank" rel="noopener noreferrer" className="hover:text-white">Twitter</Link>
+                  <Link href="https://linkedin.com/company/foxbeeptech" target="_blank" rel="noopener noreferrer" className="hover:text-white">LinkedIn</Link>
+                  <Link href="https://instagram.com/foxbeeptech" target="_blank" rel="noopener noreferrer" className="hover:text-white">Instagram</Link>
                 </div>
               </div>
             </div>

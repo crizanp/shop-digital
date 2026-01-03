@@ -87,7 +87,7 @@ export default function SearchResults({ initialResults = {} }) {
               <div>
                 <h1 className="text-3xl font-bold text-gray-100">Search Results</h1>
                 <p className="text-gray-100">
-                  {q && <span>Searching for: <strong>"{q}"</strong></span>}
+                  {q && <span>Searching for: <strong>&quot;{q}&quot;</strong></span>}
                 </p>
               </div>
             </div>
@@ -280,7 +280,7 @@ export default function SearchResults({ initialResults = {} }) {
                 <AlertCircle size={64} className="mx-auto text-gray-400 mb-6" />
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">No Results Found</h2>
                 <p className="text-gray-600 mb-8 max-w-lg mx-auto">
-                  We couldn't find anything matching "{q}". Try different keywords or browse our categories below.
+                  We couldn&apos;t find anything matching &apos;{q}&apos;. Try different keywords or browse our categories below.
                 </p>
 
                 {/* Suggestions */}
