@@ -6,7 +6,7 @@ const Footer = () => {
     <>
       {/* Footer */}
       <footer className="bg-black text-gray-300 py-12 px-4" role="contentinfo">
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-7xl mx-auto px-2 lg:px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
             <nav>
               <h4 className="text-white font-semibold mb-4">Popular Categories</h4>

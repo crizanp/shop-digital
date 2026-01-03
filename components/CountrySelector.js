@@ -34,7 +34,7 @@ const CountrySelector = ({ className = '' }) => {
     <div className={`relative ${className}`} ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="cursor-pointer flex items-center space-x-2 px-3 py-2 rounded-lg bg-black hover:bg-gray-700 border border-gray-200 hover:border-gray-400 transition-all duration-200 shadow-sm hover:shadow-md"
+        className="cursor-pointer flex items-center space-x-2 px-2 py-2 rounded-lg bg-black hover:bg-gray-700 border border-gray-200 hover:border-gray-400 transition-all duration-200 shadow-sm hover:shadow-md"
         aria-label="Select currency"
         title={`Current: ${currencyInfo.name} (${currencyInfo.currency})`}
       >

@@ -1,7 +1,7 @@
 // pages/details/[slug].js
 import Head from 'next/head';
 import { useState } from 'react';
-import { Star, ChevronRight } from 'lucide-react';
+import { Star, ChevronRight, Menu, X } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import connectDB from '@/lib/mongodb';
 import { Package, Category } from '@/lib/models';
@@ -22,8 +22,9 @@ export default function PackageDetail({ packageData, categories, relatedPackages
   const [activeTab, setActiveTab] = useState('description');
   const [quantity, setQuantity] = useState(1);
   const [selectedOptions, setSelectedOptions] = useState({});
+  const [quotationPanelOpen, setQuotationPanelOpen] = useState(false);
   const { currencyInfo, exchangeRates } = useCurrency();
-  
+
   if (!packageData) {
     return <div>Product not found</div>;
   }
@@ -36,7 +37,7 @@ export default function PackageDetail({ packageData, categories, relatedPackages
     160
   );
   const productImage = packageData.image || packageData.images?.[0] || 'https://shop.foxbeep.com/images/default-product.png';
-  
+
   // Structured data for Product
   const productSchema = {
     '@context': 'https://schema.org',
@@ -241,19 +242,40 @@ export default function PackageDetail({ packageData, categories, relatedPackages
 
       <Navbar />
 
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-white pb-20 lg:pb-0">
+        {/* Get Quotation Button for Mobile */}
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-30 shadow-lg">
+          <div className="max-w-7xl mx-auto px-6 py-4">
+            <button
+              onClick={() => setQuotationPanelOpen(!quotationPanelOpen)}
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gray-900 text-white rounded hover:bg-gray-800 transition-colors"
+            >
+              <Menu size={20} />
+              <span>Get Quotation</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Quotation Panel Overlay */}
+        {quotationPanelOpen && (
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+            onClick={() => setQuotationPanelOpen(false)}
+          />
+        )}
+
         {/* Breadcrumb */}
         <div className="border-b border-gray-200 bg-white">
-          <div className="max-w-7xl mx-auto px-6 py-4">
-            <div className="flex items-center gap-2 text-sm text-gray-600">
+          <div className="max-w-7xl mx-auto px-6 py-4 overflow-x-auto">
+            <div className="flex items-center gap-2 text-sm text-gray-600 whitespace-nowrap">
               <Link href="/" className="hover:text-gray-900">Home</Link>
-              <ChevronRight size={14} />
+              <ChevronRight size={14} className="flex-shrink-0" />
               {category && (
                 <>
                   <Link href={`/category/${category.slug}`} className="hover:text-gray-900">
                     {category.name}
                   </Link>
-                  <ChevronRight size={14} />
+                  <ChevronRight size={14} className="flex-shrink-0" />
                 </>
               )}
               <span className="text-gray-900">{packageData.title}</span>
@@ -263,6 +285,9 @@ export default function PackageDetail({ packageData, categories, relatedPackages
 
         {/* Main Content */}
         <div className="max-w-7xl mx-auto px-6 py-8">
+          <h1 className="text-2xl font-semibold text-gray-900 mb-8 sm:hidden">
+            {packageData.title}
+          </h1>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Left Column - Main Content */}
             <div className="lg:col-span-2">
@@ -293,8 +318,8 @@ export default function PackageDetail({ packageData, categories, relatedPackages
                   <button
                     onClick={() => setActiveTab('description')}
                     className={`pb-4 px-1 cursor-pointer font-medium transition-colors ${activeTab === 'description'
-                        ? 'text-gray-900 border-b-2 border-gray-900'
-                        : 'text-gray-600 hover:text-gray-900'
+                      ? 'text-gray-900 border-b-2 border-gray-900'
+                      : 'text-gray-600 hover:text-gray-900'
                       }`}
                   >
                     Description
@@ -303,8 +328,8 @@ export default function PackageDetail({ packageData, categories, relatedPackages
                     <button
                       onClick={() => setActiveTab('faq')}
                       className={`pb-4 px-1 cursor-pointer font-medium transition-colors ${activeTab === 'faq'
-                          ? 'text-gray-900 border-b-2 border-gray-900'
-                          : 'text-gray-600 hover:text-gray-900'
+                        ? 'text-gray-900 border-b-2 border-gray-900'
+                        : 'text-gray-600 hover:text-gray-900'
                         }`}
                     >
                       FAQ
@@ -343,141 +368,159 @@ export default function PackageDetail({ packageData, categories, relatedPackages
             </div>
 
             {/* Right Column - Sidebar */}
-            <div className="lg:col-span-1">
-              {/* Product Info Card */}
-              <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6 sticky top-6">
-                <h1 className="text-2xl font-semibold text-gray-900 mb-2">
-                  {packageData.title}
-                </h1>
+            <div className={`lg:col-span-1 ${quotationPanelOpen
+              ? 'fixed left-0 top-0 h-screen w-full bg-white shadow-lg z-50 lg:static lg:w-auto lg:relative lg:block flex flex-col'
+              : 'hidden lg:block'
+              }`}>
+              {/* Close button for mobile */}
+              {quotationPanelOpen && (
+                <div className="flex justify-between items-center p-4 lg:hidden border-b border-gray-200 flex-shrink-0">
+                  <h3 className="text-base font-semibold bg-gray-800 p-2 rounded text-gray-100">Get Quotation</h3>
+                  <button
+                    onClick={() => setQuotationPanelOpen(false)}
+                    className="p-2 hover:bg-gray-200 rounded-full transition-colors"
+                  >
+                    <X size={24} className="text-gray-900" />
+                  </button>
+                </div>
+              )}
 
-                {packageData.subtitle && (
-                  <p className="text-gray-600 mb-4">{packageData.subtitle}</p>
-                )}
+              {/* Product Info Card - Scrollable Content */}
+              <div className={`${quotationPanelOpen ? 'flex-1 overflow-y-auto' : ''} lg:bg-white lg:border lg:border-gray-600 lg:rounded-lg  lg:mb-6 lg:sticky lg:top-6`}>
+                <div className={`bg-white ${quotationPanelOpen ? 'rounded-none border-none p-4' : 'rounded-lg border border-gray-200 p-6'} lg:rounded-lg lg:border lg:p-6`}>
+                  <h1 className="text-2xl font-semibold text-gray-900 mb-2">
+                    {packageData.title}
+                  </h1>
 
-                {/* Rating */}
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="flex items-center gap-1">
-                    <Star size={16} className="fill-yellow-400 text-yellow-400" />
-                    <span className="text-sm font-medium text-gray-900">
-                      {packageData.rating || 5.0}
+                  {packageData.subtitle && (
+                    <p className="text-gray-600 mb-4">{packageData.subtitle}</p>
+                  )}
+
+                  {/* Rating */}
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="flex items-center gap-1">
+                      <Star size={16} className="fill-yellow-400 text-yellow-400" />
+                      <span className="text-sm font-medium text-gray-900">
+                        {packageData.rating || 5.0}
+                      </span>
+                    </div>
+                    <span className="text-sm text-gray-500">
+                      ({packageData.reviews || 0} reviews)
                     </span>
                   </div>
-                  <span className="text-sm text-gray-500">
-                    ({packageData.reviews || 0} reviews)
-                  </span>
-                </div>
 
-                {/* Price */}
-                <div className="mb-6">
-                  <div className="text-3xl font-bold text-gray-900">
-                    {convertPrice(packageData.price)}
+                  {/* Price */}
+                  <div className="mb-6">
+                    <div className="text-3xl font-bold text-gray-900">
+                      {convertPrice(packageData.price)}
+                    </div>
                   </div>
-                </div>
 
-                {/* Pricing Options */}
-                {packageData.pricing?.length > 0 && (
-                  <div className="mb-6 pb-6 border-b border-gray-200">
-                    <h3 className="text-sm font-semibold text-gray-900 mb-4">
-                      Customize Your Package
-                    </h3>
-                    {packageData.pricing.map((pricingCategory, categoryIndex) => (
-                      <div key={categoryIndex} className="mb-4">
-                        <h4 className="text-sm font-medium text-gray-700 mb-2">
-                          {pricingCategory.title}
-                        </h4>
-                        <div className="space-y-2">
-                          {pricingCategory.options?.map((option, optionIndex) => {
-                            const isSelected = (selectedOptions[categoryIndex] || []).includes(optionIndex);
-                            return (
-                              <label
-                                key={optionIndex}
-                                className={`flex items-center justify-between p-3 border rounded-lg cursor-pointer transition-colors ${isSelected
+                  {/* Pricing Options */}
+                  {packageData.pricing?.length > 0 && (
+                    <div className="mb-6 pb-6 border-b border-gray-200">
+                      <h3 className="text-sm font-semibold text-gray-900 mb-4">
+                        Customize Your Package
+                      </h3>
+                      {packageData.pricing.map((pricingCategory, categoryIndex) => (
+                        <div key={categoryIndex} className="mb-4">
+                          <h4 className="text-sm font-medium text-gray-700 mb-2">
+                            {pricingCategory.title}
+                          </h4>
+                          <div className="space-y-2">
+                            {pricingCategory.options?.map((option, optionIndex) => {
+                              const isSelected = (selectedOptions[categoryIndex] || []).includes(optionIndex);
+                              return (
+                                <label
+                                  key={optionIndex}
+                                  className={`flex items-center justify-between p-3 border rounded-lg cursor-pointer transition-colors ${isSelected
                                     ? 'border-gray-900 bg-gray-50'
                                     : 'border-gray-200 hover:border-gray-300'
-                                  }`}
-                              >
-                                <div className="flex items-center gap-3">
-                                  <input
-                                    type="checkbox"
-                                    checked={isSelected}
-                                    onChange={() => handleMultiSelect(categoryIndex, optionIndex)}
-                                    className="w-4 h-4 text-gray-900 border-gray-300 rounded"
-                                  />
-                                  <span className="text-sm text-gray-900">{option.name}</span>
-                                </div>
-                                <span className="text-sm font-medium text-gray-900">
-                                  {convertPrice(option.price)}
-                                </span>
-                              </label>
-                            );
-                          })}
+                                    }`}
+                                >
+                                  <div className="flex items-center gap-3">
+                                    <input
+                                      type="checkbox"
+                                      checked={isSelected}
+                                      onChange={() => handleMultiSelect(categoryIndex, optionIndex)}
+                                      className="w-4 h-4 text-gray-900 border-gray-300 rounded"
+                                    />
+                                    <span className="text-sm text-gray-900">{option.name}</span>
+                                  </div>
+                                  <span className="text-sm font-medium text-gray-900">
+                                    {convertPrice(option.price)}
+                                  </span>
+                                </label>
+                              );
+                            })}
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Quantity */}
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-900 mb-2">
-                    Quantity
-                  </label>
-                  <div className="flex items-center gap-3 text-black">
-                    <button
-                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      className="w-10 h-10 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-50"
-                    >
-                      −
-                    </button>
-                    <input
-                      type="number"
-                      value={quantity}
-                      onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
-                      className="w-20 text-center border border-gray-900 text-black rounded py-2"
-                    />
-                    <button
-                      onClick={() => setQuantity(quantity + 1)}
-                      className="w-10 h-10 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-50"
-                    >
-                      +
-                    </button>
-                  </div>
-                </div>
-
-                {/* Total Price */}
-                <div className="mb-6 pb-6 border-b border-gray-200">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-900">Total Price</span>
-                    <span className="text-2xl font-bold text-gray-900">
-                      {convertPrice(calculateTotal())}
-                    </span>
-                  </div>
-                </div>
-
-                {/* CTA Button */}
-                <button
-                  onClick={handleQuotationRequest}
-                  className="w-full bg-gray-900 hover:bg-gray-800 text-white py-3 px-6 rounded-lg font-medium transition-colors mb-4"
-                >
-                  Get Quotation
-                </button>
-
-                {/* Features */}
-                {packageData.features?.length > 0 && (
-                  <div className="pt-6 border-t border-gray-200">
-                    <h3 className="text-sm font-semibold text-gray-900 mb-3">
-                      Key Features
-                    </h3>
-                    <ul className="space-y-2">
-                      {packageData.features.slice(0, 5).map((feature, index) => (
-                        <li key={index} className="flex items-start gap-2 text-sm text-gray-600">
-                          <span className="text-green-600 mt-0.5">✓</span>
-                          <span>{feature}</span>
-                        </li>
                       ))}
-                    </ul>
+                    </div>
+                  )}
+
+                  {/* Quantity */}
+                  <div className="mb-6">
+                    <label className="block text-sm font-medium text-gray-900 mb-2">
+                      Quantity
+                    </label>
+                    <div className="flex items-center gap-3 text-black">
+                      <button
+                        onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                        className="w-10 h-10 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-50"
+                      >
+                        −
+                      </button>
+                      <input
+                        type="number"
+                        value={quantity}
+                        onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                        className="w-20 text-center border border-gray-900 text-black rounded py-2"
+                      />
+                      <button
+                        onClick={() => setQuantity(quantity + 1)}
+                        className="w-10 h-10 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-50"
+                      >
+                        +
+                      </button>
+                    </div>
                   </div>
-                )}
+
+                  {/* Total Price */}
+                  <div className="mb-6 pb-6 border-b border-gray-200">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-gray-900">Total Price</span>
+                      <span className="text-2xl font-bold text-gray-900">
+                        {convertPrice(calculateTotal())}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* CTA Button */}
+                  <button
+                    onClick={handleQuotationRequest}
+                    className="w-full bg-gray-900 hover:bg-gray-800 text-white py-3 px-6 rounded-lg font-medium transition-colors mb-4"
+                  >
+                    Get Quotation
+                  </button>
+
+                  {/* Features */}
+                  {packageData.features?.length > 0 && (
+                    <div className="pt-6 border-t border-gray-200">
+                      <h3 className="text-sm font-semibold text-gray-900 mb-3">
+                        Key Features
+                      </h3>
+                      <ul className="space-y-2">
+                        {packageData.features.slice(0, 5).map((feature, index) => (
+                          <li key={index} className="flex items-start gap-2 text-sm text-gray-600">
+                            <span className="text-green-600 mt-0.5">✓</span>
+                            <span>{feature}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>

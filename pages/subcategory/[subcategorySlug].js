@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Navbar from '@/components/Navbar';
-import { Star, ChevronRight } from 'lucide-react';
+import { Star, ChevronRight, Menu, X } from 'lucide-react';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import Link from 'next/link';
 import Footer from '@/components/Footer';
@@ -11,20 +11,21 @@ import { truncateText } from '@/lib/seo-helpers';
 export default function SubcategoryPage({ initialPackages, category, subcategory, categories, initialPagination }) {
   const router = useRouter();
   const { subcategorySlug } = router.query;
-  
+
   const [packages, setPackages] = useState(initialPackages);
   const [sortBy, setSortBy] = useState('default');
   const [currentPage, setCurrentPage] = useState(1);
   const [pagination, setPagination] = useState(initialPagination);
   const [loading, setLoading] = useState(false);
   const [selectedTags, setSelectedTags] = useState(['all']);
-const { currencyInfo, exchangeRates } = useCurrency();
-const convertPrice = (priceString) => {
-  const numericPrice = parseFloat(priceString.replace(/[^0-9.]/g, ''));
-  const convertedPrice = numericPrice * exchangeRates[currencyInfo.currency];
-  return `${currencyInfo.symbol}${convertedPrice.toFixed(2)}`;
-};
-  
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { currencyInfo, exchangeRates } = useCurrency();
+  const convertPrice = (priceString) => {
+    const numericPrice = parseFloat(priceString.replace(/[^0-9.]/g, ''));
+    const convertedPrice = numericPrice * exchangeRates[currencyInfo.currency];
+    return `${currencyInfo.symbol}${convertedPrice.toFixed(2)}`;
+  };
+
   // Update packages when subcategory changes
   useEffect(() => {
     setPackages(initialPackages || []);
@@ -197,26 +198,75 @@ const convertPrice = (priceString) => {
         <div className="border-b border-gray-200 bg-white">
           <div className="max-w-7xl mx-auto px-6 py-8">
             {/* Breadcrumb */}
-            <div className="flex items-center gap-2 text-sm text-gray-600 mb-4">
-              <Link href="/" className="hover:text-gray-900">Home</Link>
-              <ChevronRight size={16} />
-              <Link href={`/category/${category?.slug}`} className="hover:text-gray-900">{category?.name}</Link>
-              <ChevronRight size={16} />
-              <span className="text-gray-900">{subcategory?.name}</span>
+            <div className="overflow-x-auto pb-2">
+              <div className="flex items-center gap-2 text-sm text-gray-600 mb-4 whitespace-nowrap">
+                <Link href="/" className="hover:text-gray-900">Home</Link>
+                <ChevronRight size={16} className="flex-shrink-0" />
+                <Link href={`/category/${category?.slug}`} className="hover:text-gray-900">{category?.name}</Link>
+                <ChevronRight size={16} className="flex-shrink-0" />
+                <span className="text-gray-900">{subcategory?.name}</span>
+              </div>
             </div>
-            <h1 className="text-4xl font-normal text-gray-900 mb-4">{subcategory?.name}</h1>
+            <h1 className="text-3xl font-semibold text-black my-4">{subcategory?.name} Service</h1>
           </div>
         </div>
+
+        {/* Filter Button for Mobile */}
+        <div className="lg:hidden border-b border-gray-200 bg-white sticky top-0 z-40">
+          <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded hover:bg-gray-800 transition-colors"
+            >
+              <Menu size={20} />
+              <span>Filter</span>
+            </button>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="px-3 py-2 text-sm border border-gray-300 rounded text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-gray-400"
+            >
+              <option value="default">Default</option>
+              <option value="price-low">Price: Low to High</option>
+              <option value="price-high">Price: High to Low</option>
+              <option value="rating">Highest Rated</option>
+              <option value="popular">Most Popular</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Mobile Sidebar Overlay */}
+        {sidebarOpen && (
+          <div
+    className="fixed inset-0 backdrop-blur-sm bg-white/30 z-40 lg:hidden"
+    onClick={() => setSidebarOpen(false)}
+  />
+        )}
 
         {/* Main Content */}
         <div className="max-w-7xl mx-auto px-6 py-8">
           <div className="flex gap-8">
             {/* Sidebar */}
-            <aside className="hidden lg:block w-72 flex-shrink-0">
-              {/* Categories */}
-              <div className="mb-8">
-                <h3 className="text-base font-semibold text-gray-900 mb-4">Categories</h3>
-                
+            <aside className={`${sidebarOpen
+                ? 'fixed left-0 top-0 h-screen w-72 bg-white shadow-lg z-50 flex flex-col'
+                : 'hidden lg:block w-72 flex-shrink-0'
+              }`}>
+              {/* Close button for mobile */}
+              {sidebarOpen && (
+                <div className="flex justify-between items-center p-4 lg:hidden border-b border-gray-200 flex-shrink-0">
+                  <h3 className="text-base font-semibold text-gray-900">Filters</h3>
+                  <button
+                    onClick={() => setSidebarOpen(false)}
+                    className="p-2 hover:bg-gray-200 rounded-full transition-colors"
+                  >
+                    <X size={24} className="text-gray-900" />
+                  </button>
+                </div>
+              )}
+
+              {/* Sidebar content - scrollable */}
+              <div className="flex-1 overflow-y-auto px-6 py-4">
+
                 <Link
                   href="/"
                   className="flex items-center gap-2 text-sm text-gray-700 mb-3 hover:text-gray-900"
@@ -233,18 +283,17 @@ const convertPrice = (priceString) => {
                     <ChevronRight size={16} className="rotate-180" />
                     <span>{category?.name}</span>
                   </Link>
-                  
+
                   {category?.subcategories?.length > 0 && (
                     <div className="ml-6 space-y-0">
                       {category.subcategories.map((sub, idx) => (
                         <a
                           key={idx}
                           href={`/subcategory/${sub.slug}`}
-                          className={`flex items-center gap-2 text-sm py-2 hover:text-gray-900 ${
-                            sub.slug === subcategorySlug 
-                              ? 'font-medium text-gray-900' 
+                          className={`flex items-center gap-2 text-sm py-2 hover:text-gray-900 ${sub.slug === subcategorySlug
+                              ? 'font-medium text-gray-900'
                               : 'text-gray-600'
-                          }`}
+                            }`}
                         >
                           <span>{sub.name}</span>
                           <ChevronRight size={14} />
@@ -252,13 +301,10 @@ const convertPrice = (priceString) => {
                       ))}
                     </div>
                   )}
-                </div>
-              </div>
-
-              {/* Sort by */}
-              <div className="mb-8">
+                </div> {/* Sort by */}
+              <div className="my-8">
                 <h3 className="text-base font-semibold text-gray-900 mb-4">Sort by</h3>
-                <select 
+                <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
                   className="w-full px-3 py-2 text-sm border border-gray-300 rounded text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-gray-400"
@@ -291,6 +337,9 @@ const convertPrice = (priceString) => {
                   ))}
                 </div>
               </div>
+              </div>
+
+             
             </aside>
 
             {/* Products Grid */}
@@ -311,8 +360,8 @@ const convertPrice = (priceString) => {
                       >
                         {/* Image */}
                         <div className="relative aspect-[4/3] bg-gray-100 rounded-lg overflow-hidden mb-3">
-                          <img 
-                            src={pkg.image || pkg.images?.[0] || 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400'} 
+                          <img
+                            src={pkg.image || pkg.images?.[0] || 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400'}
                             alt={pkg.name || pkg.title}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                           />
@@ -339,7 +388,7 @@ const convertPrice = (priceString) => {
                               </span>
                             </div>
                             <span className="text-sm font-medium text-gray-900">
-                                {convertPrice(pkg.price)}
+                              {convertPrice(pkg.price)}
 
                             </span>
                           </div>
@@ -354,11 +403,10 @@ const convertPrice = (priceString) => {
                       <button
                         onClick={() => loadPage(currentPage - 1)}
                         disabled={!pagination.hasPrevPage}
-                        className={`px-6 py-2 rounded text-sm font-medium ${
-                          pagination.hasPrevPage
+                        className={`px-6 py-2 rounded text-sm font-medium ${pagination.hasPrevPage
                             ? 'bg-gray-900 text-white hover:bg-gray-800'
                             : 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                        }`}
+                          }`}
                       >
                         Previous
                       </button>
@@ -368,11 +416,10 @@ const convertPrice = (priceString) => {
                       <button
                         onClick={() => loadPage(currentPage + 1)}
                         disabled={!pagination.hasNextPage}
-                        className={`px-6 py-2 rounded text-sm font-medium ${
-                          pagination.hasNextPage
+                        className={`px-6 py-2 rounded text-sm font-medium ${pagination.hasNextPage
                             ? 'bg-gray-900 text-white hover:bg-gray-800'
                             : 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                        }`}
+                          }`}
                       >
                         Next
                       </button>
@@ -388,7 +435,7 @@ const convertPrice = (priceString) => {
             </div>
           </div>
         </div>
-      <Footer />
+        <Footer />
       </div>
     </>
   );
@@ -423,7 +470,7 @@ export async function getServerSideProps(context) {
         }
       }
     }
-    
+
     if (!category || !subcategory) {
       return { notFound: true };
     }

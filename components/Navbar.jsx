@@ -266,31 +266,31 @@ const Navbar = ({ activeCategory, activeSubcategory }) => {
                         </div>
                     </div>
 
-                    {/* Right Side Actions */}
-                    <div className="flex items-center space-x-3">
-                        {/* Search Button - Mobile */}
-                        <button
-                            onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
-                            className="md:hidden p-2 text-gray-600 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
-                            aria-label="Search"
-                        >
-                            <Search size={20} />
-                        </button>
+                  {/* Right Side Actions */}
+<div className="flex items-center space-x-3">
+    {/* Search Button - Mobile */}
+    <button
+        onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
+        className="md:hidden p-2 text-gray-600 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
+        aria-label="Search"
+    >
+        <Search size={20} />
+    </button>
 
-                        {/* Currency Selector - Desktop */}
-                        <div className="hidden sm:block">
-                            <CountrySelector />
-                        </div>
+    {/* Currency Selector - Always visible */}
+    <div>
+        <CountrySelector />
+    </div>
 
-                        {/* Mobile Menu Toggle */}
-                        <button
-                            onClick={() => setIsMenuOpen(!isMenuOpen)}
-                            className="md:hidden p-2 text-gray-600 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
-                            aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
-                        >
-                            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-                        </button>
-                    </div>
+    {/* Mobile Menu Toggle */}
+    <button
+        onClick={() => setIsMenuOpen(!isMenuOpen)}
+        className="md:hidden p-1 text-gray-600 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
+        aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
+    >
+        {isMenuOpen ? <X size={14} /> : <Menu size={24} />}
+    </button>
+</div>
                 </div>
 
                 {/* Mobile Search Bar */}
@@ -516,13 +516,7 @@ const Navbar = ({ activeCategory, activeSubcategory }) => {
                         );
                     })}
 
-                    {/* Mobile Currency Selector */}
-                    <div className="sm:hidden pt-3 border-t border-gray-200">
-                        <div className="px-4 py-3 flex items-center justify-between">
-                            <span className="text-sm font-medium text-gray-700">Currency</span>
-                            <CountrySelector />
-                        </div>
-                    </div>
+                   
                 </div>
             )}
         </nav>

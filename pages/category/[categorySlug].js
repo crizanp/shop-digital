@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Navbar from '@/components/Navbar';
-import { Star, ChevronRight } from 'lucide-react';
+import { Star, ChevronRight, Menu, X } from 'lucide-react';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import Link from 'next/link';
 import Footer from '@/components/Footer';
@@ -18,6 +18,7 @@ export default function CategoryPage({ initialPackages, category, categories, in
   const [pagination, setPagination] = useState(initialPagination);
   const [loading, setLoading] = useState(false);
   const [selectedTags, setSelectedTags] = useState(['all']);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const { currencyInfo, exchangeRates } = useCurrency();
   const convertPrice = (priceString) => {
     const numericPrice = parseFloat(priceString.replace(/[^0-9.]/g, ''));
@@ -163,85 +164,136 @@ export default function CategoryPage({ initialPackages, category, categories, in
         {/* Category Header */}
         <div className="border-b border-gray-200 bg-white">
           <div className="max-w-7xl mx-auto px-6 py-8">
-            <h1 className="text-4xl font-normal text-gray-900 mb-4">{category?.name}</h1>
+            <h1 className="text-2xl font-semibold text-black ">{category?.name} Services</h1>
           </div>
         </div>
+
+        {/* Filter Button for Mobile */}
+        <div className="lg:hidden border-b border-gray-200 bg-white sticky top-0 z-40">
+          <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded hover:bg-gray-800 transition-colors"
+            >
+              <Menu size={20} />
+              <span>Filter</span>
+            </button>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="px-3 py-2 text-sm border border-gray-300 rounded text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-gray-400"
+            >
+              <option value="default">Default</option>
+              <option value="price-low">Price: Low to High</option>
+              <option value="price-high">Price: High to Low</option>
+              <option value="rating">Highest Rated</option>
+              <option value="popular">Most Popular</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Mobile Sidebar Overlay */}
+        {sidebarOpen && (
+           <div
+    className="fixed inset-0 backdrop-blur-sm bg-white/30 z-40 lg:hidden"
+    onClick={() => setSidebarOpen(false)}
+  />
+        )}
 
         {/* Main Content */}
         <div className="max-w-7xl mx-auto px-6 py-8">
           <div className="flex gap-8">
             {/* Sidebar */}
-            <aside className="hidden lg:block w-72 flex-shrink-0">
-              {/* Categories */}
-              <div className="mb-8">
-                <h3 className="text-base font-semibold text-gray-900 mb-4">Categories</h3>
-
-                <Link
-                  href="/"
-                  className="flex items-center gap-2 text-sm text-gray-700 mb-3 hover:text-gray-900"
-                  
-                >
-                  <ChevronRight size={16} className="rotate-180" />
-                  <span>All</span>
-                </Link>
-
-                <div className="space-y-0">
-                  <div className="text-sm font-medium text-gray-900 py-2">
-                    {category?.name}
-                  </div>
-
-                  {category?.subcategories?.length > 0 && (
-                    <div className="ml-6 space-y-0">
-                      {category.subcategories.map((sub, idx) => (
-                        <a
-                          key={idx}
-                          href={`/subcategory/${sub.slug}`}
-                          className="flex items-center gap-2 text-sm text-gray-600 py-2 hover:text-gray-900"
-                        >
-                          <span>{sub.name}</span>
-                          <ChevronRight size={14} />
-                        </a>
-                      ))}
-                    </div>
-                  )}
+            <aside className={`${
+              sidebarOpen
+                ? 'fixed left-0 top-0 h-screen w-72 bg-white shadow-lg z-50 flex flex-col'
+                : 'hidden lg:block w-72 flex-shrink-0'
+            }`}>
+              {/* Close button for mobile */}
+              {sidebarOpen && (
+                <div className="flex justify-between items-center p-4 lg:hidden border-b border-gray-200 flex-shrink-0">
+                  <h3 className="text-base font-semibold text-gray-900">Filters</h3>
+                  <button
+                    onClick={() => setSidebarOpen(false)}
+                    className="p-2 hover:bg-gray-200 rounded-full transition-colors"
+                  >
+                    <X size={24} className="text-gray-900" />
+                  </button>
                 </div>
-              </div>
+              )}
 
-              {/* Sort by */}
-              <div className="mb-8">
-                <h3 className="text-base font-semibold text-gray-900 mb-4">Sort by</h3>
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-gray-400"
-                >
-                  <option value="default">Default</option>
-                  <option value="price-low">Price: Low to High</option>
-                  <option value="price-high">Price: High to Low</option>
-                  <option value="rating">Highest Rated</option>
-                  <option value="popular">Most Popular</option>
-                </select>
-              </div>
+              {/* Sidebar content - scrollable */}
+              <div className="flex-1 overflow-y-auto px-6 py-4">
+                {/* Categories */}
+                <div className="mb-8">
+                  <h3 className="text-base font-semibold text-gray-900 mb-4">Categories</h3>
 
-              {/* Related tags */}
-              <div>
-                <h3 className="text-base font-semibold text-gray-900 mb-4">Related tags</h3>
-                <div className="space-y-2">
-                  {tags.map((tag, idx) => (
-                    <label key={idx} className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={selectedTags.includes(tag.value)}
-                        onChange={() => toggleTag(tag.value)}
-                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                      />
-                      <span className="text-sm text-gray-700">
-                        {tag.name}
+                  <Link
+                    href="/"
+                    className="flex items-center gap-2 text-sm text-gray-700 mb-3 hover:text-gray-900"
+                  >
+                    <ChevronRight size={16} className="rotate-180" />
+                    <span>All</span>
+                  </Link>
+
+                  <div className="space-y-0">
+                    <div className="text-sm font-medium text-gray-900 py-2">
+                      {category?.name}
+                    </div>
+
+                    {category?.subcategories?.length > 0 && (
+                      <div className="ml-6 space-y-0">
+                        {category.subcategories.map((sub, idx) => (
+                          <a
+                            key={idx}
+                            href={`/subcategory/${sub.slug}`}
+                            className="flex items-center gap-2 text-sm text-gray-600 py-2 hover:text-gray-900"
+                          >
+                            <span>{sub.name}</span>
+                            <ChevronRight size={14} />
+                          </a>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Sort by */}
+                <div className="mb-8">
+                  <h3 className="text-base font-semibold text-gray-900 mb-4">Sort by</h3>
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-gray-400"
+                  >
+                    <option value="default">Default</option>
+                    <option value="price-low">Price: Low to High</option>
+                    <option value="price-high">Price: High to Low</option>
+                    <option value="rating">Highest Rated</option>
+                    <option value="popular">Most Popular</option>
+                  </select>
+                </div>
+
+                {/* Related tags */}
+                <div>
+                  <h3 className="text-base font-semibold text-gray-900 mb-4">Related tags</h3>
+                  <div className="space-y-2">
+                    {tags.map((tag, idx) => (
+                      <label key={idx} className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={selectedTags.includes(tag.value)}
+                          onChange={() => toggleTag(tag.value)}
+                          className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                        />
+                        <span className="text-sm text-gray-700">
+                          {tag.name}
                         {tag.count && <span className="text-gray-500"> ({tag.count})</span>}
                       </span>
                     </label>
                   ))}
                 </div>
+              </div>
               </div>
             </aside>
 
