@@ -6,6 +6,7 @@ import { Star, ChevronRight } from 'lucide-react';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import Link from 'next/link';
 import Footer from '@/components/Footer';
+import { truncateText } from '@/lib/seo-helpers';
 
 export default function SubcategoryPage({ initialPackages, category, subcategory, categories, initialPagination }) {
   const router = useRouter();
@@ -23,6 +24,14 @@ const convertPrice = (priceString) => {
   const convertedPrice = numericPrice * exchangeRates[currencyInfo.currency];
   return `${currencyInfo.symbol}${convertedPrice.toFixed(2)}`;
 };
+  
+  // Update packages when subcategory changes
+  useEffect(() => {
+    setPackages(initialPackages || []);
+    setPagination(initialPagination || {});
+    setCurrentPage(1);
+    setSortBy('default');
+  }, [initialPackages, initialPagination]);
   useEffect(() => {
     if (sortBy !== 'default') {
       sortPackages(sortBy);
@@ -89,11 +98,96 @@ const convertPrice = (priceString) => {
     { name: 'ti-84 programming', value: 'ti84-programming', count: 40 }
   ];
 
+  const baseUrl = 'https://shop.foxbeep.com';
+  const canonicalUrl = `${baseUrl}/subcategory/${subcategorySlug}`;
+  const metaDescription = truncateText(
+    subcategory?.description || category?.description || `Browse ${subcategory?.name} packages on Foxbeep Marketplace.`,
+    160
+  );
+  const seoTitle = `${subcategory?.name} - ${category?.name} | Foxbeep Marketplace`;
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: baseUrl
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: category?.name,
+        item: `${baseUrl}/category/${category?.slug}`
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: subcategory?.name,
+        item: canonicalUrl
+      }
+    ]
+  };
+
+  const collectionSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: subcategory?.name,
+    description: subcategory?.description,
+    url: canonicalUrl,
+    isPartOf: {
+      '@type': 'WebSite',
+      name: 'Foxbeep Marketplace',
+      url: baseUrl
+    },
+    mainEntity: {
+      '@type': 'ItemList',
+      itemListElement: packages.slice(0, 12).map((pkg, idx) => ({
+        '@type': 'ListItem',
+        position: idx + 1,
+        item: {
+          '@type': 'Product',
+          name: pkg.name || pkg.title,
+          description: pkg.description || '',
+          image: pkg.image || pkg.images?.[0] || '',
+          price: pkg.price,
+          priceCurrency: 'USD',
+          url: `${baseUrl}/package/${pkg.slug}`,
+          aggregateRating: pkg.rating ? {
+            '@type': 'AggregateRating',
+            ratingValue: pkg.rating,
+            reviewCount: pkg.reviews || pkg.reviewCount || 0
+          } : undefined
+        }
+      }))
+    }
+  };
+
   return (
     <>
       <Head>
-        <title>{subcategory?.name || 'Subcategory'} | Foxbeep Marketplace</title>
-        <meta name="description" content={subcategory?.description || category?.description || 'Browse our products'} />
+        <title>{seoTitle}</title>
+        <meta name="description" content={metaDescription} />
+        <meta name="keywords" content={`${subcategory?.name}, ${category?.name}, ${subcategory?.name} packages, ${subcategory?.name} services`} />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta charSet="UTF-8" />
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+        <link rel="canonical" href={canonicalUrl} />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content={seoTitle} />
+        <meta property="og:description" content={metaDescription} />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:site_name" content="Foxbeep Marketplace" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={seoTitle} />
+        <meta name="twitter:description" content={metaDescription} />
+        <script type="application/ld+json">
+          {JSON.stringify(breadcrumbSchema)}
+        </script>
+        <script type="application/ld+json">
+          {JSON.stringify(collectionSchema)}
+        </script>
       </Head>
 
       <Navbar activeCategory={category?.slug} />

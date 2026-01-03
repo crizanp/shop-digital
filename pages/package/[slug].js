@@ -8,6 +8,7 @@ import { Package, Category } from '@/lib/models';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import Link from 'next/link';
 import Footer from '@/components/Footer';
+import { truncateText } from '@/lib/seo-helpers';
 
 const slugify = (s = '') =>
   s
@@ -16,11 +17,80 @@ const slugify = (s = '') =>
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-|-$)/g, '');
 
-export default function PackageDetail({ packageData, categories, relatedPackages }) {
+export default function PackageDetail({ packageData, categories, relatedPackages, categoryData }) {
+  const baseUrl = 'https://shop.foxbeep.com';
   const [activeTab, setActiveTab] = useState('description');
   const [quantity, setQuantity] = useState(1);
   const [selectedOptions, setSelectedOptions] = useState({});
   const { currencyInfo, exchangeRates } = useCurrency();
+  
+  if (!packageData) {
+    return <div>Product not found</div>;
+  }
+
+  // Generate SEO metadata
+  const canonicalUrl = `${baseUrl}/package/${packageData.slug || packageData._id}`;
+  const seoTitle = `${packageData.name || packageData.title} | Professional ${categoryData?.name || 'Services'} | Foxbeep`;
+  const metaDescription = truncateText(
+    packageData.description || packageData.summary || `Buy ${packageData.name || packageData.title} on Foxbeep Marketplace. Professional ${categoryData?.name || 'services'} from verified providers.`,
+    160
+  );
+  const productImage = packageData.image || packageData.images?.[0] || 'https://shop.foxbeep.com/images/default-product.png';
+  
+  // Structured data for Product
+  const productSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: packageData.name || packageData.title,
+    description: packageData.description || '',
+    image: productImage,
+    url: canonicalUrl,
+    brand: {
+      '@type': 'Brand',
+      name: 'Foxbeep'
+    },
+    offers: {
+      '@type': 'Offer',
+      url: canonicalUrl,
+      priceCurrency: 'USD',
+      price: packageData.price ? String(packageData.price).replace(/[^0-9.]/g, '') : '0',
+      availability: 'https://schema.org/InStock',
+      seller: {
+        '@type': 'Organization',
+        name: packageData.seller || packageData.author || 'Foxbeep'
+      }
+    },
+    aggregateRating: packageData.rating ? {
+      '@type': 'AggregateRating',
+      ratingValue: packageData.rating,
+      reviewCount: packageData.reviews || packageData.reviewCount || 0
+    } : undefined
+  };
+
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: baseUrl
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: categoryData?.name || 'Products',
+        item: `${baseUrl}/category/${categoryData?.slug}`
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: packageData.name || packageData.title,
+        item: canonicalUrl
+      }
+    ]
+  };
   const convertPrice = (priceString) => {
     const numericPrice = parseFloat(priceString.replace(/[^0-9.]/g, ''));
     const convertedPrice = numericPrice * exchangeRates[currencyInfo.currency];
@@ -142,8 +212,31 @@ export default function PackageDetail({ packageData, categories, relatedPackages
   return (
     <>
       <Head>
-        <title>{packageData.title} | Foxbeep Marketplace</title>
-        <meta name="description" content={packageData.description || ''} />
+        <title>{seoTitle}</title>
+        <meta name="description" content={metaDescription} />
+        <meta name="keywords" content={`${packageData.name || packageData.title}, ${categoryData?.name || ''}, buy ${packageData.name || packageData.title}, professional ${packageData.name || packageData.title}`} />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta charSet="UTF-8" />
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+        <link rel="canonical" href={canonicalUrl} />
+        <meta property="og:type" content="product" />
+        <meta property="og:title" content={seoTitle} />
+        <meta property="og:description" content={metaDescription} />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:image" content={productImage} />
+        <meta property="og:site_name" content="Foxbeep Marketplace" />
+        <meta property="product:price:amount" content={packageData.price ? String(packageData.price).replace(/[^0-9.]/g, '') : '0'} />
+        <meta property="product:price:currency" content="USD" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={seoTitle} />
+        <meta name="twitter:description" content={metaDescription} />
+        <meta name="twitter:image" content={productImage} />
+        <script type="application/ld+json">
+          {JSON.stringify(productSchema)}
+        </script>
+        <script type="application/ld+json">
+          {JSON.stringify(breadcrumbSchema)}
+        </script>
       </Head>
 
       <Navbar />
@@ -466,6 +559,9 @@ export async function getServerSideProps(context) {
       )
       .slice(0, 4);
 
+    // Get the category data
+    const categoryData = categories.find(cat => String(cat._id) === String(found.categoryId)) || null;
+
     // Serialize data
     const deepSerialize = (val) => {
       if (val === null || val === undefined) return null;
@@ -488,6 +584,7 @@ export async function getServerSideProps(context) {
       props: {
         packageData: deepSerialize(found),
         categories: deepSerialize(categories),
+        categoryData: deepSerialize(categoryData),
         relatedPackages: deepSerialize(relatedPackages)
       }
     };

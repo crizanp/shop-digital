@@ -6,6 +6,7 @@ import { Star, ChevronRight } from 'lucide-react';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import Link from 'next/link';
 import Footer from '@/components/Footer';
+import { truncateText } from '@/lib/seo-helpers';
 
 export default function CategoryPage({ initialPackages, category, categories, initialPagination }) {
   const router = useRouter();
@@ -24,13 +25,13 @@ export default function CategoryPage({ initialPackages, category, categories, in
     return `${currencyInfo.symbol}${convertedPrice.toFixed(2)}`;
   };
 
-  // Update packages when category changes
+  // Update packages when category changes or on initial mount
   useEffect(() => {
-    setPackages(initialPackages);
-    setPagination(initialPagination);
+    setPackages(initialPackages || []);
+    setPagination(initialPagination || {});
     setCurrentPage(1);
     setSortBy('default');
-  }, [categorySlug, initialPackages, initialPagination]);
+  }, [initialPackages, initialPagination]);
 
   useEffect(() => {
     if (sortBy !== 'default') {
@@ -98,11 +99,62 @@ export default function CategoryPage({ initialPackages, category, categories, in
     { name: 'ti-84 programming', value: 'ti84-programming', count: 40 }
   ];
 
+  const baseUrl = 'https://shop.foxbeep.com';
+  const canonicalUrl = `${baseUrl}/category/${categorySlug}`;
+  const metaDescription = truncateText(category?.description || `Shop ${category?.name} products on Foxbeep Marketplace. Find quality ${category?.name} packages from professional providers.`, 160);
+  const seoTitle = `${category?.name} - Professional Services & Packages | Foxbeep`;
+  
+  // Structured data for Category
+  const categorySchema = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: category?.name,
+    description: category?.description,
+    url: canonicalUrl,
+    mainEntity: {
+      '@type': 'ItemList',
+      itemListElement: packages.slice(0, 12).map((pkg, idx) => ({
+        '@type': 'ListItem',
+        position: idx + 1,
+        item: {
+          '@type': 'Product',
+          name: pkg.name || pkg.title,
+          description: pkg.description || '',
+          image: pkg.image || pkg.images?.[0] || '',
+          price: pkg.price,
+          priceCurrency: 'USD',
+          url: `${baseUrl}/package/${pkg.slug}`,
+          aggregateRating: pkg.rating ? {
+            '@type': 'AggregateRating',
+            ratingValue: pkg.rating,
+            reviewCount: pkg.reviews || pkg.reviewCount || 0
+          } : undefined
+        }
+      }))
+    }
+  };
+
   return (
     <>
       <Head>
-        <title>{category?.name || 'Category'} | Foxbeep Marketplace</title>
-        <meta name="description" content={category?.description || 'Browse our products'} />
+        <title>{seoTitle}</title>
+        <meta name="description" content={metaDescription} />
+        <meta name="keywords" content={`${category?.name}, ${category?.name} packages, ${category?.name} services, buy ${category?.name}, professional ${category?.name}`} />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta charSet="UTF-8" />
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+        <link rel="canonical" href={canonicalUrl} />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content={seoTitle} />
+        <meta property="og:description" content={metaDescription} />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:site_name" content="Foxbeep Marketplace" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={seoTitle} />
+        <meta name="twitter:description" content={metaDescription} />
+        <script type="application/ld+json">
+          {JSON.stringify(categorySchema)}
+        </script>
       </Head>
 
       <Navbar activeCategory={categorySlug} />
