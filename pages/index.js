@@ -20,22 +20,22 @@ const ModernMarketplace = ({ initialFeaturedPackages = [] }) => {
     // Check multiple possible category field variations
     const category = pkg.category || pkg.categorySlug || pkg.categoryName || '';
     const categoryLower = category.toLowerCase();
-    
+
     // Check if it's a WordPress plugin
     if (categoryLower.includes('wordpress') && categoryLower.includes('plugin')) {
       return `/plugins/${pkg.slug}`;
     }
-    
+
     return `/package/${pkg.slug}`;
   };
-const nextSlide = () => {
-    setCurrentSlide((prev) => 
+  const nextSlide = () => {
+    setCurrentSlide((prev) =>
       prev === featuredPackages.length - 1 ? 0 : prev + 1
     );
   };
 
   const prevSlide = () => {
-    setCurrentSlide((prev) => 
+    setCurrentSlide((prev) =>
       prev === 0 ? featuredPackages.length - 1 : prev - 1
     );
   };
@@ -279,79 +279,79 @@ const nextSlide = () => {
           { name: 'ICBM', content: '27.7172,85.3240' }
         ]}
       />
-      
+
       <div className="min-h-screen bg-gray-50">
         {/* Modern Navbar */}
         <Navbar />
 
-     
-      {/* Featured Products - Responsive Slider/Grid */}
-      <section className="max-w-7xl mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl md:text-2xl px-2 text-black font-semibold">Featured Digital Services</h2>
-        </div>
 
-        {/* Mobile Slider */}
-        <div className="block md:hidden relative">
-          <div className="overflow-hidden">
-            <div 
-              ref={sliderRef}
-              className="flex transition-transform duration-300 ease-in-out"
-              style={{ transform: `translateX(-${currentSlide * 100}%)` }}
-            >
-              {featuredPackages.map((pkg) => (
-                <div key={pkg.id} className="w-full flex-shrink-0 px-2">
-                  <div className="bg-white overflow-hidden shadow-sm border border-gray-200 rounded-lg">
-                    {/* Image Section */}
-                    <div className="relative overflow-hidden h-48">
-                      <img
-                        src={pkg.image}
-                        alt={pkg.title}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
+        {/* Featured Products - Responsive Slider/Grid */}
+        <section className="max-w-7xl mx-auto px-4 py-8">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-2xl md:text-2xl px-2 text-black font-semibold">Featured Digital Services</h2>
+          </div>
 
-                    {/* Content Section */}
-                    <div className="p-6">
-                      <Link href={getPackageLink(pkg)} >
-                     
-                      <h3 className="text-lg font-semibold text-black mb-4 line-clamp-2">
-                        {pkg.title}
-                      </h3> </Link>
+          {/* Mobile Slider */}
+          <div className="block md:hidden relative">
+            <div className="overflow-hidden">
+              <div
+                ref={sliderRef}
+                className="flex transition-transform duration-300 ease-in-out"
+                style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+              >
+                {featuredPackages.map((pkg) => (
+                  <div key={pkg.id} className="w-full flex-shrink-0 px-2">
+                    <div className="bg-white overflow-hidden shadow-sm border border-gray-200 rounded-lg">
+                      {/* Image Section */}
+                      <div className="relative overflow-hidden h-48">
+                        <img
+                          src={pkg.image}
+                          alt={pkg.title}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
 
-                      <div className="flex items-center justify-between">
-                        
+                      {/* Content Section */}
+                      <div className="p-6">
+                        <Link href={getPackageLink(pkg)} >
 
-                        <div className="text-xl text-gray-800">
-                          {convertPrice(pkg.price)}
+                          <h3 className="text-lg font-semibold text-black mb-4 line-clamp-2">
+                            {pkg.title}
+                          </h3> </Link>
+
+                        <div className="flex items-center justify-between">
+
+
+                          <div className="text-xl text-gray-800">
+                            {convertPrice(pkg.price)}
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
 
-          {/* Slider Navigation Arrows */}
-          <button
-            onClick={prevSlide}
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 bg-white cursor-pointer rounded-full p-2 shadow-lg hover:bg-gray-100 border border-gray-900 transition-colors z-10"
-            aria-label="Previous slide"
-          >
-            <ChevronLeft size={24} className="text-gray-900" />
-          </button>
-          
-          <button
-            onClick={nextSlide}
-            className="absolute right-0 top-1/2 -translate-y-1/2 -translate-x-0 bg-white cursor-pointer rounded-full p-2 shadow-lg hover:bg-gray-100 border border-gray-900 transition-colors z-10"
-            aria-label="Next slide"
-          >
-            <ChevronRight size={24} className="text-gray-900" />
-          </button>
+            {/* Slider Navigation Arrows */}
+            <button
+              onClick={prevSlide}
+              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 bg-white cursor-pointer rounded-full p-2 shadow-lg hover:bg-gray-100 border border-gray-900 transition-colors z-10"
+              aria-label="Previous slide"
+            >
+              <ChevronLeft size={24} className="text-gray-900" />
+            </button>
 
-          {/* Dots Indicator */}
-          {/* <div className="flex justify-center gap-2 mt-4">
+            <button
+              onClick={nextSlide}
+              className="absolute right-0 top-1/2 -translate-y-1/2 -translate-x-0 bg-white cursor-pointer rounded-full p-2 shadow-lg hover:bg-gray-100 border border-gray-900 transition-colors z-10"
+              aria-label="Next slide"
+            >
+              <ChevronRight size={24} className="text-gray-900" />
+            </button>
+
+            {/* Dots Indicator */}
+            {/* <div className="flex justify-center gap-2 mt-4">
             {featuredPackages.map((_, index) => (
               <button
                 key={index}
@@ -363,78 +363,78 @@ const nextSlide = () => {
               />
             ))}
           </div> */}
-        </div>
+          </div>
 
-        {/* Desktop Grid */}
-        <div className="hidden md:grid grid-cols-2 lg:grid-cols-4 gap-6 px-2">
-          {featuredPackages.map((pkg) => (
-            <div
-              key={pkg.id}
-              className="cursor-pointer group bg-white overflow-hidden shadow-sm 
+          {/* Desktop Grid */}
+          <div className="hidden md:grid grid-cols-2 lg:grid-cols-4 gap-6 px-2">
+            {featuredPackages.map((pkg) => (
+              <div
+                key={pkg.id}
+                className="cursor-pointer group bg-white overflow-hidden shadow-sm 
                 transition-all duration-300 border border-gray-700 hover:border-gray-800 flex flex-col"
-            >
-              {/* Image Section */}
-              <div className="relative overflow-hidden h-48">
-                <img
-                  src={pkg.image}
-                  alt={pkg.title}
-                  className="w-full h-full object-cover 
+              >
+                {/* Image Section */}
+                <div className="relative overflow-hidden h-48">
+                  <img
+                    src={pkg.image}
+                    alt={pkg.title}
+                    className="w-full h-full object-cover 
                     transition-transform duration-500 
                     group-hover:scale-110"
-                />
-              </div>
-
-              {/* Content Section */}
-              <div className="p-6 flex flex-col flex-1 justify-between">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 group-hover:underline transition-colors line-clamp-2">
-                  {pkg.title}
-                </h3>
-
-                <div className="flex items-center justify-between mt-auto">
-                 
-
-                  <div className="text-xl text-gray-900 ">
-                    {convertPrice(pkg.price)}
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Explore Categories */}
-      <section className="max-w-7xl mx-auto px-4 pb-8 pt-4" aria-label="Service Categories">
-        <h2 className="text-2xl md:text-2xl px-2  text-black font-semibold">Explore Our Digital Services</h2>
-        <p className="text-white px-2 py-2">Choose from a wide range of professional services tailored to your needs</p>
-
-        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6 px-2">
-          {categories.map((category) => (
-            <Link 
-              href={category.slug === 'wordpress-plugins' ? `/plugins` : `/category/${category.slug}`} 
-              key={category.id}
-            >
-              <div
-                className={`${category.bgColor} rounded-2xl p-6 transition-all duration-300 cursor-pointer group border border-gray-100  border border-gray-400`}
-              >
-                <div className="flex items-center justify-center gap-2 mb-4 group-hover:text-gray-700">
-                  <div className="text-sm sm:text-lg text-center text-black group-hover:underline">
-                    {category.name}
-                  </div>
-                  <ChevronRight
-                    className="text-gray-900"
-                    size={12}
                   />
                 </div>
 
-               
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
+                {/* Content Section */}
+                <div className="p-6 flex flex-col flex-1 justify-between">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4 group-hover:underline transition-colors line-clamp-2">
+                    {pkg.title}
+                  </h3>
 
-    <Footer />
+                  <div className="flex items-center justify-between mt-auto">
+
+
+                    <div className="text-xl text-gray-900 ">
+                      {convertPrice(pkg.price)}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Explore Categories */}
+        <section className="max-w-7xl mx-auto px-4 pb-8 pt-4" aria-label="Service Categories">
+          <h2 className="text-2xl md:text-2xl px-2  text-black font-semibold">Explore Our Digital Services</h2>
+          <p className="text-white px-2 py-2">Choose from a wide range of professional services tailored to your needs</p>
+
+          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6 px-2 auto-rows-fr">
+            {categories.map((category) => (
+              <Link
+                href={category.slug === 'wordpress-plugins' ? `/plugins` : `/category/${category.slug}`}
+                key={category.id}
+              >
+                <div
+                  className={`${category.bgColor} rounded-2xl p-6 transition-all duration-300 cursor-pointer group border border-gray-100  border border-gray-400`}
+                >
+                  <div className="flex items-center justify-center gap-2 mb-4 group-hover:text-gray-700">
+                    <div className="text-sm sm:text-lg text-center text-black group-hover:underline">
+                      {category.name}
+                    </div>
+                    <ChevronRight
+                      className="text-gray-900"
+                      size={12}
+                    />
+                  </div>
+
+
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        <Footer />
       </div>
     </>
   );
