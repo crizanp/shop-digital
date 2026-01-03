@@ -5,6 +5,7 @@ import Navbar from '@/components/Navbar';
 import { Star, ChevronRight } from 'lucide-react';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import Link from 'next/link';
+import Footer from '@/components/Footer';
 
 export default function SubcategoryPage({ initialPackages, category, subcategory, categories, initialPagination }) {
   const router = useRouter();
@@ -293,6 +294,7 @@ const convertPrice = (priceString) => {
             </div>
           </div>
         </div>
+      <Footer />
       </div>
     </>
   );

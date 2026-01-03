@@ -5,6 +5,7 @@ import Navbar from '@/components/Navbar';
 import { Star, ChevronRight } from 'lucide-react';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import Link from 'next/link';
+import Footer from '@/components/Footer';
 
 export default function CategoryPage({ initialPackages, category, categories, initialPagination }) {
   const router = useRouter();
@@ -280,6 +281,7 @@ export default function CategoryPage({ initialPackages, category, categories, in
             </div>
           </div>
         </div>
+        <Footer/>
       </div>
     </>
   );

@@ -7,6 +7,7 @@ import connectDB from '@/lib/mongodb';
 import { Package, Category } from '@/lib/models';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import Link from 'next/link';
+import Footer from '@/components/Footer';
 
 const slugify = (s = '') =>
   s
@@ -426,6 +427,7 @@ export default function PackageDetail({ packageData, categories, relatedPackages
             </div>
           )}
         </div>
+        <Footer />
       </div>
     </>
   );
