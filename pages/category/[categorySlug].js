@@ -23,6 +23,15 @@ export default function CategoryPage({ initialPackages, category, categories, in
     const convertedPrice = numericPrice * exchangeRates[currencyInfo.currency];
     return `${currencyInfo.symbol}${convertedPrice.toFixed(2)}`;
   };
+
+  // Update packages when category changes
+  useEffect(() => {
+    setPackages(initialPackages);
+    setPagination(initialPagination);
+    setCurrentPage(1);
+    setSortBy('default');
+  }, [categorySlug, initialPackages, initialPagination]);
+
   useEffect(() => {
     if (sortBy !== 'default') {
       sortPackages(sortBy);
