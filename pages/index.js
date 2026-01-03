@@ -415,17 +415,17 @@ const ModernMarketplace = ({ initialFeaturedPackages = [] }) => {
                 key={category.id}
               >
                 <div
-                  className={`${category.bgColor} rounded-2xl p-6 transition-all duration-300 cursor-pointer group border border-gray-100  border border-gray-400`}
+                  className={`${category.bgColor} h-full rounded-2xl p-6 
+  transition-all duration-300 cursor-pointer group 
+  border border-gray-400 flex items-center justify-center`}
                 >
-                  <div className="flex items-center justify-center gap-2 mb-4 group-hover:text-gray-700">
-                    <div className="text-sm sm:text-lg text-center text-black group-hover:underline">
+                  <div className="flex items-center justify-center gap-2 text-center">
+                    <span className="text-sm sm:text-lg text-black group-hover:underline">
                       {category.name}
-                    </div>
-                    <ChevronRight
-                      className="text-gray-900"
-                      size={12}
-                    />
+                    </span>
+                    <ChevronRight className="text-gray-900" size={12} />
                   </div>
+
 
 
                 </div>
