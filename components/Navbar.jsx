@@ -24,8 +24,8 @@ const Navbar = ({ activeCategory, activeSubcategory }) => {
     const categories = [
         {
             _id: 'cat-1',
-            name: 'Video Editing',
-            slug: 'video-editing',
+            name: 'Media & Commercial',
+            slug: 'media-commercial',
             hasSubcategories: false,
             subcategories: []
         },

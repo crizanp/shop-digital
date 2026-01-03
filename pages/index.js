@@ -163,11 +163,11 @@ const ModernMarketplace = ({ initialFeaturedPackages = [] }) => {
             >
               <div
                 className="h-full cursor-pointer group bg-white overflow-hidden shadow-sm 
-                   transition-all duration-300 border p-2 border-gray-500
+                   transition-all duration-300 border border-gray-500
                    flex flex-col"
               >
                 {/* Image Section */}
-                <div className="relative overflow-hidden h-48 w-full">
+                <div className="relative overflow-hidden h-full w-full">
                   <img
                     src={pkg.image}
                     alt={pkg.title}
