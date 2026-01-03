@@ -275,7 +275,7 @@ const ModernMarketplace = ({ initialFeaturedPackages = [] }) => {
       {/* Featured Products */}
       <section className="max-w-7xl mx-auto px-4 py-12" aria-label="Featured Products">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-4xl text-black">Featured Digital Services</h1>
+          <h1 className="text-2xl text-black">Featured Digital Services</h1>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -337,7 +337,7 @@ const ModernMarketplace = ({ initialFeaturedPackages = [] }) => {
 
       {/* Explore Categories */}
       <section className="max-w-7xl mx-auto px-4 py-12" aria-label="Service Categories">
-        <h2 className="text-4xl px-2 text-gray-900 mb-4">Explore Our Digital Services</h2>
+        <h2 className="text-2xl px-2 text-gray-900 mb-4">Explore Our Digital Services</h2>
         <p className="text-gray-600 px-2 mb-8">Choose from a wide range of professional services tailored to your needs</p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
