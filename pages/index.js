@@ -288,7 +288,7 @@ const nextSlide = () => {
       {/* Featured Products - Responsive Slider/Grid */}
       <section className="max-w-7xl mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl md:text-2xl px-2 text-gray-900">Featured Digital Services</h2>
+          <h2 className="text-2xl md:text-2xl px-2 text-black font-semibold">Featured Digital Services</h2>
         </div>
 
         {/* Mobile Slider */}
@@ -344,7 +344,7 @@ const nextSlide = () => {
           
           <button
             onClick={nextSlide}
-            className="absolute right-0 top-1/2 -translate-y-1/2 -translate-x-2 bg-white cursor-pointer rounded-full p-2 shadow-lg hover:bg-gray-100 border border-gray-900 transition-colors z-10"
+            className="absolute right-0 top-1/2 -translate-y-1/2 -translate-x-0 bg-white cursor-pointer rounded-full p-2 shadow-lg hover:bg-gray-100 border border-gray-900 transition-colors z-10"
             aria-label="Next slide"
           >
             <ChevronRight size={24} className="text-gray-900" />
@@ -366,7 +366,7 @@ const nextSlide = () => {
         </div>
 
         {/* Desktop Grid */}
-        <div className="hidden md:grid grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="hidden md:grid grid-cols-2 lg:grid-cols-4 gap-6 px-2">
           {featuredPackages.map((pkg) => (
             <div
               key={pkg.id}
@@ -405,17 +405,17 @@ const nextSlide = () => {
 
       {/* Explore Categories */}
       <section className="max-w-7xl mx-auto px-4 pb-8 pt-4" aria-label="Service Categories">
-        <h2 className="text-2xl px-2 text-gray-900 mb-4">Explore Our Digital Services</h2>
-        <p className="text-white px-2 ">Choose from a wide range of professional services tailored to your needs</p>
+        <h2 className="text-2xl md:text-2xl px-2  text-black font-semibold">Explore Our Digital Services</h2>
+        <p className="text-white px-2 py-2">Choose from a wide range of professional services tailored to your needs</p>
 
-        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6 px-2">
           {categories.map((category) => (
             <Link 
               href={category.slug === 'wordpress-plugins' ? `/plugins` : `/category/${category.slug}`} 
               key={category.id}
             >
               <div
-                className={`${category.bgColor} rounded-2xl p-8 transition-all duration-300 cursor-pointer group border border-gray-100  border border-gray-400`}
+                className={`${category.bgColor} rounded-2xl p-6 transition-all duration-300 cursor-pointer group border border-gray-100  border border-gray-400`}
               >
                 <div className="flex items-center justify-center gap-2 mb-4 group-hover:text-gray-700">
                   <div className="text-sm sm:text-lg text-center text-black group-hover:underline">
