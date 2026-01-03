@@ -315,14 +315,14 @@ const nextSlide = () => {
                     <div className="p-6">
                       <Link href={getPackageLink(pkg)} >
                      
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4 line-clamp-2">
+                      <h3 className="text-lg font-semibold text-black mb-4 line-clamp-2">
                         {pkg.title}
                       </h3> </Link>
 
                       <div className="flex items-center justify-between">
                         
 
-                        <div className="text-xl font-bold text-gray-900">
+                        <div className="text-xl text-gray-800">
                           {convertPrice(pkg.price)}
                         </div>
                       </div>
@@ -344,7 +344,7 @@ const nextSlide = () => {
           
           <button
             onClick={nextSlide}
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 bg-white cursor-pointer rounded-full p-2 shadow-lg hover:bg-gray-100 transition-colors z-10"
+            className="absolute right-0 top-1/2 -translate-y-1/2 -translate-x-2 bg-white cursor-pointer rounded-full p-2 shadow-lg hover:bg-gray-100 border border-gray-900 transition-colors z-10"
             aria-label="Next slide"
           >
             <ChevronRight size={24} className="text-gray-900" />
@@ -393,7 +393,7 @@ const nextSlide = () => {
                 <div className="flex items-center justify-between mt-auto">
                  
 
-                  <div className="text-xl font-bold text-gray-900 ">
+                  <div className="text-xl text-gray-900 ">
                     {convertPrice(pkg.price)}
                   </div>
                 </div>
@@ -404,32 +404,30 @@ const nextSlide = () => {
       </section>
 
       {/* Explore Categories */}
-      <section className="max-w-7xl mx-auto px-4 py-12" aria-label="Service Categories">
+      <section className="max-w-7xl mx-auto px-4 pb-8 pt-4" aria-label="Service Categories">
         <h2 className="text-2xl px-2 text-gray-900 mb-4">Explore Our Digital Services</h2>
-        <p className="text-gray-600 px-2 mb-8">Choose from a wide range of professional services tailored to your needs</p>
+        <p className="text-white px-2 ">Choose from a wide range of professional services tailored to your needs</p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {categories.map((category) => (
             <Link 
               href={category.slug === 'wordpress-plugins' ? `/plugins` : `/category/${category.slug}`} 
               key={category.id}
             >
               <div
-                className={`${category.bgColor} rounded-2xl p-8 transition-all duration-300 cursor-pointer group border border-gray-100`}
+                className={`${category.bgColor} rounded-2xl p-8 transition-all duration-300 cursor-pointer group border border-gray-100  border border-gray-400`}
               >
                 <div className="flex items-center justify-center gap-2 mb-4 group-hover:text-gray-700">
-                  <div className="text-xl text-black group-hover:underline">
+                  <div className="text-sm sm:text-lg text-center text-black group-hover:underline">
                     {category.name}
                   </div>
                   <ChevronRight
-                    className="text-gray-400"
-                    size={24}
+                    className="text-gray-900"
+                    size={12}
                   />
                 </div>
 
-                <p className="text-sm text-gray-600">
-                  {category.description}
-                </p>
+               
               </div>
             </Link>
           ))}

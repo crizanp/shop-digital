@@ -187,12 +187,12 @@ const Navbar = ({ activeCategory, activeSubcategory }) => {
                             onClick={() => handleLinkClick('/')}
                             className="flex flex-col group cursor-pointer"
                         >
-                            <div className="text-2xl font-bold text-gray-900 group-hover:text-gray-600 transition-colors">
-                                foxbeep
-                            </div>
-                            <div className="text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                Marketplace
-                            </div>
+                           <img
+                                src="/images/logo_black.png"
+                                alt="Foxbeep Logo"
+                                className="h-10 w-auto my-auto group-hover:opacity-80 transition-opacity"
+                            />
+                            
                         </LoadingLink>
                     </div>
 
