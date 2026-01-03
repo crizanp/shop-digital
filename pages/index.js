@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Search, Menu, X, ChevronDown, ChevronRight, Star, Clock, TrendingUp, Package } from 'lucide-react';
+import React, { useRef, useState } from 'react';
+import { Search, Menu, X, ChevronDown, ChevronRight, Star, Clock, TrendingUp, Package, ChevronLeft } from 'lucide-react';
 import Link from 'next/link';
 import Head from 'next/head';
 import Navbar from '@/components/Navbar';
@@ -13,6 +13,8 @@ const ModernMarketplace = ({ initialFeaturedPackages = [] }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [featuredPackages, setFeaturedPackages] = useState(initialFeaturedPackages);
   const { currencyInfo, exchangeRates } = useCurrency();
+  const sliderRef = useRef(null);
+  const [currentSlide, setCurrentSlide] = useState(0);
 
   const getPackageLink = (pkg) => {
     // Check multiple possible category field variations
@@ -26,7 +28,17 @@ const ModernMarketplace = ({ initialFeaturedPackages = [] }) => {
     
     return `/package/${pkg.slug}`;
   };
+const nextSlide = () => {
+    setCurrentSlide((prev) => 
+      prev === featuredPackages.length - 1 ? 0 : prev + 1
+    );
+  };
 
+  const prevSlide = () => {
+    setCurrentSlide((prev) => 
+      prev === 0 ? featuredPackages.length - 1 : prev - 1
+    );
+  };
   const convertPrice = (price) => {
     // Handle both numeric and string prices
     const numericPrice = typeof price === 'string'
@@ -272,65 +284,121 @@ const ModernMarketplace = ({ initialFeaturedPackages = [] }) => {
         {/* Modern Navbar */}
         <Navbar />
 
-      {/* Featured Products */}
-      <section className="max-w-7xl mx-auto px-4 py-12" aria-label="Featured Products">
+     
+      {/* Featured Products - Responsive Slider/Grid */}
+      <section className="max-w-7xl mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-2xl text-black">Featured Digital Services</h1>
+          <h2 className="text-2xl md:text-2xl px-2 text-gray-900">Featured Digital Services</h2>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {featuredPackages.map((pkg) => (
-            <Link 
-              key={pkg._id || pkg.id} 
-              href={getPackageLink(pkg)} 
-              className="h-full"
+        {/* Mobile Slider */}
+        <div className="block md:hidden relative">
+          <div className="overflow-hidden">
+            <div 
+              ref={sliderRef}
+              className="flex transition-transform duration-300 ease-in-out"
+              style={{ transform: `translateX(-${currentSlide * 100}%)` }}
             >
-              <div
-                className="h-full cursor-pointer group bg-white overflow-hidden shadow-sm 
-                   transition-all duration-300 border border-gray-500
-                   flex flex-col"
-              >
-                {/* Image Section */}
-                <div className="relative overflow-hidden h-full w-full">
-                  <img
-                    src={pkg.image}
-                    alt={pkg.title}
-                    className="w-full h-full object-cover 
-                       transition-transform duration-500 
-                       group-hover:scale-105"
-                  />
-                </div>
-
-                {/* Content Section */}
-                <div className="p-6 flex flex-col flex-1 justify-between">
-                  <h3 className="text-lg text-center text-gray-900 mb-4 group-hover:underline">
-                    {pkg.title}
-                  </h3>
-
-                  <div className="flex items-center justify-between mt-auto">
-                    <div className="flex items-center gap-2">
-                      {pkg.reviews ? (
-                        <>
-                          <div className="flex items-center">
-                            <Star size={16} className="text-yellow-400 fill-yellow-400" />
-                            <span className="text-sm font-semibold text-gray-900 ml-1">
-                              {pkg.rating || 5}
-                            </span>
-                          </div>
-                          <span className="text-xs text-gray-500">
-                            ({pkg.reviews})
-                          </span>
-                        </>
-                      ) : null}
+              {featuredPackages.map((pkg) => (
+                <div key={pkg.id} className="w-full flex-shrink-0 px-2">
+                  <div className="bg-white overflow-hidden shadow-sm border border-gray-200 rounded-lg">
+                    {/* Image Section */}
+                    <div className="relative overflow-hidden h-48">
+                      <img
+                        src={pkg.image}
+                        alt={pkg.title}
+                        className="w-full h-full object-cover"
+                      />
                     </div>
 
-                    <div className="text-xl font-bold text-gray-900">
-                      {convertPrice(pkg.price)}
+                    {/* Content Section */}
+                    <div className="p-6">
+                      <Link href={getPackageLink(pkg)} >
+                     
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4 line-clamp-2">
+                        {pkg.title}
+                      </h3> </Link>
+
+                      <div className="flex items-center justify-between">
+                        
+
+                        <div className="text-xl font-bold text-gray-900">
+                          {convertPrice(pkg.price)}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Slider Navigation Arrows */}
+          <button
+            onClick={prevSlide}
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 bg-white cursor-pointer rounded-full p-2 shadow-lg hover:bg-gray-100 border border-gray-900 transition-colors z-10"
+            aria-label="Previous slide"
+          >
+            <ChevronLeft size={24} className="text-gray-900" />
+          </button>
+          
+          <button
+            onClick={nextSlide}
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 bg-white cursor-pointer rounded-full p-2 shadow-lg hover:bg-gray-100 transition-colors z-10"
+            aria-label="Next slide"
+          >
+            <ChevronRight size={24} className="text-gray-900" />
+          </button>
+
+          {/* Dots Indicator */}
+          {/* <div className="flex justify-center gap-2 mt-4">
+            {featuredPackages.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentSlide(index)}
+                className={`w-2 h-2 rounded-full transition-all ${
+                  currentSlide === index ? 'bg-blue-600 w-8' : 'bg-gray-300'
+                }`}
+                aria-label={`Go to slide ${index + 1}`}
+              />
+            ))}
+          </div> */}
+        </div>
+
+        {/* Desktop Grid */}
+        <div className="hidden md:grid grid-cols-2 lg:grid-cols-4 gap-6">
+          {featuredPackages.map((pkg) => (
+            <div
+              key={pkg.id}
+              className="cursor-pointer group bg-white overflow-hidden shadow-sm 
+                transition-all duration-300 border border-gray-700 hover:border-gray-800 flex flex-col"
+            >
+              {/* Image Section */}
+              <div className="relative overflow-hidden h-48">
+                <img
+                  src={pkg.image}
+                  alt={pkg.title}
+                  className="w-full h-full object-cover 
+                    transition-transform duration-500 
+                    group-hover:scale-110"
+                />
               </div>
-            </Link>
+
+              {/* Content Section */}
+              <div className="p-6 flex flex-col flex-1 justify-between">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 group-hover:underline transition-colors line-clamp-2">
+                  {pkg.title}
+                </h3>
+
+                <div className="flex items-center justify-between mt-auto">
+                 
+
+                  <div className="text-xl font-bold text-gray-900 ">
+                    {convertPrice(pkg.price)}
+                  </div>
+                </div>
+              </div>
+            </div>
           ))}
         </div>
       </section>
