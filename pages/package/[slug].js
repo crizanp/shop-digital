@@ -1,7 +1,7 @@
 // pages/details/[slug].js
 import Head from 'next/head';
 import { useState } from 'react';
-import { Star, ChevronRight, Menu, X } from 'lucide-react';
+import { Star, ChevronRight, Menu, X, FileDown, MessageCircle } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import connectDB from '@/lib/mongodb';
 import { Package, Category } from '@/lib/models';
@@ -9,6 +9,7 @@ import { useCurrency } from '@/contexts/CurrencyContext';
 import Link from 'next/link';
 import Footer from '@/components/Footer';
 import { truncateText } from '@/lib/seo-helpers';
+import { generateQuotationPDF } from '@/lib/pdf-generator';
 
 const slugify = (s = '') =>
   s
@@ -146,17 +147,20 @@ export default function PackageDetail({ packageData, categories, relatedPackages
     }));
   };
 
-  // Handle quotation request
+  // Handle quotation request with PDF generation
   const handleQuotationRequest = async () => {
-    const quotationData = {
-      packageTitle: packageData.title,
-      quantity,
-      totalPrice: calculateTotal(),
-      selectedOptions,
-      timestamp: new Date().toISOString()
-    };
-
     try {
+      // Generate PDF first
+      await generateQuotationPDF(packageData, quantity, selectedOptions, calculateTotal(), currencyInfo);
+      
+      const quotationData = {
+        packageTitle: packageData.title,
+        quantity,
+        totalPrice: calculateTotal(),
+        selectedOptions,
+        timestamp: new Date().toISOString()
+      };
+
       const payload = {
         packageTitle: quotationData.packageTitle,
         quantity: quotationData.quantity,
@@ -178,14 +182,24 @@ export default function PackageDetail({ packageData, categories, relatedPackages
       if (data.waLink) {
         window.open(data.waLink, '_blank');
       } else if (data.success) {
-        alert('Quotation sent successfully via WhatsApp API.');
+        alert('Quotation PDF downloaded! Message sent successfully via WhatsApp API.');
       } else {
         console.error('WhatsApp send error:', data);
-        alert('Could not send quotation via WhatsApp.');
+        alert('Quotation PDF downloaded! You can also contact via WhatsApp.');
       }
     } catch (err) {
       console.error('Error sending quotation:', err);
-      alert('Failed to send quotation.');
+      alert('Failed to process quotation.');
+    }
+  };
+
+  // Handle PDF download only
+  const handleDownloadPDF = async () => {
+    try {
+      await generateQuotationPDF(packageData, quantity, selectedOptions, calculateTotal(), currencyInfo);
+    } catch (err) {
+      console.error('Error downloading PDF:', err);
+      alert('Failed to download PDF.');
     }
   };
 
@@ -369,7 +383,7 @@ export default function PackageDetail({ packageData, categories, relatedPackages
 
             {/* Right Column - Sidebar */}
             <div className={`lg:col-span-1 ${quotationPanelOpen
-              ? 'fixed left-0 top-0 h-screen w-full bg-white shadow-lg z-50 lg:static lg:w-auto lg:relative lg:block flex flex-col'
+              ? 'fixed left-0 top-0 h-screen w-full bg-white shadow-lg z-10 lg:static lg:w-auto lg:relative lg:block flex flex-col'
               : 'hidden lg:block'
               }`}>
               {/* Close button for mobile */}
@@ -499,10 +513,21 @@ export default function PackageDetail({ packageData, categories, relatedPackages
                   {/* CTA Button */}
                   <button
                     onClick={handleQuotationRequest}
-                    className="w-full bg-gray-900 hover:bg-gray-800 text-white py-3 px-6 rounded-lg font-medium transition-colors mb-4"
+                    className="w-full bg-blue-900 cursor-pointer hover:bg-blue-800 text-white py-3 px-6 rounded-lg font-medium transition-colors mb-3 flex items-center justify-center gap-2"
                   >
-                    Get Quotation
+                    <MessageCircle size={18} />
+                    Contact WhatsApp
                   </button>
+
+                  {/* Download PDF Button */}
+                  <button
+                    onClick={handleDownloadPDF}
+                    className="w-full cursor-pointer bg-gray-900 hover:bg-gray-700 text-white py-3 px-6 rounded-lg font-medium transition-colors mb-4 flex items-center justify-center gap-2"
+                  >
+                    <FileDown size={18} />
+                    Download Quotation PDF
+                  </button>
+
 
                   {/* Features */}
                   {packageData.features?.length > 0 && (

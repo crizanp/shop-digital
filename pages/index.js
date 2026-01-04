@@ -306,7 +306,7 @@ const ModernMarketplace = ({ initialFeaturedPackages = [] }) => {
                 {featuredPackages.map((pkg, index) => (
                   <div key={pkg._id || pkg.id} className="w-full flex-shrink-0 px-2">
                     <Link href={getPackageLink(pkg)}>
-                      <div className={`${featuredCardColors[index % featuredCardColors.length]} rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300`}>
+                      <div className={`${featuredCardColors[index % featuredCardColors.length]} rounded-xl overflow-hidden border border-gray-400 transition-all duration-300`}>
                         {/* Image Section - Square */}
                         <div className="relative w-full aspect-square bg-white/30 overflow-hidden">
                           {pkg.images && pkg.images.length > 0 ? (
