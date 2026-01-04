@@ -176,7 +176,7 @@ const Navbar = ({ activeCategory, activeSubcategory }) => {
     };
 
     return (
-        <nav className={`bg-white border-b border-gray-200 sticky top-0 z-50 transition-shadow duration-300 ${scrolled ? 'shadow-md' : 'shadow-sm'}`}>
+        <nav className={`bg-white border-b border-gray-200 sticky top-0 lg:z-[100] transition-shadow duration-300 ${scrolled ? 'shadow-md' : 'shadow-sm'}`}>
             <div className="max-w-7xl mx-auto px-4 ">
                 {/* Top Section */}
                 <div className="flex items-center justify-between h-20">
@@ -187,12 +187,12 @@ const Navbar = ({ activeCategory, activeSubcategory }) => {
                             onClick={() => handleLinkClick('/')}
                             className="flex flex-col group cursor-pointer"
                         >
-                           <img
+                            <img
                                 src="/images/logo_black.png"
                                 alt="Foxbeep Logo"
                                 className="h-10 w-auto my-auto group-hover:opacity-80 transition-opacity"
                             />
-                            
+
                         </LoadingLink>
                     </div>
 
@@ -266,31 +266,31 @@ const Navbar = ({ activeCategory, activeSubcategory }) => {
                         </div>
                     </div>
 
-                  {/* Right Side Actions */}
-<div className="flex items-center space-x-3">
-    {/* Search Button - Mobile */}
-    <button
-        onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
-        className="md:hidden p-2 text-gray-600 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
-        aria-label="Search"
-    >
-        <Search size={20} />
-    </button>
+                    {/* Right Side Actions */}
+                    <div className="flex items-center space-x-3">
+                        {/* Search Button - Mobile */}
+                        <button
+                            onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
+                            className="md:hidden p-2 text-gray-600 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
+                            aria-label="Search"
+                        >
+                            <Search size={20} />
+                        </button>
 
-    {/* Currency Selector - Always visible */}
-    <div>
-        <CountrySelector />
-    </div>
+                        {/* Currency Selector - Always visible */}
+                        <div>
+                            <CountrySelector />
+                        </div>
 
-    {/* Mobile Menu Toggle */}
-    <button
-        onClick={() => setIsMenuOpen(!isMenuOpen)}
-        className="md:hidden p-1 text-gray-600 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
-        aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
-    >
-        {isMenuOpen ? <X size={14} /> : <Menu size={24} />}
-    </button>
-</div>
+                        {/* Mobile Menu Toggle */}
+                        <button
+                            onClick={() => setIsMenuOpen(!isMenuOpen)}
+                            className="md:hidden p-1 text-gray-600 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
+                            aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
+                        >
+                            {isMenuOpen ? <X size={14} /> : <Menu size={24} />}
+                        </button>
+                    </div>
                 </div>
 
                 {/* Mobile Search Bar */}
@@ -380,8 +380,8 @@ const Navbar = ({ activeCategory, activeSubcategory }) => {
                                     // "More" button without link
                                     <button
                                         className={`px-4 py-2 text-sm font-medium rounded-full whitespace-nowrap transition-colors flex items-center ${isActive
-                                                ? 'text-black bg-gray-50'
-                                                : 'text-black hover:text-gray-900 hover:bg-gray-50'
+                                            ? 'text-black bg-gray-50'
+                                            : 'text-black hover:text-gray-900 hover:bg-gray-50'
                                             }`}
                                     >
                                         {cat.name}
@@ -392,8 +392,8 @@ const Navbar = ({ activeCategory, activeSubcategory }) => {
                                     <LoadingLink
                                         href={categorySlug === 'wordpress-plugins' ? '/plugins' : `/category/${categorySlug}`}
                                         className={`px-4 py-2 text-sm font-medium rounded-full whitespace-nowrap transition-colors flex items-center ${isActive
-                                                ? 'text-black bg-gray-50'
-                                                : 'text-black hover:text-gray-900 hover:bg-gray-50'
+                                            ? 'text-black bg-gray-50'
+                                            : 'text-black hover:text-gray-900 hover:bg-gray-50'
                                             }`}
                                         onClick={() => handleLinkClick(categorySlug === 'wordpress-plugins' ? '/plugins' : `/category/${categorySlug}`)}
                                     >
@@ -407,19 +407,19 @@ const Navbar = ({ activeCategory, activeSubcategory }) => {
                                     <div className="absolute top-full left-0 mt-0 w-64 bg-white shadow-lg border border-gray-300 py-2 z-50">
                                         {cat.subcategories.map((sub) => {
                                             // For custom links, use the slug directly as href
-                                            const subHref = sub.isCustom 
-                                                ? sub.slug 
-                                                : (categorySlug === 'wordpress-plugins' 
-                                                    ? `/plugins?category=${sub.slug}` 
+                                            const subHref = sub.isCustom
+                                                ? sub.slug
+                                                : (categorySlug === 'wordpress-plugins'
+                                                    ? `/plugins?category=${sub.slug}`
                                                     : `/subcategory/${sub.slug}`);
-                                            
+
                                             return (
                                                 <LoadingLink
                                                     key={sub._id}
                                                     href={subHref}
                                                     className={`w-full text-left px-4 py-3 text-sm transition-colors block ${activeSubcategory === sub.slug
-                                                            ? 'text-gray-600 bg-gray-50 font-medium'
-                                                            : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                                                        ? 'text-gray-600 bg-gray-50 font-medium'
+                                                        : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
                                                         }`}
                                                     onClick={() => handleLinkClick(subHref)}
                                                 >
@@ -451,8 +451,8 @@ const Navbar = ({ activeCategory, activeSubcategory }) => {
                                         // "More" button without link in mobile
                                         <button
                                             className={`flex-1 text-left px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive
-                                                    ? 'text-gray-600 bg-gray-50'
-                                                    : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                                                ? 'text-gray-600 bg-gray-50'
+                                                : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
                                                 }`}
                                             onClick={() => hasSub && setActiveDropdown(activeDropdown === cat._id ? null : cat._id)}
                                         >
@@ -463,8 +463,8 @@ const Navbar = ({ activeCategory, activeSubcategory }) => {
                                         <LoadingLink
                                             href={categorySlug === 'wordpress-plugins' ? '/plugins' : `/category/${categorySlug}`}
                                             className={`flex-1 px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive
-                                                    ? 'text-gray-600 bg-gray-50'
-                                                    : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                                                ? 'text-gray-600 bg-gray-50'
+                                                : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
                                                 }`}
                                             onClick={() => handleLinkClick(categorySlug === 'wordpress-plugins' ? '/plugins' : `/category/${categorySlug}`)}
                                         >
@@ -490,19 +490,19 @@ const Navbar = ({ activeCategory, activeSubcategory }) => {
                                     <div className="mt-1 ml-4 space-y-1 border-l-2 border-gray-200 pl-3">
                                         {cat.subcategories.map((sub) => {
                                             // For custom links, use the slug directly as href
-                                            const subHref = sub.isCustom 
-                                                ? sub.slug 
-                                                : (categorySlug === 'wordpress-plugins' 
-                                                    ? `/plugins?category=${sub.slug}` 
+                                            const subHref = sub.isCustom
+                                                ? sub.slug
+                                                : (categorySlug === 'wordpress-plugins'
+                                                    ? `/plugins?category=${sub.slug}`
                                                     : `/subcategory/${sub.slug}`);
-                                            
+
                                             return (
                                                 <LoadingLink
                                                     key={sub._id}
                                                     href={subHref}
                                                     className={`block px-3 py-2.5 rounded-lg transition-colors text-sm ${activeSubcategory === sub.slug
-                                                            ? 'text-gray-600 bg-gray-50 font-medium'
-                                                            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-600'
+                                                        ? 'text-gray-600 bg-gray-50 font-medium'
+                                                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-600'
                                                         }`}
                                                     onClick={() => handleLinkClick(subHref)}
                                                 >
@@ -516,7 +516,7 @@ const Navbar = ({ activeCategory, activeSubcategory }) => {
                         );
                     })}
 
-                   
+
                 </div>
             )}
         </nav>

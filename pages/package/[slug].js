@@ -152,7 +152,7 @@ export default function PackageDetail({ packageData, categories, relatedPackages
     try {
       // Generate PDF first
       await generateQuotationPDF(packageData, quantity, selectedOptions, calculateTotal(), currencyInfo);
-      
+
       const quotationData = {
         packageTitle: packageData.title,
         quantity,
@@ -383,7 +383,7 @@ export default function PackageDetail({ packageData, categories, relatedPackages
 
             {/* Right Column - Sidebar */}
             <div className={`lg:col-span-1 ${quotationPanelOpen
-              ? 'fixed left-0 top-0 h-screen w-full bg-white shadow-lg z-10 lg:static lg:w-auto lg:relative lg:block flex flex-col'
+              ? 'fixed left-0 top-0 h-screen w-full bg-white shadow-lg z-50  lg:static lg:w-auto lg:relative lg:block flex flex-col'
               : 'hidden lg:block'
               }`}>
               {/* Close button for mobile */}
@@ -509,7 +509,14 @@ export default function PackageDetail({ packageData, categories, relatedPackages
                       </span>
                     </div>
                   </div>
-
+                  {/* Download PDF Button */}
+                  <button
+                    onClick={handleDownloadPDF}
+                    className="w-full cursor-pointer bg-gray-900 hover:bg-gray-700 text-white py-3 px-6 rounded-lg font-medium transition-colors mb-4 flex items-center justify-center gap-2"
+                  >
+                    <FileDown size={18} />
+                    Download Quotation PDF
+                  </button>
                   {/* CTA Button */}
                   <button
                     onClick={handleQuotationRequest}
@@ -519,14 +526,7 @@ export default function PackageDetail({ packageData, categories, relatedPackages
                     Contact WhatsApp
                   </button>
 
-                  {/* Download PDF Button */}
-                  <button
-                    onClick={handleDownloadPDF}
-                    className="w-full cursor-pointer bg-gray-900 hover:bg-gray-700 text-white py-3 px-6 rounded-lg font-medium transition-colors mb-4 flex items-center justify-center gap-2"
-                  >
-                    <FileDown size={18} />
-                    Download Quotation PDF
-                  </button>
+
 
 
                   {/* Features */}
