@@ -64,8 +64,8 @@ const ModernMarketplace = ({ initialFeaturedPackages = [] }) => {
   const categories = [
     {
       id: 1,
-      name: 'Video Editing',
-      slug: 'video-editing',
+      name: 'Media and commercial',
+      slug: 'media-commercial',
       color: 'from-blue-400 to-blue-600',
       bgColor: 'bg-blue-50',
       icon: '🎬',
