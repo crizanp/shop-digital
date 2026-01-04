@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Search, Menu, X, ChevronDown, ChevronRight, Star, Clock, TrendingUp, Package, ChevronLeft } from 'lucide-react';
 import Link from 'next/link';
 import Head from 'next/head';
@@ -12,10 +12,34 @@ const ModernMarketplace = ({ initialFeaturedPackages = [] }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [featuredPackages, setFeaturedPackages] = useState(initialFeaturedPackages);
+  const [featuredPackages, setFeaturedPackages] = useState([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
+  const [packagesLoading, setPackagesLoading] = useState(true);
   const { currencyInfo, exchangeRates } = useCurrency();
   const sliderRef = useRef(null);
   const [currentSlide, setCurrentSlide] = useState(0);
+
+  // Simulate loading and set packages when component mounts
+  useEffect(() => {
+    setPackagesLoading(true);
+    // Simulate a small delay to show skeleton loader (in real scenario, this would be the API call time)
+    const timer = setTimeout(() => {
+      setFeaturedPackages(initialFeaturedPackages);
+      setPackagesLoading(false);
+    }, 300);
+    
+    return () => clearTimeout(timer);
+  }, [initialFeaturedPackages]);
+
+  // Categories load after packages
+  useEffect(() => {
+    setCategoriesLoading(true);
+    const timer = setTimeout(() => {
+      setCategoriesLoading(false);
+    }, 500);
+    
+    return () => clearTimeout(timer);
+  }, []);
 
   const getPackageLink = (pkg) => {
     const category = pkg.category || pkg.categorySlug || pkg.categoryName || '';
@@ -299,54 +323,58 @@ const ModernMarketplace = ({ initialFeaturedPackages = [] }) => {
           {/* Mobile Slider */}
           <div className="block md:hidden relative">
             <div className="overflow-hidden">
-              <div
-                ref={sliderRef}
-                className="flex transition-transform duration-300 ease-in-out"
-                style={{ transform: `translateX(-${currentSlide * 100}%)` }}
-              >
-                {featuredPackages && featuredPackages.length > 0 ? (
-                  featuredPackages.map((pkg, index) => (
-                    <div key={pkg._id || pkg.id} className="w-full flex-shrink-0 px-2">
-                      <Link href={getPackageLink(pkg)}>
-                        <div className={`${featuredCardColors[index % featuredCardColors.length]} rounded-xl overflow-hidden border border-gray-400 transition-all duration-300`}>
-                          {/* Image Section - Square */}
-                          <div className="relative w-full aspect-square bg-white/30 overflow-hidden">
-                            {pkg.images && pkg.images.length > 0 ? (
-                              <img
-                                src={pkg.images[0]}
-                                alt={pkg.title}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : pkg.image ? (
-                              <img
-                                src={pkg.image}
-                                alt={pkg.title}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center">
-                                <Package className="w-16 h-16 text-gray-400" />
-                              </div>
-                            )}
-                          </div>
+              {packagesLoading ? (
+                <PackageCardSkeleton count={4} />
+              ) : (
+                <div
+                  ref={sliderRef}
+                  className="flex transition-transform duration-300 ease-in-out"
+                  style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+                >
+                  {featuredPackages && featuredPackages.length > 0 ? (
+                    featuredPackages.map((pkg, index) => (
+                      <div key={pkg._id || pkg.id} className="w-full flex-shrink-0 px-2">
+                        <Link href={getPackageLink(pkg)}>
+                          <div className={`${featuredCardColors[index % featuredCardColors.length]} rounded-xl overflow-hidden border border-gray-400 transition-all duration-300`}>
+                            {/* Image Section - Square */}
+                            <div className="relative w-full aspect-square bg-white/30 overflow-hidden">
+                              {pkg.images && pkg.images.length > 0 ? (
+                                <img
+                                  src={pkg.images[0]}
+                                  alt={pkg.title}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : pkg.image ? (
+                                <img
+                                  src={pkg.image}
+                                  alt={pkg.title}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center">
+                                  <Package className="w-16 h-16 text-gray-400" />
+                                </div>
+                              )}
+                            </div>
 
-                          {/* Content Section */}
-                          <div className="p-5">
-                            <h3 className="text-lg font-semibold text-gray-900 mb-3 line-clamp-2 min-h-[3.5rem]">
-                              {pkg.title}
-                            </h3>
-                            <div className="text-xl font-bold text-gray-800">
-                              {convertPrice(pkg.price)}
+                            {/* Content Section */}
+                            <div className="p-5">
+                              <h3 className="text-lg font-semibold text-gray-900 mb-3 line-clamp-2 min-h-[3.5rem]">
+                                {pkg.title}
+                              </h3>
+                              <div className="text-xl font-bold text-gray-800">
+                                {convertPrice(pkg.price)}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </Link>
-                    </div>
-                  ))
-                ) : (
-                  <PackageCardSkeleton count={4} />
-                )}
-              </div>
+                        </Link>
+                      </div>
+                    ))
+                  ) : (
+                    <PackageCardSkeleton count={4} />
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Slider Navigation Arrows */}
@@ -418,7 +446,9 @@ const ModernMarketplace = ({ initialFeaturedPackages = [] }) => {
           <p className="text-transparent px-2 py-2">Choose from a wide range of professional services tailored to your needs</p>
 
           <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6 px-2 auto-rows-fr">
-            {categories && categories.length > 0 ? (
+            {categoriesLoading ? (
+              <CategoryCardSkeleton count={9} />
+            ) : categories && categories.length > 0 ? (
               categories.map((category) => (
                 <Link
                   href={category.slug === 'wordpress-plugins' ? `/plugins` : `/category/${category.slug}`}
