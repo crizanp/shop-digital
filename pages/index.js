@@ -17,17 +17,16 @@ const ModernMarketplace = ({ initialFeaturedPackages = [] }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const getPackageLink = (pkg) => {
-    // Check multiple possible category field variations
     const category = pkg.category || pkg.categorySlug || pkg.categoryName || '';
     const categoryLower = category.toLowerCase();
 
-    // Check if it's a WordPress plugin
     if (categoryLower.includes('wordpress') && categoryLower.includes('plugin')) {
       return `/plugins/${pkg.slug}`;
     }
 
     return `/package/${pkg.slug}`;
   };
+
   const nextSlide = () => {
     setCurrentSlide((prev) =>
       prev === featuredPackages.length - 1 ? 0 : prev + 1
@@ -39,18 +38,28 @@ const ModernMarketplace = ({ initialFeaturedPackages = [] }) => {
       prev === 0 ? featuredPackages.length - 1 : prev - 1
     );
   };
+
   const convertPrice = (price) => {
-    // Handle both numeric and string prices
-    const numericPrice = typeof price === 'string'
-      ? parseFloat(price.replace(/[^0-9.]/g, ''))
+    const numericPrice = typeof price === 'string' 
+      ? parseFloat(price.replace(/[^0-9.]/g, '')) 
       : parseFloat(price);
-
-    // Assume prices are stored in USD, convert to selected currency
+    
     const convertedPrice = numericPrice * exchangeRates[currencyInfo.currency];
-
-    // Format with currency symbol
+    
     return `${currencyInfo.symbol}${convertedPrice.toFixed(2)}`;
   };
+
+  // Array of light background colors for featured cards
+  const featuredCardColors = [
+    'bg-blue-50',
+    'bg-purple-50',
+    'bg-pink-50',
+    'bg-green-50',
+    'bg-yellow-50',
+    'bg-orange-50',
+    'bg-teal-50',
+    'bg-indigo-50'
+  ];
 
   const categories = [
     {
@@ -158,7 +167,6 @@ const ModernMarketplace = ({ initialFeaturedPackages = [] }) => {
     }
   ];
 
-  // Structured data for homepage
   const homePageSchema = {
     "@context": "https://schema.org",
     "@type": "WebSite",
@@ -200,7 +208,6 @@ const ModernMarketplace = ({ initialFeaturedPackages = [] }) => {
     }
   };
 
-  // BreadcrumbList schema
   const breadcrumbSchema = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -214,7 +221,6 @@ const ModernMarketplace = ({ initialFeaturedPackages = [] }) => {
     ]
   };
 
-  // FAQSchema for common questions
   const faqSchema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -281,9 +287,7 @@ const ModernMarketplace = ({ initialFeaturedPackages = [] }) => {
       />
 
       <div className="min-h-screen bg-gray-50">
-        {/* Modern Navbar */}
         <Navbar />
-
 
         {/* Featured Products - Responsive Slider/Grid */}
         <section className="max-w-7xl mx-auto px-4 py-8">
@@ -299,35 +303,42 @@ const ModernMarketplace = ({ initialFeaturedPackages = [] }) => {
                 className="flex transition-transform duration-300 ease-in-out"
                 style={{ transform: `translateX(-${currentSlide * 100}%)` }}
               >
-                {featuredPackages.map((pkg) => (
-                  <div key={pkg.id} className="w-full flex-shrink-0 px-2">
-                    <div className="bg-white overflow-hidden shadow-sm border border-gray-200 rounded-lg">
-                      {/* Image Section */}
-                      <div className="relative overflow-hidden h-48">
-                        <img
-                          src={pkg.image}
-                          alt={pkg.title}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
+                {featuredPackages.map((pkg, index) => (
+                  <div key={pkg._id || pkg.id} className="w-full flex-shrink-0 px-2">
+                    <Link href={getPackageLink(pkg)}>
+                      <div className={`${featuredCardColors[index % featuredCardColors.length]} rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300`}>
+                        {/* Image Section - Square */}
+                        <div className="relative w-full aspect-square bg-white/30 overflow-hidden">
+                          {pkg.images && pkg.images.length > 0 ? (
+                            <img
+                              src={pkg.images[0]}
+                              alt={pkg.title}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : pkg.image ? (
+                            <img
+                              src={pkg.image}
+                              alt={pkg.title}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <Package className="w-16 h-16 text-gray-400" />
+                            </div>
+                          )}
+                        </div>
 
-                      {/* Content Section */}
-                      <div className="p-6">
-                        <Link href={getPackageLink(pkg)} >
-
-                          <h3 className="text-lg font-semibold text-black mb-4 line-clamp-2">
+                        {/* Content Section */}
+                        <div className="p-5">
+                          <h3 className="text-lg font-semibold text-gray-900 mb-3 line-clamp-2 min-h-[3.5rem]">
                             {pkg.title}
-                          </h3> </Link>
-
-                        <div className="flex items-center justify-between">
-
-
-                          <div className="text-xl text-gray-800">
+                          </h3>
+                          <div className="text-xl font-bold text-gray-800">
                             {convertPrice(pkg.price)}
                           </div>
                         </div>
                       </div>
-                    </div>
+                    </Link>
                   </div>
                 ))}
               </div>
@@ -344,70 +355,58 @@ const ModernMarketplace = ({ initialFeaturedPackages = [] }) => {
 
             <button
               onClick={nextSlide}
-              className="absolute right-0 top-1/2 -translate-y-1/2 -translate-x-0 bg-white cursor-pointer rounded-full p-2 shadow-lg hover:bg-gray-100 border border-gray-900 transition-colors z-10"
+              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 bg-white cursor-pointer rounded-full p-2 shadow-lg hover:bg-gray-100 border border-gray-900 transition-colors z-10"
               aria-label="Next slide"
             >
               <ChevronRight size={24} className="text-gray-900" />
             </button>
-
-            {/* Dots Indicator */}
-            {/* <div className="flex justify-center gap-2 mt-4">
-            {featuredPackages.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentSlide(index)}
-                className={`w-2 h-2 rounded-full transition-all ${
-                  currentSlide === index ? 'bg-blue-600 w-8' : 'bg-gray-300'
-                }`}
-                aria-label={`Go to slide ${index + 1}`}
-              />
-            ))}
-          </div> */}
           </div>
 
           {/* Desktop Grid */}
           <div className="hidden md:grid grid-cols-2 lg:grid-cols-4 gap-6 px-2">
-            {featuredPackages.map((pkg) => (
-              <Link key={pkg.id} href={getPackageLink(pkg)}>
-              <div
-                key={pkg.id}
-                className="cursor-pointer group bg-white overflow-hidden shadow-sm 
-                transition-all duration-300 border border-gray-700 hover:border-gray-800 flex flex-col"
-              >
-                {/* Image Section */}
-                <div className="relative overflow-hidden h-48">
-                  <img
-                    src={pkg.image}
-                    alt={pkg.title}
-                    className="w-full h-full object-cover 
-                    transition-transform duration-500 
-                    group-hover:scale-110"
-                  />
-                </div>
+            {featuredPackages.map((pkg, index) => (
+              <Link key={pkg._id || pkg.id} href={getPackageLink(pkg)}>
+                <div className={`${featuredCardColors[index % featuredCardColors.length]} rounded-xl overflow-hidden border border-gray-400 transition-all duration-300 hover:scale-[1.02] h-full flex flex-col`}>
+                  {/* Image Section - Square */}
+                  <div className="relative w-full aspect-square bg-black/70 overflow-hidden">
+                    {pkg.images && pkg.images.length > 0 ? (
+                      <img
+                        src={pkg.images[0]}
+                        alt={pkg.title}
+                        className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+                      />
+                    ) : pkg.image ? (
+                      <img
+                        src={pkg.image}
+                        alt={pkg.title}
+                        className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <Package className="w-20 h-20 text-gray-400" />
+                      </div>
+                    )}
+                  </div>
 
-                {/* Content Section */}
-                <div className="p-6 flex flex-col flex-1 justify-between">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 group-hover:underline transition-colors line-clamp-2">
-                    {pkg.title}
-                  </h3>
-
-                  <div className="flex items-center justify-between mt-auto">
-
-
-                    <div className="text-xl text-gray-900 ">
+                  {/* Content Section */}
+                  <div className="p-5 flex-1 flex flex-col justify-between">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-3 line-clamp-2 min-h-[3.5rem] hover:underline">
+                      {pkg.title}
+                    </h3>
+                    <div className="text-xl font-bold text-gray-800">
                       {convertPrice(pkg.price)}
                     </div>
                   </div>
                 </div>
-              </div> </Link>
+              </Link>
             ))}
           </div>
         </section>
 
         {/* Explore Categories */}
         <section className="max-w-7xl mx-auto px-4 pb-8 pt-4" aria-label="Service Categories">
-          <h2 className="text-2xl md:text-2xl px-2  text-black font-semibold">Explore Our Digital Services</h2>
-          <p className="text-white px-2 py-2">Choose from a wide range of professional services tailored to your needs</p>
+          <h2 className="text-2xl md:text-2xl px-2 text-black font-semibold">Explore Our Digital Services</h2>
+          <p className="text-transparent px-2 py-2">Choose from a wide range of professional services tailored to your needs</p>
 
           <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6 px-2 auto-rows-fr">
             {categories.map((category) => (
@@ -417,8 +416,8 @@ const ModernMarketplace = ({ initialFeaturedPackages = [] }) => {
               >
                 <div
                   className={`${category.bgColor} h-full rounded-2xl p-6 
-  transition-all duration-300 cursor-pointer group 
-  border border-gray-400 flex items-center justify-center`}
+                    transition-all duration-300 cursor-pointer group 
+                    border border-gray-400 flex items-center justify-center`}
                 >
                   <div className="flex items-center justify-center gap-2 text-center">
                     <span className="text-sm sm:text-lg text-black group-hover:underline">
@@ -426,9 +425,6 @@ const ModernMarketplace = ({ initialFeaturedPackages = [] }) => {
                     </span>
                     <ChevronRight className="text-gray-900" size={12} />
                   </div>
-
-
-
                 </div>
               </Link>
             ))}
@@ -440,7 +436,6 @@ const ModernMarketplace = ({ initialFeaturedPackages = [] }) => {
     </>
   );
 }
-
 
 export default ModernMarketplace;
 
