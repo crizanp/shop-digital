@@ -390,7 +390,7 @@ const ModernMarketplace = ({ initialFeaturedPackages = [] }) => {
 
                   {/* Content Section */}
                   <div className="p-5 flex-1 flex flex-col justify-between">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-3 line-clamp-2 min-h-[3.5rem] hover:underline">
+                    <h3 className="text-lg text-black mb-3 line-clamp-2 min-h-[3.5rem] hover:underline">
                       {pkg.title}
                     </h3>
                     <div className="text-xl font-bold text-gray-800">
