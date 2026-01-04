@@ -10,6 +10,7 @@ import Link from 'next/link';
 import Footer from '@/components/Footer';
 import { truncateText } from '@/lib/seo-helpers';
 import { generateQuotationPDF } from '@/lib/pdf-generator';
+import { PackageDetailSkeleton } from '@/components/SkeletonLoader';
 
 const slugify = (s = '') =>
   s
@@ -257,7 +258,15 @@ export default function PackageDetail({ packageData, categories, relatedPackages
       <Navbar />
 
       <div className="min-h-screen bg-white pb-20 lg:pb-0">
-        {/* Get Quotation Button for Mobile */}
+        {!packageData ? (
+          <>
+            <div className="max-w-7xl mx-auto px-6 py-8">
+              <PackageDetailSkeleton />
+            </div>
+          </>
+        ) : (
+          <>
+            {/* Get Quotation Button for Mobile */}
         <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-30 shadow-lg">
           <div className="max-w-7xl mx-auto px-6 py-4">
             <button
@@ -560,7 +569,7 @@ export default function PackageDetail({ packageData, categories, relatedPackages
                 {relatedPackages.map((pkg) => (
                   <a
                     key={pkg._id}
-                    href={`/details/${pkg.slug || slugify(pkg.title)}`}
+                    href={`/package/${pkg.slug || slugify(pkg.title)}`}
                     className="group"
                   >
                     <div className="relative aspect-[4/3] bg-gray-100 rounded-lg overflow-hidden mb-3">
@@ -579,7 +588,7 @@ export default function PackageDetail({ packageData, categories, relatedPackages
                         <span className="text-sm text-gray-900">{pkg.rating || 5.0}</span>
                       </div>
                       <span className="text-sm font-medium text-gray-900">
-                        {pkg.price}
+                        ${pkg.price}
                       </span>
                     </div>
                   </a>
@@ -589,6 +598,8 @@ export default function PackageDetail({ packageData, categories, relatedPackages
           )}
         </div>
         <Footer />
+          </>
+        )}
       </div>
     </>
   );

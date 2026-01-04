@@ -6,6 +6,7 @@ import Navbar from '@/components/Navbar';
 import SEOHead from '@/components/SEOHead';
 import { useCurrency } from '../contexts/CurrencyContext';
 import Footer from '@/components/Footer';
+import { PackageCardSkeleton, CategoryCardSkeleton } from '@/components/SkeletonLoader';
 
 const ModernMarketplace = ({ initialFeaturedPackages = [] }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -303,44 +304,48 @@ const ModernMarketplace = ({ initialFeaturedPackages = [] }) => {
                 className="flex transition-transform duration-300 ease-in-out"
                 style={{ transform: `translateX(-${currentSlide * 100}%)` }}
               >
-                {featuredPackages.map((pkg, index) => (
-                  <div key={pkg._id || pkg.id} className="w-full flex-shrink-0 px-2">
-                    <Link href={getPackageLink(pkg)}>
-                      <div className={`${featuredCardColors[index % featuredCardColors.length]} rounded-xl overflow-hidden border border-gray-400 transition-all duration-300`}>
-                        {/* Image Section - Square */}
-                        <div className="relative w-full aspect-square bg-white/30 overflow-hidden">
-                          {pkg.images && pkg.images.length > 0 ? (
-                            <img
-                              src={pkg.images[0]}
-                              alt={pkg.title}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : pkg.image ? (
-                            <img
-                              src={pkg.image}
-                              alt={pkg.title}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center">
-                              <Package className="w-16 h-16 text-gray-400" />
-                            </div>
-                          )}
-                        </div>
+                {featuredPackages && featuredPackages.length > 0 ? (
+                  featuredPackages.map((pkg, index) => (
+                    <div key={pkg._id || pkg.id} className="w-full flex-shrink-0 px-2">
+                      <Link href={getPackageLink(pkg)}>
+                        <div className={`${featuredCardColors[index % featuredCardColors.length]} rounded-xl overflow-hidden border border-gray-400 transition-all duration-300`}>
+                          {/* Image Section - Square */}
+                          <div className="relative w-full aspect-square bg-white/30 overflow-hidden">
+                            {pkg.images && pkg.images.length > 0 ? (
+                              <img
+                                src={pkg.images[0]}
+                                alt={pkg.title}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : pkg.image ? (
+                              <img
+                                src={pkg.image}
+                                alt={pkg.title}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center">
+                                <Package className="w-16 h-16 text-gray-400" />
+                              </div>
+                            )}
+                          </div>
 
-                        {/* Content Section */}
-                        <div className="p-5">
-                          <h3 className="text-lg font-semibold text-gray-900 mb-3 line-clamp-2 min-h-[3.5rem]">
-                            {pkg.title}
-                          </h3>
-                          <div className="text-xl font-bold text-gray-800">
-                            {convertPrice(pkg.price)}
+                          {/* Content Section */}
+                          <div className="p-5">
+                            <h3 className="text-lg font-semibold text-gray-900 mb-3 line-clamp-2 min-h-[3.5rem]">
+                              {pkg.title}
+                            </h3>
+                            <div className="text-xl font-bold text-gray-800">
+                              {convertPrice(pkg.price)}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </Link>
-                  </div>
-                ))}
+                      </Link>
+                    </div>
+                  ))
+                ) : (
+                  <PackageCardSkeleton count={4} />
+                )}
               </div>
             </div>
 
@@ -364,42 +369,46 @@ const ModernMarketplace = ({ initialFeaturedPackages = [] }) => {
 
           {/* Desktop Grid */}
           <div className="hidden md:grid grid-cols-2 lg:grid-cols-4 gap-6 px-2">
-            {featuredPackages.map((pkg, index) => (
-              <Link key={pkg._id || pkg.id} href={getPackageLink(pkg)}>
-                <div className={`${featuredCardColors[index % featuredCardColors.length]} rounded-xl overflow-hidden border border-gray-400 transition-all duration-300 hover:scale-[1.02] h-full flex flex-col`}>
-                  {/* Image Section - Square */}
-                  <div className="relative w-full aspect-square bg-black/70 overflow-hidden">
-                    {pkg.images && pkg.images.length > 0 ? (
-                      <img
-                        src={pkg.images[0]}
-                        alt={pkg.title}
-                        className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
-                      />
-                    ) : pkg.image ? (
-                      <img
-                        src={pkg.image}
-                        alt={pkg.title}
-                        className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <Package className="w-20 h-20 text-gray-400" />
-                      </div>
-                    )}
-                  </div>
+            {featuredPackages && featuredPackages.length > 0 ? (
+              featuredPackages.map((pkg, index) => (
+                <Link key={pkg._id || pkg.id} href={getPackageLink(pkg)}>
+                  <div className={`${featuredCardColors[index % featuredCardColors.length]} rounded-xl overflow-hidden border border-gray-400 transition-all duration-300 hover:scale-[1.02] h-full flex flex-col`}>
+                    {/* Image Section - Square */}
+                    <div className="relative w-full aspect-square bg-black/70 overflow-hidden">
+                      {pkg.images && pkg.images.length > 0 ? (
+                        <img
+                          src={pkg.images[0]}
+                          alt={pkg.title}
+                          className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+                        />
+                      ) : pkg.image ? (
+                        <img
+                          src={pkg.image}
+                          alt={pkg.title}
+                          className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <Package className="w-20 h-20 text-gray-400" />
+                        </div>
+                      )}
+                    </div>
 
-                  {/* Content Section */}
-                  <div className="p-5 flex-1 flex flex-col justify-between">
-                    <h3 className="text-lg text-black mb-3 line-clamp-2 min-h-[3.5rem] hover:underline">
-                      {pkg.title}
-                    </h3>
-                    <div className="text-xl font-bold text-gray-800">
-                      {convertPrice(pkg.price)}
+                    {/* Content Section */}
+                    <div className="p-5 flex-1 flex flex-col justify-between">
+                      <h3 className="text-lg text-black mb-3 line-clamp-2 min-h-[3.5rem] hover:underline">
+                        {pkg.title}
+                      </h3>
+                      <div className="text-xl font-bold text-gray-800">
+                        {convertPrice(pkg.price)}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              ))
+            ) : (
+              <PackageCardSkeleton count={4} />
+            )}
           </div>
         </section>
 
@@ -409,25 +418,29 @@ const ModernMarketplace = ({ initialFeaturedPackages = [] }) => {
           <p className="text-transparent px-2 py-2">Choose from a wide range of professional services tailored to your needs</p>
 
           <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6 px-2 auto-rows-fr">
-            {categories.map((category) => (
-              <Link
-                href={category.slug === 'wordpress-plugins' ? `/plugins` : `/category/${category.slug}`}
-                key={category.id}
-              >
-                <div
-                  className={`${category.bgColor} h-full rounded-2xl p-6 
-                    transition-all duration-300 cursor-pointer group 
-                    border border-gray-400 flex items-center justify-center`}
+            {categories && categories.length > 0 ? (
+              categories.map((category) => (
+                <Link
+                  href={category.slug === 'wordpress-plugins' ? `/plugins` : `/category/${category.slug}`}
+                  key={category.id}
                 >
-                  <div className="flex items-center justify-center gap-2 text-center">
-                    <span className="text-sm sm:text-lg text-black group-hover:underline">
-                      {category.name}
-                    </span>
-                    <ChevronRight className="text-gray-900" size={12} />
+                  <div
+                    className={`${category.bgColor} h-full rounded-2xl p-6 
+                      transition-all duration-300 cursor-pointer group 
+                      border border-gray-400 flex items-center justify-center`}
+                  >
+                    <div className="flex items-center justify-center gap-2 text-center">
+                      <span className="text-sm sm:text-lg text-black group-hover:underline">
+                        {category.name}
+                      </span>
+                      <ChevronRight className="text-gray-900" size={12} />
+                    </div>
                   </div>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              ))
+            ) : (
+              <CategoryCardSkeleton count={9} />
+            )}
           </div>
         </section>
 

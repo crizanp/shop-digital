@@ -167,6 +167,20 @@ input:focus, textarea:focus, select:focus {
   }
 }
 
+/* Shimmer animation for skeleton loaders */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}
+
 /* Ensure package starting price is always white (overrides any global color forcing) */
 .package-detail .starting-price,
 .package-detail .starting-price * {

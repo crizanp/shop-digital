@@ -7,6 +7,7 @@ import { useCurrency } from '@/contexts/CurrencyContext';
 import Link from 'next/link';
 import Footer from '@/components/Footer';
 import { truncateText } from '@/lib/seo-helpers';
+import { ProductListSkeleton } from '@/components/SkeletonLoader';
 
 export default function CategoryPage({ initialPackages, category, categories, initialPagination }) {
   const router = useRouter();
@@ -306,9 +307,7 @@ export default function CategoryPage({ initialPackages, category, categories, in
 
               {/* Products */}
               {loading ? (
-                <div className="text-center py-12">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-400 mx-auto"></div>
-                </div>
+                <ProductListSkeleton count={9} />
               ) : packages.length > 0 ? (
                 <>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
