@@ -368,6 +368,7 @@ const ModernMarketplace = ({ initialFeaturedPackages = [] }) => {
           {/* Desktop Grid */}
           <div className="hidden md:grid grid-cols-2 lg:grid-cols-4 gap-6 px-2">
             {featuredPackages.map((pkg) => (
+              <Link key={pkg.id} href={getPackageLink(pkg)}>
               <div
                 key={pkg.id}
                 className="cursor-pointer group bg-white overflow-hidden shadow-sm 
@@ -398,7 +399,7 @@ const ModernMarketplace = ({ initialFeaturedPackages = [] }) => {
                     </div>
                   </div>
                 </div>
-              </div>
+              </div> </Link>
             ))}
           </div>
         </section>
